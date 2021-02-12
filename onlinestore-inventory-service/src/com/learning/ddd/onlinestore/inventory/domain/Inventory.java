@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
-import com.learning.ddd.onlinestore.commons.domain.event.SampleDomainEventsPublisher;
+import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsPublisher;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemAddedToInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemRemovedFromInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemsAddedToInventoryEvent;
@@ -27,7 +27,7 @@ public class Inventory {
 
 	public Inventory() {
 		items = new ArrayList<>();
-		domainEventPublisher = new SampleDomainEventsPublisher();
+		domainEventPublisher = new DummyDomainEventsPublisher();
 	}
 	
 	public void setDomainEventPublisher(DomainEventsPublisher domainEventPublisher) {

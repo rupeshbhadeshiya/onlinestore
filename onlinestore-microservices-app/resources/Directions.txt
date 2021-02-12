@@ -4,8 +4,8 @@
 * First develop Pure Business, with hardcoded values, without any Infra
 ** So make it functional. Then keep it functional irrespective of whatever changes come up
 * Then make it Maven/Gradle based
-* Then make it web accessible, still with hardcoded values
 * Then add in-memory DB
+* Then make it web accessible, still with hardcoded values
 * Then add logs
 * Then add debugging support
 * Then make it Cloud-native (dynamic scaling)

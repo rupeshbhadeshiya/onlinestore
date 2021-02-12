@@ -1,13 +1,15 @@
 package com.learning.ddd.onlinestore.commons.domain.event;
 
-public class SampleDomainEventsPublisher implements DomainEventsPublisher {
+public class DummyDomainEventsPublisher implements DomainEventsPublisher {
 
 	private DomainEventService domainEventService;
 	
 	@Override
 	public void publishEvent(DomainEvent domainEvent) {
+		
 		domainEventService.publishEvent(domainEvent);
-		System.out.println("SampleDomainEventsPublisher: published event - " + domainEvent);
+		
+		System.out.println("DummyDomainEventsPublisher: published event - " + domainEvent);
 	}
 	
 	@Override

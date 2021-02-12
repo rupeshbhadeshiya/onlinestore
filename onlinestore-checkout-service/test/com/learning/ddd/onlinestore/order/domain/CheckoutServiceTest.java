@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventService;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventSubscriber;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
-import com.learning.ddd.onlinestore.commons.domain.event.SampleDomainEventsPublisher;
-import com.learning.ddd.onlinestore.commons.domain.event.SampleEventsSubscriber;
+import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsPublisher;
+import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsSubscriber;
 import com.learning.ddd.onlinestore.inventory.domain.Item;
 import com.learning.ddd.onlinestore.order.domain.service.CheckoutService;
 import com.learning.ddd.onlinestore.payment.domain.AddressType;
@@ -50,14 +50,14 @@ public class CheckoutServiceTest {
 		// setup Cart
 		cart = new ShoppingCart();
 		
-		domainEventSubscriber = new SampleEventsSubscriber();
+		domainEventSubscriber = new DummyDomainEventsSubscriber();
 		List<DomainEventSubscriber> domainEventSubscribers = new ArrayList<>();
 		domainEventSubscribers.add(domainEventSubscriber);
 		
 		domainEventService = new DomainEventService();
 		domainEventService.setDomainEventSubscribers(domainEventSubscribers);
 		
-		domainEventPublisher = new SampleDomainEventsPublisher();
+		domainEventPublisher = new DummyDomainEventsPublisher();
 		domainEventPublisher.setDomainEventService(domainEventService);
 		
 		cart.setDomainEventPublisher(domainEventPublisher);

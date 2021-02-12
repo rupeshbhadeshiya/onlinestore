@@ -17,8 +17,8 @@ import org.junit.runner.RunWith;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventService;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventSubscriber;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
-import com.learning.ddd.onlinestore.commons.domain.event.SampleDomainEventsPublisher;
-import com.learning.ddd.onlinestore.commons.domain.event.SampleEventsSubscriber;
+import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsPublisher;
+import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsSubscriber;
 
 //What an Inventory can have and should do?
 //1: Inventory contains lot of items, basically lot of Products
@@ -48,14 +48,14 @@ public class InventoryTest {
 		//setup
 		inventory = new Inventory();
 		
-		domainEventSubscriber = new SampleEventsSubscriber();
+		domainEventSubscriber = new DummyDomainEventsSubscriber();
 		List<DomainEventSubscriber> domainEventSubscribers = new ArrayList<>();
 		domainEventSubscribers.add(domainEventSubscriber);
 		
 		domainEventService = new DomainEventService();
 		domainEventService.setDomainEventSubscribers(domainEventSubscribers);
 		
-		domainEventPublisher = new SampleDomainEventsPublisher();
+		domainEventPublisher = new DummyDomainEventsPublisher();
 		domainEventPublisher.setDomainEventService(domainEventService);
 		
 		inventory.setDomainEventPublisher(domainEventPublisher);

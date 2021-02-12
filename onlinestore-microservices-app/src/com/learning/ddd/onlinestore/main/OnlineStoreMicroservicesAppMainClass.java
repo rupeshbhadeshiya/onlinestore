@@ -6,8 +6,8 @@ import java.util.List;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventService;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventSubscriber;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
-import com.learning.ddd.onlinestore.commons.domain.event.SampleDomainEventsPublisher;
-import com.learning.ddd.onlinestore.commons.domain.event.SampleEventsSubscriber;
+import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsPublisher;
+import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsSubscriber;
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
 import com.learning.ddd.onlinestore.inventory.domain.Item;
 import com.learning.ddd.onlinestore.order.domain.Order;
@@ -70,14 +70,14 @@ public class OnlineStoreMicroservicesAppMainClass {
 		inventory = new Inventory();
 		cart = new ShoppingCart();
 		
-		domainEventSubscriber = new SampleEventsSubscriber();
+		domainEventSubscriber = new DummyDomainEventsSubscriber();
 		List<DomainEventSubscriber> domainEventSubscribers = new ArrayList<>();
 		domainEventSubscribers.add(domainEventSubscriber);
 		
 		domainEventService = new DomainEventService();
 		domainEventService.setDomainEventSubscribers(domainEventSubscribers);
 		
-		domainEventPublisher = new SampleDomainEventsPublisher();
+		domainEventPublisher = new DummyDomainEventsPublisher();
 		domainEventPublisher.setDomainEventService(domainEventService);
 		
 		inventory.setDomainEventPublisher(domainEventPublisher);

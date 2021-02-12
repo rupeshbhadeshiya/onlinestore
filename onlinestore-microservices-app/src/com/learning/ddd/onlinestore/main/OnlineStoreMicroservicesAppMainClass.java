@@ -16,8 +16,7 @@ import com.learning.ddd.onlinestore.payment.domain.Address;
 import com.learning.ddd.onlinestore.payment.domain.AddressType;
 import com.learning.ddd.onlinestore.payment.domain.PaymentGateway;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
-import com.learning.ddd.onlinestore.payment.domain.TestAddressFactory;
-import com.learning.ddd.onlinestore.payment.domain.TestPaymentGateway;
+import com.learning.ddd.onlinestore.payment.domain.DummyPaymentGateway;
 import com.learning.ddd.onlinestore.shopping.domain.ShoppingCart;
 import com.learning.ddd.onlinestore.transaction.domain.TransactionReceipt;
 
@@ -85,10 +84,8 @@ public class OnlineStoreMicroservicesAppMainClass {
 		cart.setDomainEventPublisher(domainEventPublisher);
 		
 		checkoutService = new CheckoutService();
-		
-		PaymentGateway testPaymentGateway = new TestPaymentGateway();
-		
-		checkoutService.setPaymentGateway(testPaymentGateway);
+		PaymentGateway samplePaymentGateway = new DummyPaymentGateway();
+		checkoutService.setPaymentGateway(samplePaymentGateway);
 	}
 	
 	private void fillItemsInInventory() {
@@ -123,8 +120,17 @@ public class OnlineStoreMicroservicesAppMainClass {
 	private void checkout() {
 		
 		PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
-		Address billingAddress = TestAddressFactory.dummyAddress(AddressType.BILLING_ADDRESS);
-		Address shippingAddress = TestAddressFactory.dummyAddress(AddressType.SHIPPING_ADDRESS);
+		
+		Address billingAddress = new Address(
+				AddressType.BILLING_ADDRESS, 
+				"l1", "l2", "l3", "l4", 
+				"pincode", "state", "country"
+			);
+		Address shippingAddress = new Address(
+				AddressType.SHIPPING_ADDRESS, 
+				"l1", "l2", "l3", "l4", 
+				"pincode", "state", "country"
+			); 
 		
 		order = checkoutService.createOrder(cart, paymentMethod, billingAddress, shippingAddress);
 		System.out.println("~~~~~~~~~~> order: " + order);

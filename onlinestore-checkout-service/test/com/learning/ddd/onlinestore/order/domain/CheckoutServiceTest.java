@@ -18,9 +18,9 @@ import com.learning.ddd.onlinestore.commons.domain.event.SampleEventsSubscriber;
 import com.learning.ddd.onlinestore.inventory.domain.Item;
 import com.learning.ddd.onlinestore.order.domain.service.CheckoutService;
 import com.learning.ddd.onlinestore.payment.domain.AddressType;
+import com.learning.ddd.onlinestore.payment.domain.DummyAddressFactory;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
-import com.learning.ddd.onlinestore.payment.domain.TestAddressFactory;
-import com.learning.ddd.onlinestore.payment.domain.TestPaymentGateway;
+import com.learning.ddd.onlinestore.payment.domain.DummyPaymentGateway;
 import com.learning.ddd.onlinestore.shopping.domain.ShoppingCart;
 import com.learning.ddd.onlinestore.transaction.domain.TransactionReceipt;
 import com.learning.ddd.onlinestore.transaction.domain.TransactionStatus;
@@ -45,7 +45,7 @@ public class CheckoutServiceTest {
 		
 		// setup CheckoutService with a Test PaymentGateway
 		checkoutService = new CheckoutService();
-		checkoutService.setPaymentGateway(new TestPaymentGateway());
+		checkoutService.setPaymentGateway(new DummyPaymentGateway());
 		
 		// setup Cart
 		cart = new ShoppingCart();
@@ -74,8 +74,8 @@ public class CheckoutServiceTest {
 		Order order = checkoutService.createOrder(
 			cart,
 			PaymentMethod.CREDIT_CARD,
-			TestAddressFactory.dummyAddress(AddressType.BILLING_ADDRESS),
-			TestAddressFactory.dummyAddress(AddressType.SHIPPING_ADDRESS)
+			DummyAddressFactory.dummyAddress(AddressType.BILLING_ADDRESS),
+			DummyAddressFactory.dummyAddress(AddressType.SHIPPING_ADDRESS)
 		);
 		
 		// verify
@@ -96,8 +96,8 @@ public class CheckoutServiceTest {
 		Order order = checkoutService.createOrder(
 			cart,
 			PaymentMethod.CREDIT_CARD,
-			TestAddressFactory.dummyAddress(AddressType.BILLING_ADDRESS),
-			TestAddressFactory.dummyAddress(AddressType.SHIPPING_ADDRESS)
+			DummyAddressFactory.dummyAddress(AddressType.BILLING_ADDRESS),
+			DummyAddressFactory.dummyAddress(AddressType.SHIPPING_ADDRESS)
 		);
 		
 		// execute

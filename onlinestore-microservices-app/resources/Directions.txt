@@ -1,0 +1,18 @@
+!(Always follow TDD, Keep app fully functional & testable at all time - from beginning to end)!
+!(Always follow 12-factors/DDD/microservices principles)!
+
+* First develop Pure Business, with hardcoded values, without any Infra
+** So make it functional. Then keep it functional irrespective of whatever changes come up
+* Then make it Maven/Gradle based
+* Then make it web accessible, still with hardcoded values
+* Then make it Cloud-native (dynamic scaling)
+* Then add logs
+* Then add debugging support
+* Then add in-memory DB
+* Then add actual DB (relational or no-sql)
+* Then add Messaging system
+* Then add Cache
+* Then add Security
+* Then add API Documentation support
+* Then Load Test
+* Then Debug

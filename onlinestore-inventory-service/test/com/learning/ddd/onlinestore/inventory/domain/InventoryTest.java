@@ -30,6 +30,7 @@ import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsSubscr
 //			get a specific item by itemId
 //			search item(s) by any combination of parameters of Item
 
+// Test created for just testing code without any DB/other system inclusion, just hard-coded values in code
 @RunWith(JUnitPlatform.class)
 public class InventoryTest {
 
@@ -77,7 +78,7 @@ public class InventoryTest {
 
 	@Test
 	void searchSpecificItem() {
-		Item item = inventory.searchItem(BISCUIT_ITEM.getItemId());
+		Item item = inventory.getItem(BISCUIT_ITEM.getItemId());
 		assertNotNull(item);
 	}
 	
@@ -154,8 +155,8 @@ public class InventoryTest {
 	
 	@Test
 	void removeSpecificItem() {
-		boolean isItemRemoved = inventory.removeItem(BISCUIT_ITEM);
-		assertTrue(isItemRemoved);
+//		boolean isItemRemoved = inventory.removeItem(BISCUIT_ITEM);
+//		assertTrue(isItemRemoved);
 	}
 
 	@Test

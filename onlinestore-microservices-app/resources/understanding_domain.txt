@@ -79,7 +79,6 @@ Consumer may cancel latest/recent Order... order.cancel()
 Consumer may post Review and Ratings... item.getProduct().postReviewAndRatings()
 ......................................  
 
-
 ......................................(08/Feb/2021)
 Let us try to find out which teams in a Mart can work independently...
 1 Inventory team used to keep placing items in Racks at time-to-time
@@ -114,6 +113,19 @@ we can add more such meaningful microservices:
 
 an item moves from: Inventory -> Cart -> Shipment (+ Order/Bill)
 
+so, Inventory table contains Items
+and, Cart table also contains Items
+
+so should an Inventory or a Cart say I have Items, or, should an Item say I am part of an Inventory or part of a Cart?
+difference is: Inventory/Cart says then they, in spite of being different tables, will have same Items data, Means any time 
+  doing auditing/reporting of all Items, you have to look into two tables
+ whereas, an Item saying whose part it is, will let you have a single table Item where each Item would say where it belongs to,
+  so for Item-wide search you just look into one table
+ Even from data normalization perspective, two tables should not have same data
+ However an Item can be present in Inventory as well as in some Cart, moreover Inventory is company level and Cart is user level
+ so it then makes perfect sense to have two tables Inventory and Cart and both containing Items, its okay...
+ 
+
 ......................................
 [InventoryService]
 
@@ -139,7 +151,7 @@ With whom interacts?
 
 ......................................
 
-What should CheckoutService (or OrderService) do?_______
+What should OrderService (or CheckoutService) do?_______
 * drop everything from Cart onto Counter to make an Order
 * get all supported PaymentMethods
 * record User selected PaymentMethod
@@ -177,9 +189,21 @@ What should ConsumerInteractionService do?_______
 
 ......................................
 
+......................................(15/Feb/2021)
 
+//~Overall~
+// Mart has an Inventory (Storage space)
+// Mart team adds Items / Products to the Inventory
+// Mart team arranges some Items in Shopping Racks
+// Consumer enters Mart and pulls a Cart
+// Consumer shops Items from Shopping Racks to the Cart
+// Consumer visits a Checkout counter
+// Consumer hands over Items from the Cart to Checkout team
+// Checkout team collects few details from Consumer: Payment Method, Billing Address, Shipping Address, Contact No/Email/Name
+// Checkout team manages payment
+// Checkout team hands over Payment Receipt and Items to Consumer
+// Consumer exits Mart with Payment Receipt and Items
+//~End~
 
-
-
-
-
+How to design a Supermaket building -> https://biblus.accasoftware.com/en/how-to-design-a-supermarket-the-technical-guide/
+......................................

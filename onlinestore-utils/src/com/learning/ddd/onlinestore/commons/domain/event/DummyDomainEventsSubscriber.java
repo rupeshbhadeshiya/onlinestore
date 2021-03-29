@@ -1,5 +1,8 @@
 package com.learning.ddd.onlinestore.commons.domain.event;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class DummyDomainEventsSubscriber implements DomainEventSubscriber {
 
 	@Override

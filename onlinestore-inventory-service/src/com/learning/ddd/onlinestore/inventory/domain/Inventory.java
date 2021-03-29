@@ -1,15 +1,18 @@
 package com.learning.ddd.onlinestore.inventory.domain;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
 import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsPublisher;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemAddedToInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemRemovedFromInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemsAddedToInventoryEvent;
-import com.learning.ddd.onlinestore.inventory.domain.event.ItemsRemovedFromInventoryEvent;
+import com.learning.ddd.onlinestore.inventory.domain.repository.ItemRepository;
 
 //What an Inventory can have and should do?
 //1: Inventory contains lot of items, basically lot of Products
@@ -20,80 +23,126 @@ import com.learning.ddd.onlinestore.inventory.domain.event.ItemsRemovedFromInven
 //6: Mart team/Management may want to search some/many specific item/product)
 //			get a specific item by itemId
 //			search item(s) by any combination of parameters of Item
+@Component
 public class Inventory {
 
-	private List<Item> items;
+	//private List<Item> items;
+	@Autowired
 	private DomainEventsPublisher domainEventPublisher;
+	
+	@Autowired
+	private ItemRepository itemRepository;
 
 	public Inventory() {
-		items = new ArrayList<>();
 		domainEventPublisher = new DummyDomainEventsPublisher();
 	}
 	
+	public void setItemRepository(ItemRepository itemRepository) {
+		this.itemRepository = itemRepository;
+	}
 	public void setDomainEventPublisher(DomainEventsPublisher domainEventPublisher) {
 		this.domainEventPublisher = domainEventPublisher;
 	}
 	
-	public List<Item> getItems() {
-		return items;
-	}
-
-	public void addItem(Item item) {
-		items.add(item);	
+	public Item addItem(Item item) {
+		final Item persistedItem = itemRepository.save(item);
 		domainEventPublisher.publishEvent(new ItemAddedToInventoryEvent(item));
+		return persistedItem;
 	}
 	
 	public void addItems(List<Item> newItems) {
-		items.addAll(newItems);	
+		itemRepository.saveAll(newItems);
 		domainEventPublisher.publishEvent(new ItemsAddedToInventoryEvent(newItems));
 	}
 
-	public Item searchItem(final int itemId) {
-		return items.stream()
-				.filter(item -> item.getItemId() == itemId)
-				.findFirst()
-				.get();
+	public List<Item> getItems() {
+		return itemRepository.findAll();
+	}
+	
+	public Item getItem(final int itemId) {
+		
+		Optional<Item> itemFromDB = itemRepository.findById(itemId);
+		System.out.println("-------------> itemFromDB = " + itemFromDB);
+		return (itemFromDB!=null && itemFromDB.isPresent()) ? itemFromDB.get() : null;
 	}
 	
 	// return items that matches any of field value of exampleItem
 	// wild card search for String fields like category/subCategory/name
 	public List<Item> searchItems(Item exampleItem) {
 		
-		return items.stream()
-					.filter(item ->
-								item.getItemId()==exampleItem.getItemId() 
-								|| item.getCategory().equals(exampleItem.getCategory())
-								|| item.getSubCategory().equals(exampleItem.getSubCategory())
-								|| item.getName().equals(exampleItem.getName())
-								|| item.getPrice().equals(exampleItem.getPrice())
-								|| item.getQuantity()==exampleItem.getQuantity()
-							)
-					.collect(Collectors.toList());
-	}
-
-	public boolean removeItem(Item item) {
-		final boolean isItemRemoved = items.remove(item);
-		if (isItemRemoved) {
-			domainEventPublisher.publishEvent(new ItemRemovedFromInventoryEvent(item));
-		}
-		return isItemRemoved;
-	}
-
-	public void removeItems(Item exampleItem) {
-		
-		final boolean areItemsRemoved = 
-				items.removeIf(item ->
+		return getItems().stream()
+				.filter(item ->
 							item.getItemId()==exampleItem.getItemId() 
 							|| item.getCategory().equals(exampleItem.getCategory())
 							|| item.getSubCategory().equals(exampleItem.getSubCategory())
 							|| item.getName().equals(exampleItem.getName())
 							|| item.getPrice().equals(exampleItem.getPrice())
 							|| item.getQuantity()==exampleItem.getQuantity()
-						);
+						)
+				.collect(Collectors.toList());
 		
-		if (areItemsRemoved) {
-			domainEventPublisher.publishEvent(new ItemsRemovedFromInventoryEvent(exampleItem));
+		
+//		List<Item> searchedItems = new ArrayList<>();
+//		
+//		List<Item> items = itemRepository.findAll();
+//		for (Item item : items) {
+//			//System.out.println("\n\n~~~~~~searchItem(itemId): item.getItemId()="+item.getItemId()+ ", itemId="+itemId+ "\n");
+//			
+////			System.out.println("\n\n~~~~~~searchItems(exampleItem): item.getItemId()="+item.getItemId()+ ", exampleItem.getItemId()="+exampleItem.getItemId() + ", Outcome="+(item.getItemId() == exampleItem.getItemId()));
+////			System.out.println("~~~~~~searchItems(exampleItem): item.getCategory()="+item.getCategory()+ ", exampleItem.getCategory()="+exampleItem.getCategory() + ", Outcome="+(item.getCategory().equals(exampleItem.getCategory())));
+////			System.out.println("~~~~~~searchItems(exampleItem): item.getSubCategory()="+item.getSubCategory()+ ", exampleItem.getSubCategory()="+exampleItem.getSubCategory() + ", Outcome="+(item.getSubCategory().equals(exampleItem.getSubCategory())));
+////			System.out.println("~~~~~~searchItems(exampleItem): item.getName()="+item.getName()+ ", exampleItem.getName()="+exampleItem.getName() + ", Outcome="+(item.getName().equals(exampleItem.getName())));
+////			System.out.println("~~~~~~searchItems(exampleItem): item.getPrice()="+item.getPrice()+ ", exampleItem.getPrice()="+exampleItem.getPrice() + ", Outcome="+(item.getPrice().equals(exampleItem.getPrice())));
+////			System.out.println("~~~~~~searchItems(exampleItem): item.getQuantity()="+item.getQuantity()+ ", exampleItem.getQuantity()="+exampleItem.getQuantity() + ", Outcome="+(item.getQuantity() == exampleItem.getQuantity())+ "\n");
+//			
+//			if ((item.getItemId() == exampleItem.getItemId()) 
+//					|| item.getCategory().equals(exampleItem.getCategory())
+//					|| item.getSubCategory().equals(exampleItem.getSubCategory())
+//					|| item.getName().equals(exampleItem.getName())
+//					|| item.getPrice().equals(exampleItem.getPrice())
+//					|| (item.getQuantity()==exampleItem.getQuantity())
+//				){
+//				
+//				searchedItems.add(item);
+//			}
+//		}
+//		
+//		return searchedItems;
+		
+	}
+
+	public void removeItem(Item item) {
+		itemRepository.delete(item);
+		domainEventPublisher.publishEvent(new ItemRemovedFromInventoryEvent(item));
+	}
+
+	public void removeItems(Item exampleItem) {
+		
+		itemRepository.deleteItems(
+				exampleItem.getItemId(), exampleItem.getCategory(), exampleItem.getSubCategory(),
+				exampleItem.getName(), exampleItem.getPrice(), exampleItem.getQuantity());
+		
+//		List<Item> items = getItems();
+//		boolean anyItemRemoved = 
+//				items.removeIf(item ->
+//					item.getItemId()==exampleItem.getItemId() 
+//					|| item.getCategory().equals(exampleItem.getCategory())
+//					|| item.getSubCategory().equals(exampleItem.getSubCategory())
+//					|| item.getName().equals(exampleItem.getName())
+//					|| item.getPrice().equals(exampleItem.getPrice())
+//					|| item.getQuantity()==exampleItem.getQuantity()
+//				);
+//		itemRepository.saveAll(items);		
+//		domainEventPublisher.publishEvent(new ItemsRemovedFromInventoryEvent(exampleItem));
+//		return anyItemRemoved;
+	}
+
+	public Integer getItemCount() {
+		int itemCount = 0;
+		for(Item item : getItems()) {
+			itemCount += item.getQuantity();
 		}
+		return itemCount;
 	}
 
 }

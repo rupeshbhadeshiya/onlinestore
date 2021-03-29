@@ -2,29 +2,29 @@ package com.learning.ddd.onlinestore.transaction.domain;
 
 import java.util.List;
 
-import com.learning.ddd.onlinestore.inventory.domain.Item;
+import com.learning.ddd.onlinestore.checkout.domain.OrderItem;
 
 public class ItemInfo {
 
-	private List<Item> items;
+	private List<OrderItem> items;
 	private int totalItems;
 	private double totalAmount;
 	
 	public ItemInfo() {
 	}
 
-	public ItemInfo(List<Item> items, int totalItems, double totalAmount) {
+	public ItemInfo(List<OrderItem> items, int totalItems, double totalAmount) {
 		super();
 		this.items = items;
 		this.totalItems = totalItems;
 		this.totalAmount = totalAmount;
 	}
 
-	public List<Item> getItems() {
+	public List<OrderItem> getItems() {
 		return items;
 	}
 
-	public void setItems(List<Item> items) {
+	public void setItems(List<OrderItem> items) {
 		this.items = items;
 	}
 

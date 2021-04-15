@@ -1,0 +1,209 @@
+Details by Domain Expert:
+"
+ A user logins to the Bookstore, views Books, scroll through the list, 
+ view details of some Books and adds few Books to a Shopping Cart. Before 
+ Payment, User review ShoppingCart content and may add new Items or remove 
+ existing ones. Then, User chooses to pay where he/she enters ShippingAddress
+ and BillingAddress and selects a PaymentMethod. User reviews Order details
+ and confirms Payment. On successful Payment, a success message is displayed
+ along with ShipmentTrackingNumber. User can track Shipment or status of the
+ Order using this ShipmentTrackingNumber. Use can cancel the Order until its
+ status becomes Shipped. On cancellation of an Order, the Payment is 
+ reversed within few days. (On receiving the Shipment (or bought Books) and
+ gone through them) User can post reviews and rate one or more Books. User 
+ can also share a Book to a friend through supported sharing options. If 
+ Payment was failed, a failure message is displayed along with next steps. 
+ User can retry Payment until 12 hours after which the Order will be marked
+ as Cancelled.
+"
+
+(New) Domain Objects:
+ ShoppingCart, Item, ShippingAddress, BillingAddress, PaymentMethod, Payment, Order, Shipment,
+ ShipmentTrackingNumber, Review, Ratings
+
+ Entities: ShoppingCart, Item, Payment, Order, Shipment
+ ValueObjects: ShippingAddress, BillingAddress, PaymentMethod, ShipmentTrackingNumber,Review, Ratings
+
+ Order = Information about (ShoppingCart + Payment + PaymentMethod + Shipping/Billing-Address 
+ + Delivery + Tracking + Review/Cancellation/Complaint etc)
+ 
+ Before Payment, its ShoppingCart (containing actual items)
+ After Payment, it becomes Order (containing mainly information)
+ Once Payment done, User can review Order history and can perform actions possible at that time
+
+(New) Domain Activities:
+ add books to ShoppingCart
+ remove books from ShoppingCart
+ increase/decrease book quantities to/from ShoppingCart
+ review ShoppingCart
+ enters Shipping/Billing-Address
+ selects a PaymentMethod
+ reviews Order
+ confirms Order (reviewing Payment, Address, Items)
+ views successful/failed Payment message
+ track Shipment through ShipmentTrackingNumber
+ cancel Order
+ post Review
+ give Ratings
+ share Book to a friend
+ 
+ShoppingCart functions:
+ add books to ShoppingCart - items are locked temporarily
+ remove books from ShoppingCart
+ increase/decrease book quantities to/from ShoppingCart
+ review ShoppingCart
+ 
+Functions which spans multiple Aggregates and hence should be part of a DomainService
+(say PurchaseService??):
+ enters Shipping/Billing-Address
+ selects a PaymentMethod
+ reviews all the details (Payment, Address, Items) - in an in-memory Order
+ confirms it - now it becomes an Order - items are moved from Inventory to Order/Shipment processing
+ views successful/failed Payment message - this also go in Order
+ track Shipment through ShipmentTrackingNumber - this also go in Order
+ cancel Order - Order get updated here, items released back to Inventory
+ 
+
+......................................(07/Feb/2021)
+Mart team adds Items in Inventory.... Inventory.addItems()... Item represents a product, item.getProduct()
+Consumer views Items... Inventory.getItems()
+Consumer shops items by adding them in ShoppingCart... ShoppingCart.addItems()
+Consumer visits Checkout counter where Mart team helps in payment processing...
+	Order order = CheckoutService.createOrder(shoppingCart), 
+	order.setPaymentMethod() or .setBillingAddress() or .setShippingAddress()
+Consumer confirms payment of Order... TransactionReceipt txnReceipt = CheckoutService.checkout(order)
+Mart Security team verifies PaymentReceipt and Items... Security.verify(txnReceipt, order) 
+Consumer looks up last X Orders... List<Order> lastXOrders = SearchOrdersService.search(criteria)
+Consumer views one of Order...
+Consumer may cancel latest/recent Order... order.cancel()
+Consumer may post Review and Ratings... item.getProduct().postReviewAndRatings()
+......................................  
+
+......................................(08/Feb/2021)
+Let us try to find out which teams in a Mart can work independently...
+1 Inventory team used to keep placing items in Racks at time-to-time
+2 Consumers shopping items from Racks and putting in their respective Carts
+3 Checkout team performing Payments as Consumers carrying their Cart visit them
+4 Security team checking Consumers exiting Mart
+
+1 Inventory team continue to arrange items whether Consumers or Checkout team or Security team is 
+  present or not, any change in Inventory/Rack does not disturb Shopping/Checkout/Security (independence)
+2 Consumers continue shopping irrespective of any change at Inventory or Checkout or Security
+3 Whether a POS terminal is being replaced or a Checkout counter is being closed or a new counter
+  is being opened, it does not disturb Consumer shopping/Inventory work or Security work
+4 Security keeps inspecting existing Consumers and not disturbing Inventory/Shopping/Checkout
+
+so these all activities can continue to happen independently, and their teams can continue 
+doing their work independently (can change/modify their part independently)... 
+
+...akin to the ability to keep developing/changing/maintaining every microservice independently 
+of each other, the way ms teams can function independently... above one aligns to this nicely...
+
+which means, we have 4 microservices:
+* InventoryService (maintain (add/update/remove/view) inventory)
+* ShoppingService  (shop items from inventory into a cart (add/remove/view items))
+* CheckoutService  (billing, payment, receipt)... we can even call it as OrderService?
+* SecurityService  (inspect/review before shipping)
+
+we can add more such meaningful microservices: 
+* ShippingService  (ship an order to a destination, manage (track, return lost/damaged) shipment)
+* ConsumerInteractionService (Consumer onboarding, loyalty, grievance)
+
+......................................
+
+an item moves from: Inventory -> Cart -> Shipment (+ Order/Bill)
+
+so, Inventory table contains Items
+and, Cart table also contains Items
+
+so should an Inventory or a Cart say I have Items, or, should an Item say I am part of an Inventory or part of a Cart?
+difference is: Inventory/Cart says then they, in spite of being different tables, will have same Items data, Means any time 
+  doing auditing/reporting of all Items, you have to look into two tables
+ whereas, an Item saying whose part it is, will let you have a single table Item where each Item would say where it belongs to,
+  so for Item-wide search you just look into one table
+ Even from data normalization perspective, two tables should not have same data
+ However an Item can be present in Inventory as well as in some Cart, moreover Inventory is company level and Cart is user level
+ so it then makes perfect sense to have two tables Inventory and Cart and both containing Items, its okay...
+ 
+
+......................................
+[InventoryService]
+
+What should InventoryService do?_______
+* add item(s) to Inventory - ItemAddedToInventoryEvent
+* remove item(s) from Inventory - ItemRemovedFromInventoryEvent
+* get all items from Inventory
+* search item(s) in Inventory
+
+......................................
+[ShoppingService]
+
+What should do? What events emit?
+* add item(s) to a Cart - ItemAddedToCartEvent
+* remove item(s) from a Cart - ItemRemovedFromInventoryEvent
+* increase item quantities in a Cart - ItemQuantityIncreasedInCartEvent
+* decrease item quantities in a Cart - ItemQuantityDecreasedInCartEvent
+* get all items in a Cart
+* empty a Cart - CartEmptiedEvent (CART_EMPTIED)
+
+With whom interacts?
+* ?
+
+......................................
+
+What should OrderService (or CheckoutService) do?_______
+* drop everything from Cart onto Counter to make an Order
+* get all supported PaymentMethods
+* record User selected PaymentMethod
+* get all ShippingAddresses
+* record User selected ShippingAddress
+* record User selected BillingAddress
+* Process Payment on User confirmation
+* Display Transaction outcome: Success (Receipt) / Failure (Message)
+* Display details in Success/Receipt, along with Delivery details
+
+......................................
+
+What should SecurityService do?_______
+?????
+
+......................................
+
+What should ShippingService (or DeliveryService?) do?_______
+* Generate a ShipmentId for every Shipment/Order
+* Facility to track a Shipment
+* Pick-up damaged Shipment
+* Assist in dealing with Lost Shipment
+* Search for Shipment based on parameters known to Consumer and Mart/Company 
+
+......................................
+
+What should ConsumerInteractionService do?_______
+* Onboard Consumer
+* Consumer can update profile and other details
+* Loyalty
+* Grievance/Complaint handling etc
+* Review/Ratings???
+* Feedback from Consumer
+* Sending notifications to Consumer (ex. new Product arrival, reply to some query, etc.) 
+
+......................................
+
+......................................(15/Feb/2021)
+
+//~Overall~
+// Mart has an Inventory (Storage space)
+// Mart team adds Items / Products to the Inventory
+// Mart team arranges some Items in Shopping Racks
+// Consumer enters Mart and pulls a Cart
+// Consumer shops Items from Shopping Racks to the Cart
+// Consumer visits a Checkout counter
+// Consumer hands over Items from the Cart to Checkout team
+// Checkout team collects few details from Consumer: Payment Method, Billing Address, Shipping Address, Contact No/Email/Name
+// Checkout team manages payment
+// Checkout team hands over Payment Receipt and Items to Consumer
+// Consumer exits Mart with Payment Receipt and Items
+//~End~
+
+How to design a Supermaket building -> https://biblus.accasoftware.com/en/how-to-design-a-supermarket-the-technical-guide/
+......................................

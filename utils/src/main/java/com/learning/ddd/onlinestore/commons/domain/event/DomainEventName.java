@@ -1,0 +1,19 @@
+package com.learning.ddd.onlinestore.commons.domain.event;
+
+public enum DomainEventName {
+	
+	// Inventory
+	ITEM_ADDED_TO_INVENTORY, 
+	ITEM_REMOVED_FROM_INVENTORY, 
+	ITEMS_ADDED_TO_INVENTORY, 
+	ITEMS_REMOVED_FROM_INVENTORY,
+	
+	// Shopping
+	CART_UPDATED,
+	CART_RELEASED,
+	ITEM_ADDED_TO_CART, 
+	ITEM_REMOVED_FROM_CART, 
+	ITEM_QUANTITY_INCREASED_IN_CART, 
+	ITEM_QUANTITY_DECREASED_IN_CART
+
+}

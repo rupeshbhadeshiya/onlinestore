@@ -1,0 +1,2 @@
+com/learning/ddd/onlinestore/domain_event_handler/KafkaBasedDomainEventsConsumer.class
+com/learning/ddd/onlinestore/domain_event_handler/DomainEventHandlerServiceBootApp.class

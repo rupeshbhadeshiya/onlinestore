@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
 import com.learning.ddd.onlinestore.shopping.domain.Cart;
 import com.learning.ddd.onlinestore.shopping.domain.Item;
-import com.learning.ddd.onlinestore.shopping.domain.event.CartDeletedEvent;
+import com.learning.ddd.onlinestore.shopping.domain.event.CartReleasedEvent;
 import com.learning.ddd.onlinestore.shopping.domain.event.CartUpdatedEvent;
 import com.learning.ddd.onlinestore.shopping.domain.event.ItemRemovedFromCartEvent;
 import com.learning.ddd.onlinestore.shopping.domain.repository.CartRepository;
@@ -57,9 +57,9 @@ public class CartService {
 //		System.out.println("\n~~~~~~~-> AFTER: cart.getItems())=" + cartRepository.findAll().get(0).getItems() + "\n");
 	}
 	
-	public void deleteCart(Cart cart) {
+	public void releaseCart(Cart cart) {
 		cartRepository.delete(cart);
-		domainEventPublisher.publishEvent(new CartDeletedEvent(cart));
+		domainEventPublisher.publishEvent(new CartReleasedEvent(cart));
 	}
 
 }

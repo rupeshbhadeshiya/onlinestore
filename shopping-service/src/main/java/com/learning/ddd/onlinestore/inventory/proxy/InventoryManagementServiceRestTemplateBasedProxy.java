@@ -1,6 +1,5 @@
 package com.learning.ddd.onlinestore.inventory.proxy;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +26,11 @@ public class InventoryManagementServiceRestTemplateBasedProxy {
         return new RestTemplate();
     }
 	
-	@GetMapping("/inventory-management/items")
+	@GetMapping("/inventory/items")
 	public List<Item> getItems() {
 		
 		List<Item> response = restTemplate.exchange(
-			"http://inventory-management-service/inventory-management/items", 
+			"http://inventory-management-service/inventory/items", 
 			HttpMethod.GET,
 			null,
 			new ParameterizedTypeReference<List<Item>>() {}
@@ -42,25 +41,25 @@ public class InventoryManagementServiceRestTemplateBasedProxy {
 		return response;
 	}
 	
-	@PostMapping("/inventory-management/items")
-	public void addItems(List<Item> items) {
+	@PostMapping("/inventory/items")
+	public List<Item> addItems(List<Item> items) {
 		
-//		MyRequest body = ...
-//		RequestEntity request = RequestEntity
-//		    .post(new URI("https://example.com/foo"))
-//		    .accept(MediaType.APPLICATION_JSON)
-//		    .body(body);
-//		ResponseEntity<MyResponse> response = template.exchange(request, MyResponse.class);
-				 
-
-		restTemplate.exchange(
-			"http://inventory-management-service/inventory-management/items", 
-			HttpMethod.GET,
+		List<Item> response = restTemplate.exchange(
+			"http://inventory-management-service/inventory/items", 
+			HttpMethod.POST,
 			null,
-			Void.class,
-			new HashMap<>()
-		);
+			new ParameterizedTypeReference<List<Item>>() {}
+		).getBody();
 		
+		return response;
+		
+//		ResponseEntity responseEntity = restTemplate.postForObject(
+//			"http://inventory-management-service/inventory/items", 
+//			items, 
+//			ResponseEntity.class, 
+//			new HashMap<>()
+//		);
+//		return (List<Item>) responseEntity.getBody();
 	}
 
 }

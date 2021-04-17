@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 
-import com.learning.ddd.onlinestore.inventory_management.domain.Item;
+import com.learning.ddd.onlinestore.inventory.domain.Item;
 import com.learning.ddd.onlinestore.shopping.domain.Cart;
 
 @Component

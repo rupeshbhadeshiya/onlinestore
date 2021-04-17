@@ -10,7 +10,7 @@ import com.learning.ddd.onlinestore.commons.domain.event.DomainEventSubscriber;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
 import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsPublisher;
 import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsSubscriber;
-import com.learning.ddd.onlinestore.inventory_management.domain.Inventory;
+import com.learning.ddd.onlinestore.inventory.domain.Inventory;
 import com.learning.ddd.onlinestore.payment.domain.DummyPaymentGateway;
 import com.learning.ddd.onlinestore.payment.domain.PaymentGateway;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
@@ -42,7 +42,7 @@ public class OnlineStoreMicroservicesAppMainClass {
 
 	private DomainEventsPublisher domainEventPublisher;
 	private DomainEventSubscriber domainEventSubscriber;
-	private DomainEventService domainEventService;
+//	private DomainEventService domainEventService;
 	
 	private Inventory inventory;
 	private Cart cart;
@@ -71,11 +71,11 @@ public class OnlineStoreMicroservicesAppMainClass {
 		List<DomainEventSubscriber> domainEventSubscribers = new ArrayList<>();
 		domainEventSubscribers.add(domainEventSubscriber);
 		
-		domainEventService = new DomainEventService();
-		domainEventService.setDomainEventSubscribers(domainEventSubscribers);
+//		domainEventService = new DomainEventService();
+//		domainEventService.setDomainEventSubscribers(domainEventSubscribers);
 		
 		domainEventPublisher = new DummyDomainEventsPublisher();
-		domainEventPublisher.setDomainEventService(domainEventService);
+//		domainEventPublisher.setDomainEventService(domainEventService);
 		
 		inventory.setDomainEventPublisher(domainEventPublisher);
 		//cart.setDomainEventPublisher(domainEventPublisher);

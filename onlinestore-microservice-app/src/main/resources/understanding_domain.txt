@@ -191,7 +191,7 @@ What should ConsumerInteractionService do?_______
 
 ......................................(15/Feb/2021)
 
-//~Overall~
+//~Overall (Flow)~
 // Mart has an Inventory (Storage space)
 // Mart team adds Items / Products to the Inventory
 // Mart team arranges some Items in Shopping Racks
@@ -207,3 +207,49 @@ What should ConsumerInteractionService do?_______
 
 How to design a Supermaket building -> https://biblus.accasoftware.com/en/how-to-design-a-supermarket-the-technical-guide/
 ......................................
+
+
+......................................(15/Apr/2021)
+
+//~Overall (Flow + Domain Events)~
+// Mart has an Inventory (Storage space)
+// Mart team adds Items / Products to the Inventory 
+	-> Event: Item(s) Added To Inventory
+// Mart team arranges some Items in Shopping Racks  
+// Consumer enters Mart and pulls a Cart 			
+	-> Event: Cart Pulled
+// Consumer shops Items from Shopping Racks to the Cart	
+	-> Event: Item(s) Shopped/Added To Cart
+// Consumer visits a Checkout counter
+// Consumer hands over Items from the Cart to Checkout team 
+	-> Event: Cart Handed for Checkout (Cart Released)
+// Checkout team collects few details from Consumer: Payment Method, Billing Address, Shipping Address, Contact No/Email/Name
+	-> Event: Checkout Details Collected From Consumer
+// Checkout team manages payment					
+	-> Event: Payment Processed (Success/Failure)
+// Checkout team hands over Payment Receipt and Items to Consumer 
+	-> Event: Payment Receipt and Items Handed to Consumer
+// Consumer exits Mart with Payment Receipt and Items
+//~End~
+
+How to design a Supermaket building -> https://biblus.accasoftware.com/en/how-to-design-a-supermarket-the-technical-guide/
+......................................
+
+
+//~Overall (Flow - API)~
+// Mart has an Inventory (Storage space)
+// Mart team adds Items / Products to the Inventory
+	-> POST <inventory-service-URL>/inventory/items
+// Mart team arranges some Items in Shopping Racks
+// Consumer enters Mart and pulls a Cart
+// Consumer shops Items from Shopping Racks to the Cart
+	-> POST <shopping-service-URL>/shopping/carts
+// Consumer visits a Checkout counter
+// Consumer hands over Items from the Cart to Checkout team
+// Checkout team collects few details from Consumer: Payment Method, Billing Address, Shipping Address, Contact No/Email/Name
+	-> POST <checkout-service-URL>/checkout/orders
+// Checkout team manages payment
+	-> POST <payment-service-URL>/payments
+// Checkout team hands over Payment Receipt and Items to Consumer
+// Consumer exits Mart with Payment Receipt and Items
+//~End~

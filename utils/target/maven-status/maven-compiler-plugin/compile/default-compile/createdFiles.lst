@@ -1,0 +1,8 @@
+com/learning/ddd/onlinestore/commons/domain/event/DomainEventService.class
+com/learning/ddd/onlinestore/commons/domain/event/DummyDomainEventsSubscriber.class
+com/learning/ddd/onlinestore/commons/domain/event/DomainEventsPublisher.class
+com/learning/ddd/onlinestore/commons/domain/event/DomainEvent.class
+com/learning/ddd/onlinestore/test_service/TestServiceBootApp.class
+com/learning/ddd/onlinestore/commons/domain/event/DomainEventSubscriber.class
+com/learning/ddd/onlinestore/commons/domain/event/DomainEventName.class
+com/learning/ddd/onlinestore/commons/domain/event/DummyDomainEventsPublisher.class

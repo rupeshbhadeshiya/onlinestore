@@ -1,5 +1,6 @@
 package com.learning.ddd.onlinestore.checkout.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,9 @@ import javax.persistence.Table;
 //DDD: ValueObject for Order domain
 @Entity
 @Table(name = "ShoppingCart")
-public class Cart {
+public class Cart implements Serializable {
+
+	private static final long serialVersionUID = 5002465681787870927L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

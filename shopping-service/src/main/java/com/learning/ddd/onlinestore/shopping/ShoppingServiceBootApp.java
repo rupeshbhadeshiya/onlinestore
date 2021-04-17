@@ -11,6 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.learning.ddd.onlinestore.inventory.proxy.InventoryManagementServiceRestTemplateBasedProxy;
@@ -21,7 +22,7 @@ import com.learning.ddd.onlinestore.shopping.domain.service.CartService;
 @ComponentScan( {"com.learning.ddd.onlinestore"} )
 @SpringBootApplication//(scanBasePackages = "com.learning.ddd.onlinestore.*")
 @RestController
-//@RequestMapping("/shopping")
+@RequestMapping("/shopping")
 @EnableEurekaClient
 public class ShoppingServiceBootApp {//extends SpringBootServletInitializer {
 

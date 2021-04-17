@@ -17,7 +17,6 @@ public class DummyDomainEventsPublisher implements DomainEventsPublisher {
 		System.out.println("DummyDomainEventsPublisher: published event - " + domainEvent);
 	}
 	
-	@Override
 	public void setDomainEventService(DomainEventService domainEventService) {
 		this.domainEventService = domainEventService;
 	}

@@ -1,5 +1,7 @@
 package com.learning.ddd.onlinestore.checkout.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,7 +11,9 @@ import javax.persistence.ManyToOne;
 
 //DDD: ValueObject for Order domain
 @Entity
-public class OrderItem {
+public class OrderItem implements Serializable {
+
+	private static final long serialVersionUID = 4523534087165585966L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

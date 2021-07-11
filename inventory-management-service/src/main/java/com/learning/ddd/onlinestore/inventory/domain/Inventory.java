@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
-import com.learning.ddd.onlinestore.inventory.domain.Item;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemAddedToInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemRemovedFromInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemsAddedToInventoryEvent;
@@ -44,32 +43,32 @@ public class Inventory {
 		this.domainEventPublisher = domainEventPublisher;
 	}
 	
-	public Item addItem(Item item) {
-		final Item persistedItem = itemRepository.save(item);
+	public InventoryItem addItem(InventoryItem item) {
+		final InventoryItem persistedItem = itemRepository.save(item);
 		domainEventPublisher.publishEvent(new ItemAddedToInventoryEvent(item));
 		return persistedItem;
 	}
 	
-	public List<Item> addItems(List<Item> items) {
-		List<Item> persistedItems = itemRepository.saveAll(items);
+	public List<InventoryItem> addItems(List<InventoryItem> items) {
+		List<InventoryItem> persistedItems = itemRepository.saveAll(items);
 		domainEventPublisher.publishEvent(new ItemsAddedToInventoryEvent(persistedItems));
 		return persistedItems;
 	}
 
-	public List<Item> getItems() {
+	public List<InventoryItem> getItems() {
 		return itemRepository.findAll();
 	}
 	
-	public Item getItem(final int itemId) {
+	public InventoryItem getItem(final int itemId) {
 		
-		Optional<Item> itemFromDB = itemRepository.findById(itemId);
+		Optional<InventoryItem> itemFromDB = itemRepository.findById(itemId);
 		System.out.println("-------------> itemFromDB = " + itemFromDB);
 		return (itemFromDB!=null && itemFromDB.isPresent()) ? itemFromDB.get() : null;
 	}
 	
 	// return items that matches any of field value of exampleItem
 	// wild card search for String fields like category/subCategory/name
-	public List<Item> searchItems(Item exampleItem) {
+	public List<InventoryItem> searchItems(InventoryItem exampleItem) {
 		
 		return getItems().stream()
 				.filter(item ->
@@ -113,17 +112,17 @@ public class Inventory {
 	}
 	
 	public void removeItem(Integer itemId) {
-		Item item = getItem(itemId);
+		InventoryItem item = getItem(itemId);
 		itemRepository.deleteById(itemId);
 		domainEventPublisher.publishEvent(new ItemRemovedFromInventoryEvent(item));
 	}
 
-	public void removeItem(Item item) {
+	public void removeItem(InventoryItem item) {
 		itemRepository.delete(item);
 		domainEventPublisher.publishEvent(new ItemRemovedFromInventoryEvent(item));
 	}
 
-	public void removeItems(Item exampleItem) {
+	public void removeItems(InventoryItem exampleItem) {
 		
 		itemRepository.deleteItems(
 				exampleItem.getItemId(), exampleItem.getCategory(), exampleItem.getSubCategory(),
@@ -144,9 +143,9 @@ public class Inventory {
 //		return anyItemRemoved;
 	}
 
-	public Integer getItemCount() {
+	public int getItemCount() {
 		int itemCount = 0;
-		for(Item item : getItems()) {
+		for(InventoryItem item : getItems()) {
 			itemCount += item.getQuantity();
 		}
 		return itemCount;

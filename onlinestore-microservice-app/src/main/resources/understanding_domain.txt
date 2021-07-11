@@ -116,13 +116,15 @@ an item moves from: Inventory -> Cart -> Shipment (+ Order/Bill)
 so, Inventory table contains Items
 and, Cart table also contains Items
 
-so should an Inventory or a Cart say I have Items, or, should an Item say I am part of an Inventory or part of a Cart?
-difference is: Inventory/Cart says then they, in spite of being different tables, will have same Items data, Means any time 
-  doing auditing/reporting of all Items, you have to look into two tables
- whereas, an Item saying whose part it is, will let you have a single table Item where each Item would say where it belongs to,
-  so for Item-wide search you just look into one table
+so should an Inventory or a Cart say I have Items, or, should an Item say I am part of an Inventory or part of
+a Cart? difference is: Inventory/Cart says then they, in spite of being different tables, will have same Items
+data, Means any time doing auditing/reporting of all Items, you have to look into two tables
+ whereas, an Item saying whose part it is, will let you have a single table Item where each Item would say 
+where it belongs to,
+ so for Item-wide search you just look into one table
  Even from data normalization perspective, two tables should not have same data
- However an Item can be present in Inventory as well as in some Cart, moreover Inventory is company level and Cart is user level
+ However an Item can be present in Inventory as well as in some Cart, moreover Inventory is company level and 
+Cart is user level
  so it then makes perfect sense to have two tables Inventory and Cart and both containing Items, its okay...
  
 
@@ -140,7 +142,7 @@ What should InventoryService do?_______
 
 What should do? What events emit?
 * add item(s) to a Cart - ItemAddedToCartEvent
-* remove item(s) from a Cart - ItemRemovedFromInventoryEvent
+* remove item(s) from a Cart - ItemRemovedFromCartEvent
 * increase item quantities in a Cart - ItemQuantityIncreasedInCartEvent
 * decrease item quantities in a Cart - ItemQuantityDecreasedInCartEvent
 * get all items in a Cart
@@ -151,8 +153,8 @@ With whom interacts?
 
 ......................................
 
-What should OrderService (or CheckoutService) do?_______
-* drop everything from Cart onto Counter to make an Order
+What should CheckoutService (or OrderService) do?_______
+* drop everything from Cart onto Counter to make an Order - OrderCreatedEvent
 * get all supported PaymentMethods
 * record User selected PaymentMethod
 * get all ShippingAddresses
@@ -161,6 +163,9 @@ What should OrderService (or CheckoutService) do?_______
 * Process Payment on User confirmation
 * Display Transaction outcome: Success (Receipt) / Failure (Message)
 * Display details in Success/Receipt, along with Delivery details
+* get all orders belonging to a Consumer (for a specific time? - future)
+* order changes (e.g. removal of an item) - OrderUpdatedEvent
+* cancellation of an order - OrderCancelledEvent
 
 ......................................
 
@@ -169,17 +174,17 @@ What should SecurityService do?_______
 
 ......................................
 
-What should ShippingService (or DeliveryService?) do?_______
+What should ShippingService (or DeliveryService or ShipmentService) do?_______
 * Generate a ShipmentId for every Shipment/Order
 * Facility to track a Shipment
-* Pick-up damaged Shipment
+* Pick-up a damaged Shipment
 * Assist in dealing with Lost Shipment
 * Search for Shipment based on parameters known to Consumer and Mart/Company 
 
 ......................................
 
-What should ConsumerInteractionService do?_______
-* Onboard Consumer
+What should ConsumerInteractionService do/allow?_______
+* Onboard a Consumer
 * Consumer can update profile and other details
 * Loyalty
 * Grievance/Complaint handling etc
@@ -253,3 +258,10 @@ How to design a Supermaket building -> https://biblus.accasoftware.com/en/how-to
 // Checkout team hands over Payment Receipt and Items to Consumer
 // Consumer exits Mart with Payment Receipt and Items
 //~End~
+
+
+......................................(11/July/2021)
+
+Decided to name a service beginning with aggregate name, so renamed below services
+* shopping-service to cart-service
+* checkout-service to order-service

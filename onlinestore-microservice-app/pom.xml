@@ -84,16 +84,16 @@
       	
       	<dependency>
 	      	<groupId>com.learning.ddd.onlinestore</groupId>
-			<artifactId>shopping-service</artifactId>
+			<artifactId>cart-service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
       	</dependency>
       	
       	<dependency>
 	      	<groupId>com.learning.ddd.onlinestore</groupId>
-			<artifactId>checkout-service</artifactId>
+			<artifactId>order-service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
       	</dependency>
-		
+      	
 	</dependencies>
 	
 	<dependencyManagement>

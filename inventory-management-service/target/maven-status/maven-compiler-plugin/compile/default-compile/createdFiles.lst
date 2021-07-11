@@ -1,0 +1,8 @@
+com/learning/ddd/onlinestore/inventory/domain/event/ItemAddedToInventoryEvent.class
+com/learning/ddd/onlinestore/inventory/domain/event/ItemsRemovedFromInventoryEvent.class
+com/learning/ddd/onlinestore/inventory/domain/repository/ItemRepository.class
+com/learning/ddd/onlinestore/inventory/domain/event/KafkaBasedDomainEventsPublisher.class
+com/learning/ddd/onlinestore/inventory/domain/event/ItemRemovedFromInventoryEvent.class
+com/learning/ddd/onlinestore/inventory/InventoryServiceBootApp.class
+com/learning/ddd/onlinestore/inventory/domain/event/ItemsAddedToInventoryEvent.class
+com/learning/ddd/onlinestore/inventory/domain/Inventory.class

@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.learning.ddd.onlinestore.inventory.domain.Item;
+import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
 
 @Repository
-public interface ItemRepository extends JpaRepository<Item, Integer> {
+public interface ItemRepository extends JpaRepository<InventoryItem, Integer> {
 
 	@Modifying
 	@Query("delete from Item item where "

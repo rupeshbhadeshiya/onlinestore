@@ -4,17 +4,17 @@ import java.util.List;
 
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEvent;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventName;
-import com.learning.ddd.onlinestore.inventory.domain.Item;
+import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
 
 public class ItemsAddedToInventoryEvent implements DomainEvent {
 
-	private List<Item> items;
+	private List<InventoryItem> items;
 
-	public ItemsAddedToInventoryEvent(List<Item> items) {
+	public ItemsAddedToInventoryEvent(List<InventoryItem> items) {
 		this.items = items;
 	}
 	
-	public List<Item> getItems() {
+	public List<InventoryItem> getItems() {
 		return items;
 	}
 

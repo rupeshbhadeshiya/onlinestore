@@ -2,17 +2,17 @@ package com.learning.ddd.onlinestore.inventory.domain.event;
 
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEvent;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventName;
-import com.learning.ddd.onlinestore.inventory.domain.Item;
+import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
 
 public class ItemRemovedFromInventoryEvent implements DomainEvent {
 
-	private Item item;
+	private InventoryItem item;
 
-	public ItemRemovedFromInventoryEvent(Item item) {
+	public ItemRemovedFromInventoryEvent(InventoryItem item) {
 		this.item = item;
 	}
 	
-	public Item getItem() {
+	public InventoryItem getItem() {
 		return item;
 	}
 

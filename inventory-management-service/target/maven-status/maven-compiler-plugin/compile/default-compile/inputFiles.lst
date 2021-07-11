@@ -1,0 +1,9 @@
+/Users/rupesh/git/onlinestore5/onlinestore/inventory-management-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/event/ItemAddedToInventoryEvent.java
+/Users/rupesh/git/onlinestore5/onlinestore/inventory-management-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/Inventory.java
+/Users/rupesh/git/onlinestore5/onlinestore/inventory-management-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/event/ItemRemovedFromInventoryEvent.java
+/Users/rupesh/git/onlinestore5/onlinestore/inventory-management-service/src/main/java/com/learning/ddd/onlinestore/inventory/InventoryServiceBootApp.java
+/Users/rupesh/git/onlinestore5/onlinestore/inventory-management-service/src/main/java/com/learning/ddd/onlinestore/inventory/application/InventoryServiceController.java
+/Users/rupesh/git/onlinestore5/onlinestore/inventory-management-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/event/ItemsAddedToInventoryEvent.java
+/Users/rupesh/git/onlinestore5/onlinestore/inventory-management-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/event/ItemsRemovedFromInventoryEvent.java
+/Users/rupesh/git/onlinestore5/onlinestore/inventory-management-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/repository/ItemRepository.java
+/Users/rupesh/git/onlinestore5/onlinestore/inventory-management-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/event/KafkaBasedDomainEventsPublisher.java

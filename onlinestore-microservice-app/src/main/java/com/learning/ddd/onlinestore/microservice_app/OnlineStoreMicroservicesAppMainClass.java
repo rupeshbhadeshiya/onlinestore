@@ -2,20 +2,19 @@ package com.learning.ddd.onlinestore.microservice_app;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.learning.ddd.onlinestore.checkout.domain.Address;
-import com.learning.ddd.onlinestore.checkout.domain.AddressType;
-import com.learning.ddd.onlinestore.checkout.domain.Order;
-import com.learning.ddd.onlinestore.commons.domain.event.DomainEventService;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventSubscriber;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
 import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsPublisher;
 import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsSubscriber;
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
+import com.learning.ddd.onlinestore.order.domain.Address;
+import com.learning.ddd.onlinestore.order.domain.AddressType;
+import com.learning.ddd.onlinestore.order.domain.Order;
 import com.learning.ddd.onlinestore.payment.domain.DummyPaymentGateway;
 import com.learning.ddd.onlinestore.payment.domain.PaymentGateway;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
-import com.learning.ddd.onlinestore.shopping.domain.Cart;
-import com.learning.ddd.onlinestore.shopping.domain.Item;
+import com.learning.ddd.onlinestore.cart.domain.Cart;
+import com.learning.ddd.onlinestore.cart.domain.CartItem;
 
 // Mart team adds Items in Inventory.... Inventory.addItems()... Item represents a product, item.getProduct()
 // Consumer views Items... Inventory.getItems()
@@ -36,9 +35,9 @@ public class OnlineStoreMicroservicesAppMainClass {
 		new OnlineStoreMicroservicesAppMainClass().startApp();
 	}
 
-	final Item BISCUIT_ITEM = new Item(101, "Grocery", "Biscuit", "Parle-G", 10, 10.0);
-	final Item CHIVDA_ITEM = new Item(102, "Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
-	final Item BATHING_SOAP_ITEM = new Item(202, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
+	final CartItem BISCUIT_ITEM = new CartItem(101, "Grocery", "Biscuit", "Parle-G", 10, 10.0);
+	final CartItem CHIVDA_ITEM = new CartItem(102, "Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
+	final CartItem BATHING_SOAP_ITEM = new CartItem(202, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
 
 	private DomainEventsPublisher domainEventPublisher;
 	private DomainEventSubscriber domainEventSubscriber;

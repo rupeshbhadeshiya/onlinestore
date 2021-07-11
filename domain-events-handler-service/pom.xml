@@ -81,6 +81,13 @@
            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
       	</dependency> -->
       	
+      	<!-- if want to use Kafka via Spring -->
+      	<dependency>
+		  <groupId>org.springframework.kafka</groupId>
+		  <artifactId>spring-kafka</artifactId>
+		</dependency>
+      	
+      	<!-- if write Kafka code ourselves, independent of Spring -->
       	<dependency>
 		    <groupId>org.apache.kafka</groupId>
 		    <artifactId>kafka-clients</artifactId>

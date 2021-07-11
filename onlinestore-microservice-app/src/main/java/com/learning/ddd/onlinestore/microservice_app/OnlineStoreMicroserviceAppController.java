@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.learning.ddd.onlinestore.inventory.proxy.InventoryManagementServiceRestTemplateBasedProxy;
-import com.learning.ddd.onlinestore.shopping.domain.Cart;
-import com.learning.ddd.onlinestore.shopping.domain.Item;
-import com.learning.ddd.onlinestore.shopping.domain.service.CartService;
-import com.learning.ddd.onlinestore.shopping.proxy.ShoppingServiceRestTemplateBasedProxy;
+import com.learning.ddd.onlinestore.cart.domain.Cart;
+import com.learning.ddd.onlinestore.cart.domain.CartItem;
+import com.learning.ddd.onlinestore.cart.domain.service.CartService;
+import com.learning.ddd.onlinestore.cart.proxy.CartServiceRestTemplateBasedProxy;
+import com.learning.ddd.onlinestore.inventory.proxy.InventoryServiceRestTemplateBasedProxy;
 
 // Add Items to a Cart:
 //
-// URL: POST http://localhost:8100/shopping-service/cart/items
+// URL: POST http://localhost:8100/cart-service/cart/items
 // 
 // Request:
 // {
@@ -34,7 +34,7 @@ import com.learning.ddd.onlinestore.shopping.proxy.ShoppingServiceRestTemplateBa
 // }
 //
 
-// Get Items from a Cart:  GET http://localhost:8100/shopping-service/cart/items
+// Get Items from a Cart:  GET http://localhost:8100/cart-service/cart/items
 
 @RestController
 public class OnlineStoreMicroserviceAppController {
@@ -43,15 +43,14 @@ public class OnlineStoreMicroserviceAppController {
 	private CartService cartService;
 	
 	@Autowired
-	private InventoryManagementServiceRestTemplateBasedProxy inventoryServiceProxy;
-	
+	private InventoryServiceRestTemplateBasedProxy inventoryServiceProxy;
 	@Autowired
-	private ShoppingServiceRestTemplateBasedProxy shoppingServiceProxy;
+	private CartServiceRestTemplateBasedProxy shoppingServiceProxy;
 	
 	//-------- INVENTORY ----------------------
 	
 	@GetMapping("/onlinestore/inventory-management/items")
-	public List<Item> getInventoryItems() {
+	public List<CartItem> getInventoryItems() {
 		
 		return inventoryServiceProxy.getItems();
 	}
@@ -59,7 +58,7 @@ public class OnlineStoreMicroserviceAppController {
 	//-------- SHOPPING -----------------------
 	
 	@PostMapping("/onlinestore/shopping/carts")
-	public Cart addCart(@RequestBody List<Item> items) throws URISyntaxException {
+	public Cart addCart(@RequestBody List<CartItem> items) throws URISyntaxException {
 		
 		return shoppingServiceProxy.addCart();
 		

@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEvent;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
-import com.learning.ddd.onlinestore.inventory.domain.Item;
+import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
 
-@Primary
-@Component
+//@Primary
+//@Component
 public class KafkaBasedDomainEventsPublisher implements DomainEventsPublisher {
 
 	private static final String ONLINESTORE_INVENTORY_TOPIC = "onlinestore-inventory-events";
@@ -51,7 +51,7 @@ public class KafkaBasedDomainEventsPublisher implements DomainEventsPublisher {
 			
 			System.out.println("~~~~~~~~ KafkaBasedDomainEventsPublisher received event : " +  itemsAddedEvent);
 			
-			for (Item item : itemsAddedEvent.getItems()) {
+			for (InventoryItem item : itemsAddedEvent.getItems()) {
 				
 //				ProducerRecord<String, String> record = new ProducerRecord<>(
 //					ONLINESTORE_INVENTORY_TOPIC, 

@@ -9,5 +9,9 @@ public class CheckoutService {
 	public void setPaymentGateway(PaymentGateway paymentGateway) {
 		this.paymentGateway = paymentGateway;
 	}
+	
+	public PaymentGateway getPaymentGateway() {
+		return paymentGateway;
+	}
 
 }

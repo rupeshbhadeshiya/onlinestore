@@ -2,19 +2,15 @@ package com.learning.ddd.onlinestore.microservice_app;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.learning.ddd.onlinestore.cart.domain.Cart;
+import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventSubscriber;
 import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
 import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsPublisher;
 import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsSubscriber;
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
-import com.learning.ddd.onlinestore.order.domain.Address;
-import com.learning.ddd.onlinestore.order.domain.AddressType;
-import com.learning.ddd.onlinestore.order.domain.Order;
 import com.learning.ddd.onlinestore.payment.domain.DummyPaymentGateway;
 import com.learning.ddd.onlinestore.payment.domain.PaymentGateway;
-import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
-import com.learning.ddd.onlinestore.cart.domain.Cart;
-import com.learning.ddd.onlinestore.cart.domain.CartItem;
 
 // Mart team adds Items in Inventory.... Inventory.addItems()... Item represents a product, item.getProduct()
 // Consumer views Items... Inventory.getItems()
@@ -35,9 +31,9 @@ public class OnlineStoreMicroservicesAppMainClass {
 		new OnlineStoreMicroservicesAppMainClass().startApp();
 	}
 
-	final CartItem BISCUIT_ITEM = new CartItem(101, "Grocery", "Biscuit", "Parle-G", 10, 10.0);
-	final CartItem CHIVDA_ITEM = new CartItem(102, "Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
-	final CartItem BATHING_SOAP_ITEM = new CartItem(202, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
+	final CartItem BISCUIT_ITEM = new CartItem("Grocery", "Biscuit", "Parle-G", 10, 10.0);
+	final CartItem CHIVDA_ITEM = new CartItem("Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
+	final CartItem BATHING_SOAP_ITEM = new CartItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
 
 	private DomainEventsPublisher domainEventPublisher;
 	private DomainEventSubscriber domainEventSubscriber;
@@ -47,7 +43,7 @@ public class OnlineStoreMicroservicesAppMainClass {
 	private Cart cart;
 	
 	private CheckoutService checkoutService;
-	private Order order;
+//	private Order order;
 	
 	
 	private void startApp() {
@@ -115,18 +111,18 @@ public class OnlineStoreMicroservicesAppMainClass {
 	
 	private void checkout() {
 		
-		PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
-		
-		Address billingAddress = new Address(
-				AddressType.BILLING_ADDRESS, 
-				"l1", "l2", "l3", "l4", 
-				"pincode", "state", "country"
-			);
-		Address shippingAddress = new Address(
-				AddressType.SHIPPING_ADDRESS, 
-				"l1", "l2", "l3", "l4", 
-				"pincode", "state", "country"
-			); 
+//		PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
+//		
+//		Address billingAddress = new Address(
+//				AddressType.BILLING_ADDRESS, 
+//				"l1", "l2", "l3", "l4", 
+//				"pincode", "state", "country"
+//			);
+//		Address shippingAddress = new Address(
+//				AddressType.SHIPPING_ADDRESS, 
+//				"l1", "l2", "l3", "l4", 
+//				"pincode", "state", "country"
+//			); 
 		
 //		order = checkoutService.createOrder(cart, paymentMethod, billingAddress, shippingAddress);
 //		System.out.println("~~~~~~~~~~> order: " + order);

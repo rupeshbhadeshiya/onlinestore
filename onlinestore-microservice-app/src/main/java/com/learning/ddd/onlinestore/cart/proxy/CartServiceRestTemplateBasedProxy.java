@@ -50,7 +50,7 @@ public class CartServiceRestTemplateBasedProxy {
 		items.add(BATHING_SOAP_ITEM);
 		items.add(PENCIL_ITEM);
 		
-		RequestEntity request = RequestEntity
+		RequestEntity<List<InventoryItem>> request = RequestEntity
 		    .post(new URI("http://cart-service/carts"))
 		    .accept(MediaType.APPLICATION_JSON)
 		    .body(items);

@@ -19,7 +19,7 @@ import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsPublis
 import com.learning.ddd.onlinestore.commons.domain.event.DummyDomainEventsSubscriber;
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
-import com.learning.ddd.onlinestore.inventory.domain.repository.ItemRepository;
+import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryItemRepository;
 
 //What an Inventory can have and should do?
 //1: Inventory contains lot of items, basically lot of Products
@@ -43,7 +43,7 @@ public class InventoryTest {
 	private Inventory inventory;
 	
 	@Mock
-	private ItemRepository itemRepository;
+	private InventoryItemRepository itemRepository;
 	
 	@Mock
 	private DomainEventsPublisher domainEventPublisher;

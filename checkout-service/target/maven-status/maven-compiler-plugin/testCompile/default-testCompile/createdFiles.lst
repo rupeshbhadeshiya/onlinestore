@@ -1,3 +1,2 @@
-com/learning/ddd/onlinestore/payment/domain/DummyPaymentGateway.class
 com/learning/ddd/onlinestore/order/DummyAddressFactory.class
 com/learning/ddd/onlinestore/order/OrderServiceIntegrationTest.class

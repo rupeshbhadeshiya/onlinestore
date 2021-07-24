@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
-import com.learning.ddd.onlinestore.cart.domain.service.CartService;
 import com.learning.ddd.onlinestore.cart.proxy.CartServiceRestTemplateBasedProxy;
 import com.learning.ddd.onlinestore.inventory.proxy.InventoryServiceRestTemplateBasedProxy;
 
@@ -39,8 +38,8 @@ import com.learning.ddd.onlinestore.inventory.proxy.InventoryServiceRestTemplate
 @RestController
 public class OnlineStoreMicroserviceAppController {
 
-	@Autowired
-	private CartService cartService;
+//	@Autowired
+//	private CartService cartService;
 	
 	@Autowired
 	private InventoryServiceRestTemplateBasedProxy inventoryServiceProxy;

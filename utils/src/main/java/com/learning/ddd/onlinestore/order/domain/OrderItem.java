@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 //DDD: ValueObject for Order domain
 @Entity
 public class OrderItem implements Serializable {
@@ -24,13 +26,15 @@ public class OrderItem implements Serializable {
 	private int quantity;			// ex. 5
 	private Double price;			// ex. 30.0 INR (price of a single item)
 	
-	//@ManyToOne
-	//@JoinColumn(name="cartId", nullable=false)
-	//private Cart cart;				// Cart which contains this Item
-
-	@ManyToOne
+	@JsonIgnore
+	@ManyToOne(targetEntity = Order.class)
 	@JoinColumn(name="orderId", nullable=false)
 	private Order order;
+	
+	@JsonIgnore
+	@ManyToOne(targetEntity = OrderTransaction.class)		
+	@JoinColumn(name="transactionReceiptId", nullable=true)
+	private OrderTransaction transactionReceipt; //it can be null till txn happen
 	
 	
 	public OrderItem() {
@@ -111,14 +115,6 @@ public class OrderItem implements Serializable {
 		this.price = price;
 	}
 	
-//	public Cart getCart() {
-//		return cart;
-//	}
-//	
-//	public void setCart(Cart cart) {
-//		this.cart = cart;
-//	}
-	
 	public void setOrder(Order order) {
 		this.order = order;
 	}
@@ -127,12 +123,20 @@ public class OrderItem implements Serializable {
 		return order;
 	}
 	
+	public void setTransactionReceipt(OrderTransaction transactionReceipt) {
+		this.transactionReceipt = transactionReceipt;
+	}
+	
+	public OrderTransaction getTransactionReceipt() {
+		return transactionReceipt;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((category == null) ? 0 : category.hashCode());
-		result = prime * result + itemId;
+		//result = prime * result + itemId; //necessary fields except id field
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((price == null) ? 0 : price.hashCode());
 		result = prime * result + quantity;
@@ -154,8 +158,8 @@ public class OrderItem implements Serializable {
 				return false;
 		} else if (!category.equals(other.category))
 			return false;
-		if (itemId != other.itemId)
-			return false;
+		//if (itemId != other.itemId)	// compare fields which truly represent
+		//	return false;				// an OrderItem, itemId is not that field
 		if (name == null) {
 			if (other.name != null)
 				return false;
@@ -178,8 +182,10 @@ public class OrderItem implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "OrderItem [itemId=" + itemId + ", category=" + category + ", subCategory=" + subCategory 
-				+ ", name=" + name + ", quantity=" + quantity + ", price=" + price + "]";
+		return "OrderItem [itemId=" + itemId + ", category=" + category 
+				+ ", subCategory=" + subCategory + ", name=" + name 
+				+ ", quantity=" + quantity + ", price=" + price 
+				+ "]";
 	}
 	
 }

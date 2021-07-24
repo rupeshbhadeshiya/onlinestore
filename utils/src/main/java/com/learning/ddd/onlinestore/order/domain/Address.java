@@ -8,6 +8,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Address implements Serializable {
 
@@ -25,6 +27,7 @@ public class Address implements Serializable {
 	private String state;
 	private String country;
 	
+	@JsonIgnore
 	@OneToOne(mappedBy = "billingAddress")
 	private Order order;
 	
@@ -140,7 +143,7 @@ public class Address implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + addressId;
+		//result = prime * result + addressId; // necessary fields except id field
 		result = prime * result + ((country == null) ? 0 : country.hashCode());
 		result = prime * result + ((line1 == null) ? 0 : line1.hashCode());
 		result = prime * result + ((line2 == null) ? 0 : line2.hashCode());
@@ -162,8 +165,8 @@ public class Address implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Address other = (Address) obj;
-		if (addressId != other.addressId)
-			return false;
+		//if (addressId != other.addressId)	// compare fields which truly represent
+		//	return false;					// an Address, id is not that field
 		if (country == null) {
 			if (other.country != null)
 				return false;

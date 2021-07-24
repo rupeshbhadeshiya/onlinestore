@@ -155,17 +155,29 @@ With whom interacts?
 
 What should CheckoutService (or OrderService) do?_______
 * drop everything from Cart onto Counter to make an Order - OrderCreatedEvent
-* get all supported PaymentMethods
-* record User selected PaymentMethod
-* get all ShippingAddresses
-* record User selected ShippingAddress
-* record User selected BillingAddress
-* Process Payment on User confirmation
+	* get all supported PaymentMethods
+	* record User selected PaymentMethod
+	* get all ShippingAddresses
+	* record User selected ShippingAddress
+	* record User selected BillingAddress
+	* create order with these information
+	* Process Payment on User confirmation - create and process order
+	* outcome is a Order object having Transaction associated with it
+	* (so if this transaction fails, Consumer can retry
+	*  which will make it second transaction for the same order)
+	* so order:transaction should be 1:*
 * Display Transaction outcome: Success (Receipt) / Failure (Message)
 * Display details in Success/Receipt, along with Delivery details
 * get all orders belonging to a Consumer (for a specific time? - future)
 * order changes (e.g. removal of an item) - OrderUpdatedEvent
 * cancellation of an order - OrderCancelledEvent
+
+NEW Addition
+* Order Placed + associated date
+* Order Accepted + associated date
+* Order under processing
+* Order Shipped + associated date
+* Order Delivered + associated date
 
 ......................................
 

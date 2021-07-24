@@ -2,6 +2,8 @@ package com.learning.ddd.onlinestore.cart.domain.exception;
 
 public class ItemRemovalFromCartFailedException extends IndexOutOfBoundsException {
 
+	private static final long serialVersionUID = 2128414722189782451L;
+
 	private int itemId;
 	private int quantityToRemove;
 

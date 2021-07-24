@@ -1,19 +1,5 @@
 package com.learning.ddd.onlinestore.cart.application;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.learning.ddd.onlinestore.cart.domain.service.CartService;
-import com.learning.ddd.onlinestore.inventory.proxy.InventoryServiceRestTemplateBasedProxy;
-import com.learning.ddd.onlinestore.cart.domain.Cart;
-import com.learning.ddd.onlinestore.cart.domain.CartItem;
-
 // Add Items to a Cart:
 //
 // URL: POST http://localhost:8100/cart-service/cart/items

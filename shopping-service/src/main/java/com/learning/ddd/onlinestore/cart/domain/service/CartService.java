@@ -3,64 +3,81 @@ package com.learning.ddd.onlinestore.cart.domain.service;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.learning.ddd.onlinestore.cart.domain.event.CartReleasedEvent;
-import com.learning.ddd.onlinestore.cart.domain.event.CartUpdatedEvent;
-import com.learning.ddd.onlinestore.cart.domain.event.ItemRemovedFromCartEvent;
-import com.learning.ddd.onlinestore.cart.domain.repository.CartRepository;
-import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
+import com.learning.ddd.onlinestore.cart.PullCartDTO;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
+import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
+import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
+import com.learning.ddd.onlinestore.cart.domain.repository.CartRepository;
 
 @Service
 public class CartService {
 
 	@Autowired
 	private CartRepository cartRepository;
-	
-	@Autowired
-	private DomainEventsPublisher domainEventPublisher;
-	
-	
-	public Cart saveCart(Cart cart) {
-		cart = cartRepository.save(cart);
-		domainEventPublisher.publishEvent(new CartUpdatedEvent(cart));
-		return cart;
-	}
-	
-	public Cart getCart(int cartId) {
-		Optional<Cart> cartFromDB = cartRepository.findById(cartId);
-		return (cartFromDB != null && cartFromDB.isPresent()) ? cartFromDB.get() : null;
+
+	@Transactional
+	public Cart pullCartAndAddItems(String consumerId, PullCartDTO pullCartDTO) {
+		
+		Cart cart = new Cart();
+		
+		cart.setConsumerId(consumerId);
+		
+		cart.addItems(pullCartDTO.getItems());
+		
+		Cart savedCart = cartRepository.save(cart);
+		//System.out.println("~~~> cartId = "+savedCart.getId());
+		
+		return savedCart;
 	}
 
-	public List<Cart> getCarts(String consumerId) {
+	public List<Cart> getAllCarts(String consumerId) {
+		
 		return cartRepository.findByConsumerId(consumerId);
 	}
-	
-	// removal must happen at both sides, Cart as well as Item
-	public void removeItemFromCart(Cart cart, CartItem item) {
+
+	public Cart getCart(int cartId) {
 		
-//		System.out.println("\n~~~~~~~-> BEFORE: cart.getItems())=" + cartRepository.findAll().get(0).getItems() + "\n");
-		cart.removeItem(item);			// remove item from Cart domain object
-		cartRepository.save(cart);		// update Cart with item removed
-		domainEventPublisher.publishEvent(new ItemRemovedFromCartEvent(cart, item));
-//		System.out.println("\n~~~~~~~-> AFTER: cart.getItems())=" + cartRepository.findAll().get(0).getItems() + "\n");
-		
-//		item.setCart(null);
-//		cart.getItems().remove(item);
-//		cartRepository.save(cart);		// update Cart that item is removed
-//		
-//		System.out.println("\n~~~~~~~-> BEFORE: cart.getItems())=" + cartRepository.findAll().get(0).getItems() + "\n");
-//		//item.setCart(null);
-//		itemRepository.delete(item);	// remove item
-//		System.out.println("\n~~~~~~~-> AFTER: cart.getItems())=" + cartRepository.findAll().get(0).getItems() + "\n");
+		Optional<Cart> cartInDatabase = cartRepository.findById(cartId);
+		return cartInDatabase.isPresent() ? cartInDatabase.get() : null;
 	}
 	
-	public void releaseCart(Cart cart) {
+	@Transactional
+	public void removeItems(int cartId, List<CartItem> itemsToRemove) 
+			throws CartNotFoundException, CartItemNotFoundException {
+		
+		Optional<Cart> cartInDatabase = cartRepository.findById(cartId);
+		Cart cart = cartInDatabase.isPresent() ? cartInDatabase.get() : null;
+		
+		if (cart == null) {
+			throw new CartNotFoundException(cartId);
+		}
+		
+		for (CartItem cartItemToRemove : itemsToRemove) {
+			cart.removeItem(cartItemToRemove);
+		}
+		
+		cartRepository.save(cart);
+		
+//		Cart updatedCart = cartRepository.save(cart);
+//		return updatedCart;
+	}
+	
+	@Transactional
+	public void releaseCartAndRemoveItems(Integer cartId) {
+		
+		cartRepository.deleteById(cartId);
+	}
+	
+	@Transactional
+	public void releaseCartAndRemoveItems(Cart cart) {
+
 		cartRepository.delete(cart);
-		domainEventPublisher.publishEvent(new CartReleasedEvent(cart));
 	}
 
 }

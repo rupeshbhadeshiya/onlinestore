@@ -1,6 +1,6 @@
 com/learning/ddd/onlinestore/order/domain/repository/OrderItemRepository.class
 com/learning/ddd/onlinestore/order/domain/repository/OrderRepository.class
+com/learning/ddd/onlinestore/payment/domain/repository/OrderTransactionRepository.class
 com/learning/ddd/onlinestore/order/domain/service/OrderService.class
-com/learning/ddd/onlinestore/payment/domain/PaymentGateway.class
 com/learning/ddd/onlinestore/order/OrderServiceBootApp.class
 com/learning/ddd/onlinestore/order/domain/event/OrderCreatedEvent.class

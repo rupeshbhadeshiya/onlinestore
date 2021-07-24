@@ -11,7 +11,7 @@ import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemAddedToInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemRemovedFromInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemsAddedToInventoryEvent;
-import com.learning.ddd.onlinestore.inventory.domain.repository.ItemRepository;
+import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryItemRepository;
 
 //What an Inventory can have and should do?
 //1: Inventory contains lot of items, basically lot of Products
@@ -30,13 +30,15 @@ public class Inventory {
 	private DomainEventsPublisher domainEventPublisher;
 	
 	@Autowired
-	private ItemRepository itemRepository;
+	private InventoryItemRepository itemRepository;
+
 
 	public Inventory() {
 		//domainEventPublisher = new DummyDomainEventsPublisher();
 	}
 	
-	public void setItemRepository(ItemRepository itemRepository) {
+	
+	public void setItemRepository(InventoryItemRepository itemRepository) {
 		this.itemRepository = itemRepository;
 	}
 	public void setDomainEventPublisher(DomainEventsPublisher domainEventPublisher) {
@@ -44,14 +46,20 @@ public class Inventory {
 	}
 	
 	public InventoryItem addItem(InventoryItem item) {
+		
 		final InventoryItem persistedItem = itemRepository.save(item);
+		
 		domainEventPublisher.publishEvent(new ItemAddedToInventoryEvent(item));
+		
 		return persistedItem;
 	}
 	
 	public List<InventoryItem> addItems(List<InventoryItem> items) {
+		
 		List<InventoryItem> persistedItems = itemRepository.saveAll(items);
+		
 		domainEventPublisher.publishEvent(new ItemsAddedToInventoryEvent(persistedItems));
+		
 		return persistedItems;
 	}
 
@@ -62,8 +70,9 @@ public class Inventory {
 	public InventoryItem getItem(final int itemId) {
 		
 		Optional<InventoryItem> itemFromDB = itemRepository.findById(itemId);
-		System.out.println("-------------> itemFromDB = " + itemFromDB);
-		return (itemFromDB!=null && itemFromDB.isPresent()) ? itemFromDB.get() : null;
+		//System.out.println("-------------> itemFromDB = " + itemFromDB);
+		
+		return ((itemFromDB != null) && itemFromDB.isPresent()) ? itemFromDB.get() : null;
 	}
 	
 	// return items that matches any of field value of exampleItem
@@ -112,13 +121,19 @@ public class Inventory {
 	}
 	
 	public void removeItem(Integer itemId) {
+		
 		InventoryItem item = getItem(itemId);
+		
 		itemRepository.deleteById(itemId);
+		
 		domainEventPublisher.publishEvent(new ItemRemovedFromInventoryEvent(item));
 	}
 
+	//@Transactional
 	public void removeItem(InventoryItem item) {
+		
 		itemRepository.delete(item);
+		
 		domainEventPublisher.publishEvent(new ItemRemovedFromInventoryEvent(item));
 	}
 
@@ -143,12 +158,10 @@ public class Inventory {
 //		return anyItemRemoved;
 	}
 
-	public int getItemCount() {
-		int itemCount = 0;
-		for(InventoryItem item : getItems()) {
-			itemCount += item.getQuantity();
-		}
-		return itemCount;
+	public int getItemsQuantitiesTotal() {
+		
+		Integer allItemsQuantitiesTotal = itemRepository.calculateAllItemsQuantitiesTotal();
+		return allItemsQuantitiesTotal != null ? allItemsQuantitiesTotal : 0;
 	}
 
 }

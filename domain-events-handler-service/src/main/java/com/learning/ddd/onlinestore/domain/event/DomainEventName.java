@@ -1,0 +1,24 @@
+package com.learning.ddd.onlinestore.domain.event;
+
+public enum DomainEventName {
+	
+	// Inventory
+	ITEM_ADDED_TO_INVENTORY, 
+	ITEM_REMOVED_FROM_INVENTORY, 
+	ITEMS_ADDED_TO_INVENTORY, 
+	ITEMS_REMOVED_FROM_INVENTORY,
+	
+	// Cart (Shopping)
+	CART_PULLED,
+	CART_UPDATED,
+	CART_EMPTIED,
+	ITEM_ADDED_TO_CART, 
+	ITEM_REMOVED_FROM_CART, 
+	ITEM_QUANTITY_INCREASED_IN_CART, 
+	ITEM_QUANTITY_DECREASED_IN_CART, 
+	
+	// Order (Checkout)
+	ORDER_CREATED, 
+	ORDER_CANCELLED
+
+}

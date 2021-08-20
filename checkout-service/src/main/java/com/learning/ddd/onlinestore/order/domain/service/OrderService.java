@@ -1,6 +1,9 @@
 package com.learning.ddd.onlinestore.order.domain.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -10,11 +13,14 @@ import org.springframework.stereotype.Service;
 
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
-import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
+import com.learning.ddd.onlinestore.commons.util.ItemConversionUtil;
+import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventPublisher;
+import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersRequestDTO;
 import com.learning.ddd.onlinestore.order.domain.Address;
 import com.learning.ddd.onlinestore.order.domain.Order;
 import com.learning.ddd.onlinestore.order.domain.OrderItem;
 import com.learning.ddd.onlinestore.order.domain.OrderTransaction;
+import com.learning.ddd.onlinestore.order.domain.event.OrderCancelledEvent;
 import com.learning.ddd.onlinestore.order.domain.event.OrderCreatedEvent;
 import com.learning.ddd.onlinestore.order.domain.repository.OrderRepository;
 import com.learning.ddd.onlinestore.payment.domain.PaymentGateway;
@@ -26,14 +32,11 @@ public class OrderService {
 	@Autowired
 	private OrderRepository orderRepository;
 	
-	//@Autowired
-	//private TransactionRepository transactionRepository;
-	
 	@Autowired
 	private PaymentGateway paymentGateway;
 
 	@Autowired
-	private DomainEventsPublisher domainEventsPublisher;
+	private DomainEventPublisher domainEventPublisher;
 	
 
 	@Transactional
@@ -66,7 +69,7 @@ public class OrderService {
 		
 		order = orderRepository.save(order);
 		
-		domainEventsPublisher.publishEvent(new OrderCreatedEvent(order));
+		domainEventPublisher.publishEvent(new OrderCreatedEvent(cart, order));
 		
 		return order;
 	}
@@ -76,13 +79,7 @@ public class OrderService {
 		
 		List<OrderItem> orderItems = new ArrayList<OrderItem>();
 		for (CartItem cartItem : cart.getItems()) {
-			OrderItem orderItem = new OrderItem(
-				cartItem.getCategory(), 
-				cartItem.getSubCategory(), 
-				cartItem.getName(), 
-				cartItem.getQuantity(), 
-				cartItem.getPrice()
-			);
+			OrderItem orderItem = ItemConversionUtil.fromCartItemToOrderItem(cartItem);
 			orderItem.setOrder(order);// set bi-direction (OrderItem -> Order)
 			orderItems.add(orderItem);// set bi-direction (Order -> OrderItem)
 		}
@@ -91,10 +88,11 @@ public class OrderService {
 	}
 
 	public List<Order> getOrders(String consumerId) {
-		
-		//orderRepository.
-		
 		return orderRepository.findByConsumerId(consumerId);
+	}
+	
+	public Order getOrder(int orderId) {
+		return orderRepository.findById(orderId).get();
 	}
 	
 //	public List<Order> searchOrders(String consumerId, String searchText, Date orderPlacedDate) {
@@ -103,11 +101,65 @@ public class OrderService {
 //		System.out.println(Arrays.asList(objects));
 //		return new ArrayList<>();
 //	}
+	
+	public List<Order> searchOrders(SearchOrdersRequestDTO searchOrdersRequestDTO) throws ParseException {
+		
+		Date purchaseDate = null;
+		try { 
+			purchaseDate = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss a").parse(searchOrdersRequestDTO.getPurchaseDate());	
+		} catch (ParseException e) {
+			purchaseDate = new Date();	
+		}
+		
+		PaymentMethod paymentMethod = null;
+		if ( (searchOrdersRequestDTO.getPaymentMethod() != null) 
+				&& !searchOrdersRequestDTO.getPaymentMethod().isEmpty() ) {
+			
+			PaymentMethod.valueOf(searchOrdersRequestDTO.getPaymentMethod()); 
+		}
+		
+		return orderRepository.findByExample(
+			searchOrdersRequestDTO.getOrderNumber(),
+			searchOrdersRequestDTO.getTransactionNumber(),
+			purchaseDate,
+			paymentMethod,
+			searchOrdersRequestDTO.getItemDetails(),
+			searchOrdersRequestDTO.getAddressDetails()
+		);
+		
+	}
 
 	@Transactional
-	public void deleteOrder(String consumerId, String orderNumber) {
+	public void cancelOrder(String consumerId, String orderNumber) {
+		
+		System.out.println("--------- cancelOrder(orderNumber): orderNumber = " + orderNumber + " -----------");
+		
+		Order order = orderRepository.findByOrderNumber(orderNumber);
+		
+		System.out.println("--------- cancelOrder(orderNumber): order = " + order + " -----------");
+		
+		OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(order.getItems());
 		
 		orderRepository.deleteByConsumerIdAndOrderNumber(consumerId, orderNumber);
+		
+		domainEventPublisher.publishEvent(orderCancelledEvent);
 	}
+	
+	@Transactional
+	public void cancelOrder(String consumerId, int orderId) {
+		
+		System.out.println("--------- cancelOrder(orderId): orderId = " + orderId + " -----------");
+		
+		Order order = orderRepository.findById(orderId).get();
+		
+		System.out.println("--------- cancelOrder(orderId): order = " + order + " -----------");
+		
+		OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(order.getItems());
+		
+		orderRepository.deleteById(orderId);
+		
+		domainEventPublisher.publishEvent(orderCancelledEvent);
+	}
+
 
 }

@@ -1,16 +1,19 @@
 package com.learning.ddd.onlinestore.inventory.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.learning.ddd.onlinestore.commons.domain.event.DomainEventsPublisher;
+import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventPublisher;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemAddedToInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemRemovedFromInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemsAddedToInventoryEvent;
+import com.learning.ddd.onlinestore.inventory.domain.exception.ItemsAlreadyExistsException;
 import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryItemRepository;
 
 //What an Inventory can have and should do?
@@ -25,26 +28,18 @@ import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryItemRep
 @Component
 public class Inventory {
 
-	//private List<Item> items;
-	@Autowired
-	private DomainEventsPublisher domainEventPublisher;
-	
 	@Autowired
 	private InventoryItemRepository itemRepository;
 
+	@Autowired
+	private DomainEventPublisher domainEventPublisher;
 
+	
 	public Inventory() {
-		//domainEventPublisher = new DummyDomainEventsPublisher();
 	}
 	
 	
-	public void setItemRepository(InventoryItemRepository itemRepository) {
-		this.itemRepository = itemRepository;
-	}
-	public void setDomainEventPublisher(DomainEventsPublisher domainEventPublisher) {
-		this.domainEventPublisher = domainEventPublisher;
-	}
-	
+	@Transactional
 	public InventoryItem addItem(InventoryItem item) {
 		
 		final InventoryItem persistedItem = itemRepository.save(item);
@@ -54,17 +49,41 @@ public class Inventory {
 		return persistedItem;
 	}
 	
-	public List<InventoryItem> addItems(List<InventoryItem> items) {
+	@Transactional
+	public List<InventoryItem> addItems(List<InventoryItem> itemsToBeAdded) throws ItemsAlreadyExistsException {
 		
-		List<InventoryItem> persistedItems = itemRepository.saveAll(items);
+		List<InventoryItem> items = new ArrayList<InventoryItem>();
+		List<InventoryItem> alreadyExistingItems = new ArrayList<InventoryItem>();
 		
-		domainEventPublisher.publishEvent(new ItemsAddedToInventoryEvent(persistedItems));
+		for (InventoryItem item : itemsToBeAdded) {
+			Integer countByUniqueFields = itemRepository.countByUniqueFields(
+					item.getCategory(), item.getSubCategory(), 
+					item.getName(), item.getPrice(), item.getQuantity());
+			if (countByUniqueFields > 0) {	
+				// item exists in Inventory
+				alreadyExistingItems.add(item);
+			} else { //if (countByUniqueFields == 0)
+				// new item
+				items.add(item);
+			}
+		}
 		
-		return persistedItems;
+		if (!alreadyExistingItems.isEmpty() ) {
+			throw new ItemsAlreadyExistsException(alreadyExistingItems);
+		}
+		
+		if (!items.isEmpty() ) {
+			items = itemRepository.saveAll(items);
+			domainEventPublisher.publishEvent(new ItemsAddedToInventoryEvent(items));
+		}
+		
+		return items;
 	}
 
 	public List<InventoryItem> getItems() {
+		
 		return itemRepository.findAll();
+		
 	}
 	
 	public InventoryItem getItem(final int itemId) {
@@ -79,47 +98,33 @@ public class Inventory {
 	// wild card search for String fields like category/subCategory/name
 	public List<InventoryItem> searchItems(InventoryItem exampleItem) {
 		
-		return getItems().stream()
-				.filter(item ->
-							item.getItemId()==exampleItem.getItemId() 
-							|| item.getCategory().equals(exampleItem.getCategory())
-							|| item.getSubCategory().equals(exampleItem.getSubCategory())
-							|| item.getName().equals(exampleItem.getName())
-							|| item.getPrice().equals(exampleItem.getPrice())
-							|| item.getQuantity()==exampleItem.getQuantity()
-						)
-				.collect(Collectors.toList());
+		return itemRepository.findByExample(exampleItem.getCategory(),
+			exampleItem.getSubCategory(), exampleItem.getName(),
+			exampleItem.getPrice(), exampleItem.getQuantity()
+		);
 		
+//		return itemRepository.findAll(Example.of(exampleItem));
 		
-//		List<Item> searchedItems = new ArrayList<>();
-//		
-//		List<Item> items = itemRepository.findAll();
-//		for (Item item : items) {
-//			//System.out.println("\n\n~~~~~~searchItem(itemId): item.getItemId()="+item.getItemId()+ ", itemId="+itemId+ "\n");
-//			
-////			System.out.println("\n\n~~~~~~searchItems(exampleItem): item.getItemId()="+item.getItemId()+ ", exampleItem.getItemId()="+exampleItem.getItemId() + ", Outcome="+(item.getItemId() == exampleItem.getItemId()));
-////			System.out.println("~~~~~~searchItems(exampleItem): item.getCategory()="+item.getCategory()+ ", exampleItem.getCategory()="+exampleItem.getCategory() + ", Outcome="+(item.getCategory().equals(exampleItem.getCategory())));
-////			System.out.println("~~~~~~searchItems(exampleItem): item.getSubCategory()="+item.getSubCategory()+ ", exampleItem.getSubCategory()="+exampleItem.getSubCategory() + ", Outcome="+(item.getSubCategory().equals(exampleItem.getSubCategory())));
-////			System.out.println("~~~~~~searchItems(exampleItem): item.getName()="+item.getName()+ ", exampleItem.getName()="+exampleItem.getName() + ", Outcome="+(item.getName().equals(exampleItem.getName())));
-////			System.out.println("~~~~~~searchItems(exampleItem): item.getPrice()="+item.getPrice()+ ", exampleItem.getPrice()="+exampleItem.getPrice() + ", Outcome="+(item.getPrice().equals(exampleItem.getPrice())));
-////			System.out.println("~~~~~~searchItems(exampleItem): item.getQuantity()="+item.getQuantity()+ ", exampleItem.getQuantity()="+exampleItem.getQuantity() + ", Outcome="+(item.getQuantity() == exampleItem.getQuantity())+ "\n");
-//			
-//			if ((item.getItemId() == exampleItem.getItemId()) 
-//					|| item.getCategory().equals(exampleItem.getCategory())
-//					|| item.getSubCategory().equals(exampleItem.getSubCategory())
-//					|| item.getName().equals(exampleItem.getName())
-//					|| item.getPrice().equals(exampleItem.getPrice())
-//					|| (item.getQuantity()==exampleItem.getQuantity())
-//				){
-//				
-//				searchedItems.add(item);
-//			}
-//		}
-//		
-//		return searchedItems;
+//		return getItems().stream()
+//				.filter(item ->
+//							item.getItemId()==exampleItem.getItemId() 
+//							|| item.getCategory().equals(exampleItem.getCategory())
+//							|| item.getSubCategory().equals(exampleItem.getSubCategory())
+//							|| item.getName().equals(exampleItem.getName())
+//							|| item.getPrice().equals(exampleItem.getPrice())
+//							|| item.getQuantity()==exampleItem.getQuantity()
+//						)
+//				.collect(Collectors.toList());
 		
 	}
 	
+	@Transactional
+	public InventoryItem updateItem(InventoryItem itemToUpdate) {
+		
+		return itemRepository.save(itemToUpdate);
+	}
+	
+	@Transactional
 	public void removeItem(Integer itemId) {
 		
 		InventoryItem item = getItem(itemId);
@@ -129,7 +134,7 @@ public class Inventory {
 		domainEventPublisher.publishEvent(new ItemRemovedFromInventoryEvent(item));
 	}
 
-	//@Transactional
+	@Transactional
 	public void removeItem(InventoryItem item) {
 		
 		itemRepository.delete(item);
@@ -137,6 +142,7 @@ public class Inventory {
 		domainEventPublisher.publishEvent(new ItemRemovedFromInventoryEvent(item));
 	}
 
+	@Transactional
 	public void removeItems(InventoryItem exampleItem) {
 		
 		itemRepository.deleteItems(
@@ -163,5 +169,6 @@ public class Inventory {
 		Integer allItemsQuantitiesTotal = itemRepository.calculateAllItemsQuantitiesTotal();
 		return allItemsQuantitiesTotal != null ? allItemsQuantitiesTotal : 0;
 	}
+
 
 }

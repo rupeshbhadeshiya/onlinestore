@@ -13,6 +13,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.commons.util.HttpUtil;
+import com.learning.ddd.onlinestore.order.application.dto.CreateOrderDTO;
 import com.learning.ddd.onlinestore.order.domain.Address;
 import com.learning.ddd.onlinestore.order.domain.AddressType;
 import com.learning.ddd.onlinestore.order.domain.Order;
@@ -45,16 +46,10 @@ class OrderAPITest {
 		
 		PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 		
-		Address billingAddress = new Address(
-			AddressType.BILLING_ADDRESS, 
-			"l1", "l2", "l3", "l4", 
-			"pincode", "state", "country"
-		);
-		Address shippingAddress = new Address(
-			AddressType.SHIPPING_ADDRESS, 
-			"l1", "l2", "l3", "l4", 
-			"pincode", "state", "country"
-		);
+		Address billingAddress = DummyAddressFactory.dummyAddress(
+			AddressType.BILLING_ADDRESS); 
+		Address shippingAddress = DummyAddressFactory.dummyAddress(
+			AddressType.SHIPPING_ADDRESS);
 		
 		CreateOrderDTO orderRequestDTO = new CreateOrderDTO(
 			CONSUMER_ID,
@@ -208,7 +203,8 @@ class OrderAPITest {
 		
 		// execute
 		HttpUtil.delete(
-			"http://localhost:9030/consumers/"+CONSUMER_ID+"/orders/"+order.getOrderNumber() 
+			"http://localhost:9030/consumers/"+CONSUMER_ID+"/orders"
+				+ "?orderNumber=" + order.getOrderNumber() 
 			);
 		
 		// validate

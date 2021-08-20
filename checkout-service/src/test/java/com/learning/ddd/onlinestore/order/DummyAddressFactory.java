@@ -11,9 +11,7 @@ public class DummyAddressFactory {
 	public static Address dummyAddress(AddressType addressType) {
 		
 		Address address = new Address(
-			addressType, 
-			"l1", "l2", "l3", "l4", 
-			"pincode", "state", "country"
+			addressType, "line1", "line2", "city", "state", "postalCode", "country"
 		);
 		
 		return address;

@@ -1,5 +1,6 @@
 package com.learning.ddd.onlinestore.cart.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,11 +15,13 @@ import javax.persistence.OneToMany;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
 
 @Entity
-public class Cart {
+public class Cart implements Serializable {
+
+	private static final long serialVersionUID = 8342884428850145205L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	private int cartId;
 	
 	private String consumerId;	// Consumer currently associated with this Cart
 	
@@ -47,12 +50,12 @@ public class Cart {
 		return totalAmount;
 	}
 	
-	public int getId() {
-		return id;
+	public int getCartId() {
+		return cartId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setCartId(int cartId) {
+		this.cartId = cartId;
 	}
 	
 	public String getConsumerId() {
@@ -120,11 +123,11 @@ public class Cart {
     // }
 	public void removeItem(CartItem cartItemToRemove) throws CartItemNotFoundException {
 		
-		System.out.println("removeItem(): cartId=" + id + ", cartItem=" + cartItemToRemove);
+		//System.out.println("removeItem(): cartId=" + cartId + ", cartItem=" + cartItemToRemove);
 		
 		// A -> B: one side of bi-directional relationship
 		boolean wasItemPresent = this.items.remove(cartItemToRemove);
-		System.out.println("removeItem(): wasItemPresent=" + wasItemPresent);
+		//System.out.println("removeItem(): wasItemPresent=" + wasItemPresent);
 		
 		if (!wasItemPresent) {
 			throw new CartItemNotFoundException(this, cartItemToRemove);
@@ -134,9 +137,9 @@ public class Cart {
 		cartItemToRemove.setCart(null);
 		
 		// update itemCount
-		System.out.println("removeItem(): Cart itemCount (before)=" + this.itemCount);
+		//System.out.println("removeItem(): Cart itemCount (before)=" + this.itemCount);
 		this.itemCount -= cartItemToRemove.getQuantity();
-		System.out.println("removeItem(): Cart itemCount (after)=" + this.itemCount);
+		//System.out.println("removeItem(): Cart itemCount (after)=" + this.itemCount);
 	}
 
 	//-------- specific methods : end -------------
@@ -147,7 +150,7 @@ public class Cart {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		//result = prime * result + id;
+		//result = prime * result + cartId;
 		result = prime * result + ((consumerId == null) ? 0 : consumerId.hashCode());
 		result = prime * result + itemCount;
 		result = prime * result + ((items == null) ? 0 : items.hashCode());
@@ -171,7 +174,7 @@ public class Cart {
 		} else if (!consumerId.equals(other.consumerId))
 			return false;
 		
-		//if (id != other.id)
+		//if (cartId != other.cartId)
 		//	return false;
 		
 		if (itemCount != other.itemCount)
@@ -188,7 +191,7 @@ public class Cart {
 
 	@Override
 	public String toString() {
-		return "Cart [id=" + id 
+		return "Cart [cartId=" + cartId 
 				+ ", consumerId=" + consumerId 
 				+ ", itemCount=" + itemCount
 				+ ", items=" + items 

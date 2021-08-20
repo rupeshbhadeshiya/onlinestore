@@ -1,5 +1,7 @@
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/cart/domain/CartItem.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/commons/domain/event/DomainEventName.java
+/Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/inventory/domain/dto/SearchItemsResponseDTO.java
+/Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/inventory/domain/dto/SearchItemsRequestDTO.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/order/domain/Address.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/commons/domain/event/kafka/KafkaBasedObjectDeserializer.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/commons/domain/event/DummyDomainEventsPublisher.java
@@ -8,6 +10,7 @@
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/payment/domain/DummyPaymentGateway.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/commons/domain/event/kafka/KafkaBasedObjectSerializer.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/payment/domain/PaymentMethod.java
+/Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/inventory/domain/dto/AddItemsResponseDTO.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/cart/domain/Cart.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/order/domain/TransactionStatus.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/order/domain/OrderItem.java
@@ -18,8 +21,10 @@
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/commons/domain/event/DomainEventSubscriber.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/order/domain/Order.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/commons/domain/event/DomainEvent.java
+/Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/inventory/domain/dto/AddItemsRequestDTO.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/payment/domain/PaymentGateway.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/cart/domain/exception/CartItemNotFoundException.java
+/Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/inventory/domain/dto/DeleteItemsRequestDTO.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/order/domain/AddressType.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/commons/util/HttpUtil.java
 /Users/rupesh/git/onlinestore5/onlinestore/utils/src/main/java/com/learning/ddd/onlinestore/order/domain/OrderTransaction.java

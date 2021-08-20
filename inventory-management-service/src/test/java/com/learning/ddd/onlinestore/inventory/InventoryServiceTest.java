@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -12,7 +13,6 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
+import com.learning.ddd.onlinestore.inventory.domain.exception.ItemsAlreadyExistsException;
 
 // An Inventory contains Items; it may be referred as Item Store. So you don't need to create an Inventory.
 
@@ -50,10 +51,10 @@ import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
 @TestMethodOrder(OrderAnnotation.class)
 public class InventoryServiceTest {
 
-	private InventoryItem BISCUIT_ITEM = new InventoryItem(101, "Grocery", "Biscuit", "Parle-G", 10, 10.0);
-	private InventoryItem CHIVDA_ITEM = new InventoryItem(102, "Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
-	private InventoryItem BATHING_SOAP_ITEM = new InventoryItem(202, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
-	private InventoryItem PENCIL_ITEM = new InventoryItem(302, "Stationery", "Pencil", "Natraj Pencil", 10, 5.0);
+	private InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10, 10.0);
+	private InventoryItem CHIVDA_ITEM = new InventoryItem("Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
+	private InventoryItem BATHING_SOAP_ITEM = new InventoryItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
+	private InventoryItem PENCIL_ITEM = new InventoryItem("Stationery", "Pencil", "Natraj Pencil", 10, 5.0);
 	
 	@Autowired
 	private Inventory inventory;
@@ -80,8 +81,8 @@ public class InventoryServiceTest {
 //	}
 	
 	@Test
-	@Order(1)
-	void addItems() {
+	@org.junit.jupiter.api.Order(1)
+	void addItems() throws ItemsAlreadyExistsException {
 		
 		List<InventoryItem> addedItems = inventory.addItems( Arrays.asList( 
 				new InventoryItem[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
@@ -104,7 +105,26 @@ public class InventoryServiceTest {
 	}
 	
 	@Test
-	@Order(2)
+	@org.junit.jupiter.api.Order(1)
+	void addItemsCatchItemsAlreadyExistsException() {
+
+		// execute
+		
+		ItemsAlreadyExistsException ex = assertThrows(
+			ItemsAlreadyExistsException.class, () -> {
+				inventory.addItems(Arrays.asList(new InventoryItem[] { BISCUIT_ITEM } ) );
+			}
+		);
+		
+		// validate
+		
+		assertNotNull(ex);
+		assertEquals(1, ex.getItems().size());
+		assertEquals(BISCUIT_ITEM, ex.getItems().get(0));
+	}
+	
+	@Test
+	@org.junit.jupiter.api.Order(2)
 	void getAllItems() {
 		
 		List<InventoryItem> items = inventory.getItems();
@@ -122,7 +142,7 @@ public class InventoryServiceTest {
 	}
 	
 	@Test
-	@Order(3)
+	@org.junit.jupiter.api.Order(3)
 	void getSpecificItem() {
 		
 		InventoryItem persistedPencilItem = inventory.addItem(PENCIL_ITEM);
@@ -133,7 +153,7 @@ public class InventoryServiceTest {
 	}
 	
 	@Test
-	@Order(4)
+	@org.junit.jupiter.api.Order(4)
 	void searchItemsMatchingCategory() {
 		
 		//inventory.addItems( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
@@ -152,7 +172,7 @@ public class InventoryServiceTest {
 	}
 	
 	@Test
-	@Order(5)
+	@org.junit.jupiter.api.Order(5)
 	void searchItemsMatchingSubCategory() {
 		
 		//inventory.addItems( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
@@ -171,7 +191,7 @@ public class InventoryServiceTest {
 	}
 	
 	@Test
-	@Order(6)
+	@org.junit.jupiter.api.Order(6)
 	void searchItemsMatchingName() {
 		
 		//inventory.addItems( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
@@ -190,7 +210,7 @@ public class InventoryServiceTest {
 	}
 	
 	@Test
-	@Order(7)
+	@org.junit.jupiter.api.Order(7)
 	void searchItemsMatchingQuantity() {
 		
 		//inventory.addItems( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
@@ -215,7 +235,7 @@ public class InventoryServiceTest {
 	}
 	
 	@Test
-	@Order(8)
+	@org.junit.jupiter.api.Order(8)
 	void searchItemsMatchingPrice() {
 		
 		//inventory.addItems( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
@@ -235,7 +255,7 @@ public class InventoryServiceTest {
 	
 	@Test
 	@Transactional // A modify operation (update/delete) has to be Transactional
-	@Order(9)
+	@org.junit.jupiter.api.Order(9)
 	void removeSpecificItem() {
 		
 		//inventory.addItems( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
@@ -247,7 +267,7 @@ public class InventoryServiceTest {
 
 	@Test
 	@Transactional // A modify operation (update/delete) has to be Transactional
-	@Order(10)
+	@org.junit.jupiter.api.Order(10)
 	void removeItemsMatchingGivenCriteria() {
 		
 		//inventory.addItems( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );

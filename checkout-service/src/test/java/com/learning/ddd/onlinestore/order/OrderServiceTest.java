@@ -82,16 +82,10 @@ public class OrderServiceTest {
 		
 		PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 		
-		Address billingAddress = new Address(
-			AddressType.BILLING_ADDRESS, 
-			"l1", "l2", "l3", "l4", 
-			"pincode", "state", "country"
-		);
-		Address shippingAddress = new Address(
-			AddressType.SHIPPING_ADDRESS, 
-			"l1", "l2", "l3", "l4", 
-			"pincode", "state", "country"
-		);
+		Address billingAddress = DummyAddressFactory.dummyAddress(
+			AddressType.BILLING_ADDRESS); 
+		Address shippingAddress = DummyAddressFactory.dummyAddress(
+			AddressType.SHIPPING_ADDRESS);
 		
 		Order order = orderService.createOrderAndProcessPayment(
 			cart, paymentMethod, billingAddress, shippingAddress
@@ -103,8 +97,8 @@ public class OrderServiceTest {
 			BISCUIT_ITEM_QUANTITY + BATHING_SOAP_ITEM_QUANTITY, 
 			order.getItemCount()
 		);
-		assertTrue(billingAddress.equalsContents(order.getBillingAddress()));
-		assertTrue(shippingAddress.equalsContents(order.getShippingAddress()));
+		assertTrue(billingAddress.equals(order.getBillingAddress()));
+		assertTrue(shippingAddress.equals(order.getShippingAddress()));
 		
 		// verify other way around!
 		
@@ -145,16 +139,10 @@ public class OrderServiceTest {
 		
 		PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 		
-		Address billingAddress = new Address(
-			AddressType.BILLING_ADDRESS, 
-			"l1", "l2", "l3", "l4", 
-			"pincode", "state", "country"
-		);
-		Address shippingAddress = new Address(
-			AddressType.SHIPPING_ADDRESS, 
-			"l1", "l2", "l3", "l4", 
-			"pincode", "state", "country"
-		);
+		Address billingAddress = DummyAddressFactory.dummyAddress(
+			AddressType.BILLING_ADDRESS); 
+		Address shippingAddress = DummyAddressFactory.dummyAddress(
+			AddressType.SHIPPING_ADDRESS);
 		
 		orderService.createOrderAndProcessPayment(
 			cart, paymentMethod, billingAddress, shippingAddress

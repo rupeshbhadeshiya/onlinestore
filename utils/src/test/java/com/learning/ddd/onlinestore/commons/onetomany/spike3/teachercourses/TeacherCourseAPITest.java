@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -28,7 +27,7 @@ class TeacherCourseAPITest {
 	private static int COURSE1_ID;
 
 	@Test
-	@Order(1)
+	@org.junit.jupiter.api.Order(1)
 	void addTeacherAndCourses() throws IOException {
 		
 		Teacher t1 = new Teacher(TEACHER_NAME);
@@ -62,7 +61,7 @@ class TeacherCourseAPITest {
 	}
 	
 	@Test
-	@Order(2)
+	@org.junit.jupiter.api.Order(2)
 	void getTeacherAndCourses() throws IOException {
 		
 		Teacher t = (Teacher) HttpUtil.get(
@@ -86,7 +85,7 @@ class TeacherCourseAPITest {
 	}
 	
 	@Test
-	@Order(3)
+	@org.junit.jupiter.api.Order(3)
 	void deleteOneCourse() throws IOException {
 		
 		HttpUtil.delete("http://localhost:9009/commons/spike/teachers/"+TEACHER_ID+
@@ -108,7 +107,7 @@ class TeacherCourseAPITest {
 	}
 	
 	@Test
-	@Order(4)
+	@org.junit.jupiter.api.Order(4)
 	void deleteTeacherAndCourses() throws IOException {
 		
 		HttpUtil.delete("http://localhost:9009/commons/spike/teachers/"+TEACHER_ID);

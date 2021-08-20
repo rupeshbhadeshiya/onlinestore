@@ -1,6 +1,10 @@
 com/learning/ddd/onlinestore/cart/domain/CartItem.class
+com/learning/ddd/onlinestore/inventory/domain/dto/SearchItemsResponseDTO.class
+com/learning/ddd/onlinestore/inventory/domain/dto/AddItemsResponseDTO.class
 com/learning/ddd/onlinestore/order/domain/OrderTransaction.class
+com/learning/ddd/onlinestore/inventory/domain/dto/AddItemsRequestDTO.class
 com/learning/ddd/onlinestore/commons/domain/event/DomainEventSubscriber.class
+com/learning/ddd/onlinestore/inventory/domain/dto/SearchItemsRequestDTO.class
 com/learning/ddd/onlinestore/order/domain/AddressType.class
 com/learning/ddd/onlinestore/commons/domain/event/kafka/KafkaBasedObjectDeserializer.class
 com/learning/ddd/onlinestore/order/domain/Order.class
@@ -14,6 +18,7 @@ com/learning/ddd/onlinestore/inventory/domain/ItemCategorySubCategory.class
 com/learning/ddd/onlinestore/commons/util/HttpUtil.class
 com/learning/ddd/onlinestore/commons/domain/event/DummyDomainEventsSubscriber.class
 com/learning/ddd/onlinestore/payment/domain/DummyPaymentGateway.class
+com/learning/ddd/onlinestore/inventory/domain/dto/DeleteItemsRequestDTO.class
 com/learning/ddd/onlinestore/cart/domain/exception/CartItemNotFoundException.class
 com/learning/ddd/onlinestore/order/domain/MerchantInfo.class
 com/learning/ddd/onlinestore/order/domain/OrderItem.class

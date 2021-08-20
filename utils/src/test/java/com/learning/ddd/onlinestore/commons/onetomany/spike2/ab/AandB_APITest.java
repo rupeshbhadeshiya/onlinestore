@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.List;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ class AandB_APITest {
 	private ABService abService;
 	
 	@Test
-	@Order(1)
+	@org.junit.jupiter.api.Order(1)
 	void createAandB() {
 		CreateABDTO dto = new CreateABDTO();
 		dto.setaName(A_NAME);
@@ -37,7 +36,7 @@ class AandB_APITest {
 	}
 	
 	@Test
-	@Order(2)
+	@org.junit.jupiter.api.Order(2)
 	void getAandB() {
 		List<A> aList = abService.getAandB();
 		assertNotNull(aList);
@@ -51,7 +50,7 @@ class AandB_APITest {
 	}
 	
 	@Test
-	@Order(3)
+	@org.junit.jupiter.api.Order(3)
 	void deleteAandB() {
 		
 		A a = abService.getAandB().get(0);

@@ -81,15 +81,16 @@
            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
       	</dependency>
       	
-      	<dependency>
-		    <groupId>org.apache.kafka</groupId>
-		    <artifactId>kafka-clients</artifactId>
-		</dependency>
-      	
       	<!-- internal -->
       	<dependency>
       		<groupId>com.learning.ddd.onlinestore</groupId>
 			<artifactId>commons</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+      	</dependency>
+      	
+      	<dependency>
+      		<groupId>com.learning.ddd.onlinestore</groupId>
+			<artifactId>domain-event-utils</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
       	</dependency>
 		

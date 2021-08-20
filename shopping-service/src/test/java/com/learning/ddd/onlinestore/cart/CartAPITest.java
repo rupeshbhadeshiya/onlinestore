@@ -13,6 +13,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import com.learning.ddd.onlinestore.cart.application.dto.PullCartDTO;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
@@ -32,40 +33,89 @@ import com.learning.ddd.onlinestore.commons.util.HttpUtil;
 @TestMethodOrder(OrderAnnotation.class)
 class CartAPITest {
 
+	// FIXME Once user management is in place, remove this value with runtime value
 	private static final String CONSUMER_ID = "11";
+	
 	private static final String CART_SERVICE_URL = 
 		"http://localhost:9020/consumers/"+CONSUMER_ID+"/carts";
+	
 	private static final int BISCUIT_ITEM_QUANTITY = 2;
 	private static final int BATHING_SOAP_ITEM_QUANTITY = 3;
-	private final CartItem BISCUIT_ITEM = new CartItem(
-		"Grocery", "Biscuit", "Parle-G", BISCUIT_ITEM_QUANTITY, 10.0);
-	private final CartItem BATHING_SOAP_ITEM = new CartItem(
-		"Toiletries", "Bathing Soap", "Mysore Sandal Soap", 
-		BATHING_SOAP_ITEM_QUANTITY, 30.0);
+	
+	private final CartItem BISCUIT_ITEM = new CartItem("Grocery", "Biscuit", 
+		"Parle-G", BISCUIT_ITEM_QUANTITY, 10.0);
+	private final CartItem BATHING_SOAP_ITEM = new CartItem("Toiletries", 
+		"Bathing Soap", "Mysore Sandal Soap", BATHING_SOAP_ITEM_QUANTITY, 30.0);
 	
 	private static int CART_ID;
 	
 	
+//	@Test
+//	@org.junit.jupiter.api.Order(1)
+//	void pullCartAndAddItems() throws IOException {
+//		
+//		// prepare
+//		
+//		PullCartDTO dto = new PullCartDTO(CONSUMER_ID);
+//		dto.addItem(BISCUIT_ITEM);
+//		dto.addItem(BATHING_SOAP_ITEM);
+//		
+//		// execute
+//		
+//		Cart cart = (Cart) HttpUtil.post(CART_SERVICE_URL, dto, Cart.class); 
+//		
+//		// record for use in other tests
+//		CART_ID = cart.getId();
+//		
+//		// validate
+//		
+//		assertNotNull(cart);
+//		assertEquals(CONSUMER_ID, cart.getConsumerId());
+//		
+//		assertNotNull(cart.getItems());
+//		assertEquals(BISCUIT_ITEM_QUANTITY + BATHING_SOAP_ITEM_QUANTITY, cart.getItemCount());
+//		
+//		assertTrue(cart.getItems().contains(BISCUIT_ITEM));
+//		assertTrue(cart.getItems().contains(BATHING_SOAP_ITEM));
+//		
+//		double expectedAmount = BISCUIT_ITEM.computeAmount() + BATHING_SOAP_ITEM.computeAmount();
+//		assertEquals(expectedAmount, cart.computeAmount(), 0.0);
+//	}
+	
 	@Test
 	@org.junit.jupiter.api.Order(1)
-	void pullCartAndAddItems() throws IOException {
+	void shopItemsInSameCart() throws IOException {
 		
-		// prepare
+		// add first item to a cart
 		
 		PullCartDTO dto = new PullCartDTO(CONSUMER_ID);
 		dto.addItem(BISCUIT_ITEM);
-		dto.addItem(BATHING_SOAP_ITEM);
-		
-		// execute
 		
 		Cart cart = (Cart) HttpUtil.post(CART_SERVICE_URL, dto, Cart.class); 
 		
-		// record for use in other tests
-		CART_ID = cart.getId();
+		assertNotNull(cart);
+		assertEquals(CONSUMER_ID, cart.getConsumerId());
 		
-		// validate
+		assertNotNull(cart.getItems());
+		assertEquals(BISCUIT_ITEM_QUANTITY , cart.getItemCount());
+		
+		assertTrue(cart.getItems().contains(BISCUIT_ITEM));
+		
+		assertEquals(BISCUIT_ITEM.computeAmount(), cart.computeAmount(), 0.0);
+		
+		CART_ID = cart.getCartId(); 
+		
+		// add second item to the same cart
+		
+		dto = new PullCartDTO(CONSUMER_ID);
+		dto.addItem(BATHING_SOAP_ITEM);
+		
+		cart = (Cart) HttpUtil.put(CART_SERVICE_URL+"/"+CART_ID, dto, Cart.class);
 		
 		assertNotNull(cart);
+		
+		assertEquals(CART_ID, cart.getCartId()); // MUST ensure still its same cart
+		
 		assertEquals(CONSUMER_ID, cart.getConsumerId());
 		
 		assertNotNull(cart.getItems());
@@ -120,7 +170,7 @@ class CartAPITest {
 		
 		assertNotNull(cart);
 		assertEquals(CONSUMER_ID, cart.getConsumerId());
-		assertEquals(CART_ID, cart.getId());
+		assertEquals(CART_ID, cart.getCartId());
 		
 		assertNotNull(cart.getItems());
 		final int expectedQuantity = BISCUIT_ITEM_QUANTITY + BATHING_SOAP_ITEM_QUANTITY;

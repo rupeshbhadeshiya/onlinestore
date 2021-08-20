@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Positive;
 
 //DDD: Entity
 @Entity
@@ -16,18 +18,27 @@ public class InventoryItem implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int itemId;				// ex. 1001, unique Id to identify an item uniquely
+	
+	@NotEmpty(message = "Specify Category")
 	private String category;		// ex. Grocery
+	
+	@NotEmpty(message = "Specify Sub-Category")
 	private String subCategory;		// ex. Biscuits
+	
+	@NotEmpty(message = "Specify Name")
 	private String name;			// ex. Parle-G
+	
+	@Positive(message = "Specify a positive number for Quantity")
 	private int quantity;			// ex. 5
+	
+	@Positive(message = "Specify a positive number for Price")
 	private Double price;			// ex. 30.0 INR (price of a single item)
 
 	
 	public InventoryItem() {
 	}
 	
-	public InventoryItem(int itemId, String category, String subCategory, String name, int quantity, double price) {
-		this.itemId = itemId;
+	public InventoryItem(String category, String subCategory, String name, int quantity, double price) {
 		this.category = category;
 		this.subCategory = subCategory;
 		this.name = name;
@@ -96,7 +107,7 @@ public class InventoryItem implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "Item [itemId=" + itemId + ", category=" + category + ", subCategory=" + subCategory 
+		return "InventoryItem [itemId=" + itemId + ", category=" + category + ", subCategory=" + subCategory 
 				+ ", name=" + name + ", quantity=" + quantity + ", price=" + price + "]";
 	}
 

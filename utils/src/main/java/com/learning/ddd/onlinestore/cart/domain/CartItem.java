@@ -1,5 +1,7 @@
 package com.learning.ddd.onlinestore.cart.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,11 +13,13 @@ import javax.persistence.ManyToOne;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class CartItem {
+public class CartItem implements Serializable {
+
+	private static final long serialVersionUID = 5472900313173264495L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;					// ex. 1001, unique Id to identify an item uniquely
+	private int itemId;				// ex. 1001, unique Id to identify an item uniquely
 	private String category;		// ex. Grocery
 	private String subCategory;		// ex. Biscuits
 	private String name;			// ex. Parle-G
@@ -46,13 +50,22 @@ public class CartItem {
 		this.price = price;
 	}
 
-
-	public int getId() {
-		return id;
+	public CartItem(CartItem cartItem) {
+		
+		super();
+		this.category = cartItem.category;
+		this.subCategory = cartItem.subCategory;
+		this.name = cartItem.name;
+		this.quantity = cartItem.quantity;
+		this.price = cartItem.price;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public int getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(int itemId) {
+		this.itemId = itemId;
 	}
 
 	public String getName() {
@@ -186,12 +199,18 @@ public class CartItem {
 
 	@Override
 	public String toString() {
-		return "CartItem [id=" + id
+		return "CartItem [id=" + itemId
 				+ ", name=" + name
 				+ ", category=" + category + ", subCategory=" + subCategory 
 				+ ", quantity=" + quantity + ", price=" + price 
 				//+ ", cart=" + cart 
 				+ "]";
+	}
+	
+	
+	@Override
+	public CartItem clone() throws CloneNotSupportedException {
+		return new CartItem(this);
 	}
 
 }

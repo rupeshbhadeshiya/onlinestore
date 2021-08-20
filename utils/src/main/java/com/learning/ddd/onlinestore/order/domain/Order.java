@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -32,6 +33,7 @@ public class Order implements Serializable {
 	private int orderId;
 	
 	// a value that Consumer can refer to deal with this Order
+	@Column(unique = true)
 	private String orderNumber;
 	
 	//private String name, email, mobileNumber;

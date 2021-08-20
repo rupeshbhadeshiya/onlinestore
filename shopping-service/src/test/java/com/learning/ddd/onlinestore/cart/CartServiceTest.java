@@ -11,12 +11,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.learning.ddd.onlinestore.cart.application.dto.PullCartDTO;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
@@ -49,7 +49,7 @@ class CartServiceTest {
 	private CartService cartService;
 	
 	@Test
-	@Order(1)
+	@org.junit.jupiter.api.Order(1)
 	void pullCartAndAddItems() {
 		
 		PullCartDTO dto = new PullCartDTO(CONSUMER_ID);
@@ -59,7 +59,7 @@ class CartServiceTest {
 		Cart cart = cartService.pullCartAndAddItems(CONSUMER_ID, dto);
 		
 		// record for use in other tests
-		CART_ID = cart.getId();
+		CART_ID = cart.getCartId();
 		
 		assertNotNull(cart);
 		assertEquals(CONSUMER_ID, cart.getConsumerId());
@@ -76,7 +76,7 @@ class CartServiceTest {
 	}
 	
 	@Test
-	@Order(2)
+	@org.junit.jupiter.api.Order(2)
 	void getAllCartsAndTheirCartItems() {
 		
 		List<Cart> carts = cartService.getAllCarts(CONSUMER_ID);
@@ -99,14 +99,14 @@ class CartServiceTest {
 	}
 	
 	@Test
-	@Order(3)
-	void getOneCartAndItsCartItems() {
+	@org.junit.jupiter.api.Order(3)
+	void getOneCartAndItsCartItems() throws CartNotFoundException {
 		
 		Cart cart = cartService.getCart(CART_ID);
 		
 		assertNotNull(cart);
 		assertEquals(CONSUMER_ID, cart.getConsumerId());
-		assertEquals(CART_ID, cart.getId());
+		assertEquals(CART_ID, cart.getCartId());
 		
 		assertNotNull(cart.getItems());
 		assertEquals(BISCUIT_ITEM_QUANTITY + BATHING_SOAP_ITEM_QUANTITY, cart.getItemCount());
@@ -119,7 +119,7 @@ class CartServiceTest {
 	}
 	
 	@Test
-	@Order(4)
+	@org.junit.jupiter.api.Order(4)
 	void removeOneItemFromCartAndVerifyInReturnedCartObject() throws CartNotFoundException, CartItemNotFoundException {
 
 		// prepare
@@ -145,7 +145,7 @@ class CartServiceTest {
 	}
 	
 	@Test
-	@Order(5)
+	@org.junit.jupiter.api.Order(5)
 	void verifyRemovedItemOnceMoreByLoadingUpdatedCartFromDatabase() throws CartNotFoundException, CartItemNotFoundException {
 
 		// validate
@@ -159,7 +159,7 @@ class CartServiceTest {
 	}
 	
 	@Test
-	@Order(6)
+	@org.junit.jupiter.api.Order(6)
 	void catchCartNotFoundExceptionInRemoveItems() {
 
 		// prepare
@@ -182,7 +182,7 @@ class CartServiceTest {
 	}
 	
 	@Test
-	@Order(6)
+	@org.junit.jupiter.api.Order(6)
 	void catchCartItemNotFoundExceptionInRemoveItems() {
 
 		// prepare
@@ -200,18 +200,40 @@ class CartServiceTest {
 		// validate
 		
 		assertNotNull(ex);
-		assertEquals(CART_ID, ex.getCart().getId());
+		assertEquals(CART_ID, ex.getCart().getCartId());
 		assertEquals(notPresentItems[0], ex.getCartItem());
 	}
 	
 	
 	@Test
-	@Order(33) // too big number to make sure it executes last!
-	void releaseCartAndRemoveItems() {
+	@org.junit.jupiter.api.Order(33) // too big number to make sure it executes last!
+	void emptyCart() throws CartNotFoundException, CloneNotSupportedException {
 		
-		cartService.releaseCartAndRemoveItems(CART_ID);
+		cartService.emptyCart(CART_ID);
 		
 		assertNull(cartService.getCart(CART_ID));
+	}
+	
+	@Test
+	@org.junit.jupiter.api.Order(34)
+	void catchCartItemNotFoundExceptionInEmptyCart() {
+
+		// prepare
+		
+		final int unknownCartId = -1;
+		
+		// execute
+		
+		CartItemNotFoundException ex = assertThrows(
+			CartItemNotFoundException.class, () -> {
+				cartService.emptyCart(unknownCartId);
+			}
+		);
+		
+		// validate
+		
+		assertNotNull(ex);
+		assertEquals(unknownCartId, ex.getCart().getCartId());
 	}
 	
 }

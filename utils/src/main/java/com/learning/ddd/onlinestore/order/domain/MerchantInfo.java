@@ -1,6 +1,10 @@
 package com.learning.ddd.onlinestore.order.domain;
 
-public class MerchantInfo {
+import java.io.Serializable;
+
+public class MerchantInfo implements Serializable {
+
+	private static final long serialVersionUID = 7196879563444691136L;
 
 	private String name;
 	private String phone;

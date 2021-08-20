@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ class CartCartServiceTest {
 	private CartCartService cartService;
 	
 	@Test
-	@Order(1)
+	@org.junit.jupiter.api.Order(1)
 	void pullCartAndAddItems() {
 		
 		PullCartCartDTO dto = new PullCartCartDTO(CONSUMER_ID);
@@ -51,7 +50,7 @@ class CartCartServiceTest {
 	}
 	
 	@Test
-	@Order(2)
+	@org.junit.jupiter.api.Order(2)
 	void getAllCartsAndTheirCartItems() {
 		
 		List<CartCart> carts = cartService.getAllCarts();
@@ -76,7 +75,7 @@ class CartCartServiceTest {
 	}
 	
 	@Test
-	@Order(3)
+	@org.junit.jupiter.api.Order(3)
 	void deleteCartAndCartItems() {
 		
 		CartCart cart = cartService.getAllCarts().get(0);

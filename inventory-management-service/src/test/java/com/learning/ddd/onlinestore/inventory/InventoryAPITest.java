@@ -13,11 +13,15 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import com.learning.ddd.onlinestore.commons.util.HttpUtil;
+import com.learning.ddd.onlinestore.inventory.application.dto.AddItemsRequestDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.AddItemsResponseDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.DeleteItemsRequestDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsRequestDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsResponseDTO;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
 
 // An Inventory contains Items; it may be referred as Item Store. So you don't need to create an Inventory.
@@ -53,10 +57,10 @@ public class InventoryAPITest {
 
 	private static final String INVENTORY_SEARCH_URL = INVENTORY_SERVICE_URL + "/searches";
 	
-	private InventoryItem BISCUIT_ITEM = new InventoryItem(101, "Grocery", "Biscuit", "Parle-G", 10, 10.0);
-	private InventoryItem CHIVDA_ITEM = new InventoryItem(102, "Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
-	private InventoryItem BATHING_SOAP_ITEM = new InventoryItem(202, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
-	private InventoryItem PENCIL_ITEM = new InventoryItem(302, "Stationery", "Pencil", "Natraj Pencil", 10, 5.0);
+	private InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10, 10.0);
+	private InventoryItem CHIVDA_ITEM = new InventoryItem("Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
+	private InventoryItem BATHING_SOAP_ITEM = new InventoryItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
+	private InventoryItem PENCIL_ITEM = new InventoryItem("Stationery", "Pencil", "Natraj Pencil", 10, 5.0);
 
 	private static int PENCIL_ITEM_ID;
 	
@@ -82,7 +86,7 @@ public class InventoryAPITest {
 //	}
 	
 	@Test
-	@Order(1)
+	@org.junit.jupiter.api.Order(1)
 	void addItems() throws IOException {
 		
 		AddItemsRequestDTO requestDTO = new AddItemsRequestDTO(
@@ -113,7 +117,7 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@Order(2)
+	@org.junit.jupiter.api.Order(2)
 	void getAllItems() throws IOException {
 		
 		AddItemsResponseDTO responseDTO = (AddItemsResponseDTO) HttpUtil.get(
@@ -140,7 +144,7 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@Order(3)
+	@org.junit.jupiter.api.Order(3)
 	void getSpecificItem() throws IOException {
 		
 		AddItemsRequestDTO requestDTO = new AddItemsRequestDTO(
@@ -162,7 +166,7 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@Order(4)
+	@org.junit.jupiter.api.Order(4)
 	void searchItemsMatchingCategory() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
@@ -185,7 +189,7 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@Order(5)
+	@org.junit.jupiter.api.Order(5)
 	void searchItemsMatchingSubCategory() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
@@ -208,7 +212,7 @@ public class InventoryAPITest {
 	}		
 	
 	@Test
-	@Order(6)
+	@org.junit.jupiter.api.Order(6)
 	void searchItemsMatchingName() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
@@ -231,7 +235,7 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@Order(7)
+	@org.junit.jupiter.api.Order(7)
 	void searchItemsMatchingQuantity() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
@@ -254,7 +258,7 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@Order(8)
+	@org.junit.jupiter.api.Order(8)
 	void searchItemsMatchingPrice() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
@@ -277,7 +281,7 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@Order(9)
+	@org.junit.jupiter.api.Order(9)
 	void removeSpecificItem() throws IOException {
 		
 		HttpUtil.delete(INVENTORY_SERVICE_URL + "/" + PENCIL_ITEM_ID);
@@ -291,7 +295,7 @@ public class InventoryAPITest {
 
 	@Test
 	@Transactional // A modify operation (update/delete) has to be Transactional
-	@Order(10)
+	@org.junit.jupiter.api.Order(10)
 	void removeItemsMatchingGivenCriteria() throws IOException {
 		
 		// pattern-1

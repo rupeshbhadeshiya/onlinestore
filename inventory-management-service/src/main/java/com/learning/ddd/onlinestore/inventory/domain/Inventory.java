@@ -14,7 +14,7 @@ import com.learning.ddd.onlinestore.inventory.domain.event.ItemAddedToInventoryE
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemRemovedFromInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemsAddedToInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.exception.ItemsAlreadyExistsException;
-import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryItemRepository;
+import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryItemJpaRepository;
 
 //What an Inventory can have and should do?
 //1: Inventory contains lot of items, basically lot of Products
@@ -29,7 +29,7 @@ import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryItemRep
 public class Inventory {
 
 	@Autowired
-	private InventoryItemRepository itemRepository;
+	private InventoryItemJpaRepository itemRepository;
 
 	@Autowired
 	private DomainEventPublisher domainEventPublisher;
@@ -98,7 +98,7 @@ public class Inventory {
 	// wild card search for String fields like category/subCategory/name
 	public List<InventoryItem> searchItems(InventoryItem exampleItem) {
 		
-		return itemRepository.findByExample(exampleItem.getCategory(),
+		return itemRepository.searchItemsByExample(exampleItem.getCategory(),
 			exampleItem.getSubCategory(), exampleItem.getName(),
 			exampleItem.getPrice(), exampleItem.getQuantity()
 		);

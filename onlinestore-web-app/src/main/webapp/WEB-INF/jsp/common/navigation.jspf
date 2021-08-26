@@ -1,0 +1,14 @@
+
+	<nav role="navigation" class="navbar navbar-default">
+		<div class="navbar-collapse">
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="/onlinestore/view-inventory-items">Inventory</a></li>
+				<li class="active"><a href="/onlinestore/shop-items-view">Shop</a></li>
+				<li class="active"><a href="/onlinestore/view-carts">Cart</a></li>
+				<li class="active"><a href="/onlinestore/view-orders">Orders</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="/logout">Logout</a></li>
+			</ul>
+		</div>
+	</nav>

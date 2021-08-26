@@ -11,6 +11,7 @@ import javax.validation.constraints.Positive;
 
 //DDD: Entity
 @Entity
+//@Document(collection = "inventory")
 public class InventoryItem implements Serializable {
 
 	private static final long serialVersionUID = 2635836624711799146L;

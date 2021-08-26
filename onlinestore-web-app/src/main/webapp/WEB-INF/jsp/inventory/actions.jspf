@@ -1,0 +1,6 @@
+       <div>
+            <a class="btn btn-default" href="/onlinestore/view-inventory-items">View Inventory</a>
+	    	<a class="btn btn-default" href="/onlinestore/add-inventory-item">Add Items to Inventory</a>
+	    	<a class="btn btn-default" href="/onlinestore/search-inventory-items">Search Items from Inventory</a>
+        </div>
+    

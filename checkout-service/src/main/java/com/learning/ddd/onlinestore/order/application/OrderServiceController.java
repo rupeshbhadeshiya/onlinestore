@@ -105,6 +105,7 @@ public class OrderServiceController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
+	// URL will look like: /{consumerId}/orders?orderNumber=<order-number>
 	@DeleteMapping("/{consumerId}/orders")
 	public ResponseEntity<?> cancelOrder(
 			@PathVariable String consumerId,

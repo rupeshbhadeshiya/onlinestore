@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(schema="order")
+@Table(schema="orders")
 public class Address implements Serializable {
 
 	private static final long serialVersionUID = -3543268783740515825L;

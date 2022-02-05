@@ -21,7 +21,7 @@ import javax.persistence.Table;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
 
 @Entity
-@Table(name = "OnlineOrder", schema="order") // MUST keep table name other than 'Order which conflicts with SQL standard word 'Order'
+@Table(name = "OnlineOrder", schema="orders") // MUST keep table name other than 'Order which conflicts with SQL standard word 'Order'
 public class Order implements Serializable {
 
 	private static final long serialVersionUID = -498472061562718714L;

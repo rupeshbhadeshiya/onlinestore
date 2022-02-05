@@ -12,14 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.learning.ddd.onlinestore.cart.domain.Cart;
+import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.order.domain.Address;
 import com.learning.ddd.onlinestore.order.domain.AddressType;
 import com.learning.ddd.onlinestore.order.domain.Order;
 import com.learning.ddd.onlinestore.order.domain.repository.OrderRepository;
 import com.learning.ddd.onlinestore.order.domain.service.OrderService;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
-import com.learning.ddd.onlinestore.cart.domain.Cart;
-import com.learning.ddd.onlinestore.cart.domain.CartItem;
 
 //
 //When Consumer visits Checkout counter, Cart is transformed to Order

@@ -14,7 +14,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(schema="cart")
+@Table(schema="carts")
 public class CartItem implements Serializable {
 
 	private static final long serialVersionUID = 5472900313173264495L;

@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
 
 @Entity
-@Table(name = "OrderTransaction", schema="order")
+@Table(name = "OrderTransaction", schema="orders")
 @TypeDef(name = "merchantInfoUserType", typeClass = MerchantInfoUserType.class)
 public class OrderTransaction implements Serializable {
 

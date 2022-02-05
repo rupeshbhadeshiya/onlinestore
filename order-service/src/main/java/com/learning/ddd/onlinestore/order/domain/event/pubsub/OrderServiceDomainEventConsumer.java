@@ -11,6 +11,7 @@ import com.learning.ddd.onlinestore.cart.domain.repository.CartRepository;
 import com.learning.ddd.onlinestore.domain.event.DomainEvent;
 import com.learning.ddd.onlinestore.domain.event.DomainEventName;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventConsumer;
+import com.learning.ddd.onlinestore.order.domain.service.OrderService;
 
 @Primary // choose this one from all implementations of DomainEventProcessor
 @Component
@@ -18,6 +19,9 @@ public class OrderServiceDomainEventConsumer implements DomainEventConsumer {
 	
 	@Autowired
 	private CartRepository cartRepository;
+	
+	@Autowired
+	private OrderService orderService;
 	
 	@Override
 	public void consumeEvent(DomainEvent domainEvent) {
@@ -28,16 +32,17 @@ public class OrderServiceDomainEventConsumer implements DomainEventConsumer {
 		if (domainEvent.getEventName().equals(DomainEventName.ITEMS_ADDED_TO_CART)) {
 			
 			
-			ItemsAddedToCartEventData cartItemsAddedEventData = (ItemsAddedToCartEventData) domainEvent;
+			ItemsAddedToCartEventData cartItemsAddedEventData = (ItemsAddedToCartEventData) domainEvent.getEventData();
 			
 			Cart cart = cartItemsAddedEventData.getCart();
 			
-			cartRepository.save(cart);
+			//cartRepository.save(cart);
 			
 			System.out.println("==== OrderServiceDomainEventConsumer - "
 					+ "Event: " + DomainEventName.ITEMS_ADDED_TO_CART.name()
 					+ ", Created/Updated Cart to local data store - "
-					+ "cart = " + cart);
+					+ "cart = " + cart
+					+ ", items added = " + cartItemsAddedEventData.getItems());
 		}
 		
 	}

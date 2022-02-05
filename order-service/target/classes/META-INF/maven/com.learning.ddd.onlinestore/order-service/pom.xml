@@ -70,7 +70,6 @@
       	</dependency>
       	
       	<!-- internal -->
-      	
       	<dependency>
       		<groupId>com.learning.ddd.onlinestore</groupId>
 			<artifactId>commons</artifactId>

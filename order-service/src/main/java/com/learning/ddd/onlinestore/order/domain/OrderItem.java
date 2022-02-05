@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 //DDD: ValueObject for Order domain
 @Entity
-@Table(schema="order")
+@Table(schema="orders")
 public class OrderItem implements Serializable {
 
 	private static final long serialVersionUID = 4523534087165585966L;

@@ -7,10 +7,10 @@
             <br/>
         </c:if>
     	<c:if test="${isItemShoppedSuccessfully}">
-            <div class="text-success">Item added successfully to Cart!</div>
+            <div class="text-success">Item added to Cart</div>
             <br/>
         </c:if>
-    	
+        
     	<c:if test="${not empty items}">
 	        <table class="table table-striped">
 	            <caption>Available Items for Shopping:</caption>

@@ -1,7 +1,6 @@
 package com.learning.ddd.onlinestore.inventory.proxy;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,10 +38,11 @@ public class InventoryController {
 	public InventoryController() {
 		
 		// for testing just Controller->JSP flow, i.e. without DB or actual business
-		InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10, 10.0);
-		InventoryItem CHIVDA_ITEM = new InventoryItem("Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
-		InventoryItem BATHING_SOAP_ITEM = new InventoryItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
-		InventoryItem PENCIL_ITEM = new InventoryItem("Stationery", "Pencil", "Natraj Pencil", 10, 5.0);
+		InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10.0, 10);
+		InventoryItem CHIVDA_ITEM = new InventoryItem("Grocery", "Chivda", "Real Farali Chivda", 20.0, 10);
+		InventoryItem BATHING_SOAP_ITEM = new InventoryItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, 5);
+		InventoryItem PENCIL_ITEM = new InventoryItem("Stationery", "Pencil", "Natraj Pencil", 5.0, 10);
+
 		items.add(BISCUIT_ITEM);
 		items.add(CHIVDA_ITEM);
 		items.add(BATHING_SOAP_ITEM);
@@ -101,20 +101,18 @@ public class InventoryController {
  	@PostMapping(value = "/add-inventory-item")
  	public String addItem(Model model, @ModelAttribute("item") InventoryItem item) {
  		
- 		List<InventoryItem> items = inventoryServiceProxy.addItems(
-			Arrays.asList(new InventoryItem[] { item })
-		);
+ 		InventoryItem addedItem = inventoryServiceProxy.addItem(item);
  		
- 		if (!items.isEmpty()) {
+ 		if (addedItem != null) {
  		
  			System.out.println(
 	 			"---------------------- addItem() --------------------\n"
 	 					+ "itemToAdd = " + item
-	 					+ "savedItem = " + items.get(0)
+	 					+ "savedItem = " + addedItem
 	 			+ "\n--------------------------------------------------");
 	 		
 	 		model.addAttribute("isItemAddedSuccessfully", true);
-	 		model.addAttribute("savedItem", items.get(0));
+	 		model.addAttribute("savedItem", addedItem);
 	 		
 	 		List<InventoryItem> allItems = inventoryServiceProxy.getAllItems();
 	 		System.out.println(

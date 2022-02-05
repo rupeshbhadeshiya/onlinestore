@@ -1,6 +1,15 @@
 <%@ include file="../common/header.jspf"%>
 
     <div class="container">
+    
+        <c:if test="${isItemRemovedSuccessfully}">
+            <div class="text-success">Item removed from Cart</div>
+            <br/>
+        </c:if>
+        <c:if test="${empty cart}">
+            <div class="text-warning">No Item in Cart! Do some Shopping!</div>
+            <br/>
+        </c:if>
 
     	<c:if test="${not empty cart}">
     	
@@ -34,6 +43,7 @@
 		                    <th>Name</th>
 		                    <th>Quantity</th>
 		                    <th>Price</th>
+		                    <th></th>
 		                </tr>	                
 		            </thead>
 		            <tbody>
@@ -45,6 +55,7 @@
 		                        <td>${item.name}</td>
 		                        <td>${item.quantity}</td>
 		                        <td>${item.price}</td>
+		                        <td><a class="btn btn-warning" href="/onlinestore/remove-item-from-cart?cartId=${cart.cartId}&itemId=${item.itemId}">Remove Item from Cart</a></td>
 		                    </tr>
 		                </c:forEach>
 		            </tbody>
@@ -57,6 +68,7 @@
         
         </c:if>
         
+        <br/>
         <%@ include file="actions.jspf"%>
         
     </div>

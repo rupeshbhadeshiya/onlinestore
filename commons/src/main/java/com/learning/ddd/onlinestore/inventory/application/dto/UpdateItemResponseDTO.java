@@ -6,8 +6,8 @@ import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
 
 public class UpdateItemResponseDTO implements Serializable {
 
-	private static final long serialVersionUID = -4780747589475571570L;
-
+	private static final long serialVersionUID = 3335638125489557344L;
+	
 	private InventoryItem item;
 	
 	public UpdateItemResponseDTO() {

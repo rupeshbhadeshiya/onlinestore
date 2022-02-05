@@ -12,6 +12,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.learning.ddd.onlinestore.domain.event.DomainEvent;
@@ -26,6 +27,9 @@ public class ActiveMQMessagesConsumptionHandler implements ServletContextListene
 	private ActiveMQMessagesConsumer activeMQMessagesConsumer;
 	
 	private ActiveMQMessagesListener activeMQMessagesListener;
+	
+	@Value("${onlinestore.domain.events.topic.name:OnlinestoreDomainEventsTopic}")
+	private String topicName;
 
 	
 	@Override
@@ -96,7 +100,7 @@ public class ActiveMQMessagesConsumptionHandler implements ServletContextListene
 				System.out.println("ActiveMQMessagesConsumer: init() - Session created");
 
 				// Create Destination topic
-				Topic topic = session.createTopic("SampleActiveMQTopic");
+				Topic topic = session.createTopic(topicName);
 				System.out.println("ActiveMQMessagesConsumer: init() - Topic created - " + topic);
 
 				// Create a consumer

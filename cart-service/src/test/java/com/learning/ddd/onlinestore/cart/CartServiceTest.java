@@ -16,7 +16,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.learning.ddd.onlinestore.cart.application.dto.PullCartDTO;
+import com.learning.ddd.onlinestore.cart.application.dto.AddItemToCartDTO;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
@@ -40,8 +40,8 @@ class CartServiceTest {
 	private static final String CONSUMER_ID = "11";
 	private static final int BISCUIT_ITEM_QUANTITY = 2;
 	private static final int BATHING_SOAP_ITEM_QUANTITY = 3;
-	private final CartItem BISCUIT_ITEM = new CartItem("Grocery", "Biscuit", "Parle-G", BISCUIT_ITEM_QUANTITY, 10.0);
-	private final CartItem BATHING_SOAP_ITEM = new CartItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", BATHING_SOAP_ITEM_QUANTITY, 30.0);
+	private final CartItem BISCUIT_ITEM = new CartItem("Grocery", "Biscuit", "Parle-G", 10.0, BISCUIT_ITEM_QUANTITY);
+	private final CartItem BATHING_SOAP_ITEM = new CartItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, BATHING_SOAP_ITEM_QUANTITY);
 	
 	private static int CART_ID;
 	
@@ -52,11 +52,11 @@ class CartServiceTest {
 	@org.junit.jupiter.api.Order(1)
 	void pullCartAndAddItems() {
 		
-		PullCartDTO dto = new PullCartDTO(CONSUMER_ID);
+		AddItemToCartDTO dto = new AddItemToCartDTO(CONSUMER_ID, 0);
 		dto.addItem(BISCUIT_ITEM);
 		dto.addItem(BATHING_SOAP_ITEM);
 		
-		Cart cart = cartService.pullCartAndAddItems(CONSUMER_ID, dto);
+		Cart cart = cartService.addItem(dto);
 		
 		// record for use in other tests
 		CART_ID = cart.getCartId();

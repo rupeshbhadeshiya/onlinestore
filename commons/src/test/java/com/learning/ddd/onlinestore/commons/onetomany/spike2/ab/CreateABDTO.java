@@ -1,7 +1,11 @@
 package com.learning.ddd.onlinestore.commons.onetomany.spike2.ab;
 
-public class CreateABDTO {
+import java.io.Serializable;
 
+public class CreateABDTO implements Serializable {
+
+	private static final long serialVersionUID = -8643942763305596141L;
+	
 	private String aName;
 	private String bName;
 	

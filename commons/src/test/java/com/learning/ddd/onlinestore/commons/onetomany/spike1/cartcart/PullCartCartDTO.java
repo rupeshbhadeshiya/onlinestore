@@ -1,10 +1,13 @@
 package com.learning.ddd.onlinestore.commons.onetomany.spike1.cartcart;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PullCartCartDTO {
+public class PullCartCartDTO implements Serializable {
 
+	private static final long serialVersionUID = -4896494726577898715L;
+	
 	private String consumerId;
 	private List<CartCartItem> items = new ArrayList<CartCartItem>();
 	

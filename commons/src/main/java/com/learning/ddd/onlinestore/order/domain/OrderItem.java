@@ -40,21 +40,23 @@ public class OrderItem implements Serializable {
 	public OrderItem() {
 	}
 	
-	public OrderItem(String category, String subCategory, String name, int quantity, double price) {
+	public OrderItem(String category, String subCategory, String name,
+			double price, int quantity) {
 		this.category = category;
 		this.subCategory = subCategory;
 		this.name = name;
-		this.quantity = quantity;
 		this.price = price;
+		this.quantity = quantity;
 	}
 	
-	public OrderItem(int itemId, String category, String subCategory, String name, int quantity, double price) {
+	public OrderItem(int itemId, String category, String subCategory, String name,
+			double price, int quantity) {
 		this.itemId = itemId;
 		this.category = category;
 		this.subCategory = subCategory;
 		this.name = name;
-		this.quantity = quantity;
 		this.price = price;
+		this.quantity = quantity;
 	}
 
 	

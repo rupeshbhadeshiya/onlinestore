@@ -12,8 +12,8 @@ public class ItemConversionUtil {
 			inventoryItem.getCategory(), 
 			inventoryItem.getSubCategory(), 
 			inventoryItem.getName(), 
-			inventoryItem.getQuantity(), 
-			inventoryItem.getPrice()
+			inventoryItem.getPrice(),
+			inventoryItem.getQuantity()
 		);
 	}
 	
@@ -23,8 +23,8 @@ public class ItemConversionUtil {
 			cartItem.getCategory(), 
 			cartItem.getSubCategory(), 
 			cartItem.getName(), 
-			cartItem.getQuantity(), 
-			cartItem.getPrice()
+			cartItem.getPrice(),
+			cartItem.getQuantity()
 		);
 	}
 	
@@ -34,8 +34,8 @@ public class ItemConversionUtil {
 			cartItem.getCategory(), 
 			cartItem.getSubCategory(), 
 			cartItem.getName(), 
-			cartItem.getQuantity(), 
-			cartItem.getPrice()
+			cartItem.getPrice(),
+			cartItem.getQuantity()
 		);
 	}
 
@@ -45,8 +45,8 @@ public class ItemConversionUtil {
 				orderItem.getCategory(), 
 				orderItem.getSubCategory(), 
 				orderItem.getName(), 
-				orderItem.getQuantity(), 
-				orderItem.getPrice()
+				orderItem.getPrice(),
+				orderItem.getQuantity()
 			);
 	}
 

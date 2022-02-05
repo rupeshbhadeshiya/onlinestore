@@ -23,8 +23,8 @@ public class CartItem implements Serializable {
 	private String category;		// ex. Grocery
 	private String subCategory;		// ex. Biscuits
 	private String name;			// ex. Parle-G
-	private int quantity;			// ex. 5
 	private Double price;			// ex. 30.0 INR (price of a single item)
+	private int quantity;			// ex. 5
 	
 	// Ignore 
 	@JsonIgnore
@@ -39,15 +39,15 @@ public class CartItem implements Serializable {
 		
 	}
 	
-	public CartItem(String category, String subCategory, 
-			String name, int quantity, Double price) {
+	public CartItem(String category, String subCategory, String name, 
+			Double price, int quantity) {
 		
 		super();
 		this.category = category;
 		this.subCategory = subCategory;
 		this.name = name;
-		this.quantity = quantity;
 		this.price = price;
+		this.quantity = quantity;
 	}
 
 	public CartItem(CartItem cartItem) {
@@ -56,8 +56,8 @@ public class CartItem implements Serializable {
 		this.category = cartItem.category;
 		this.subCategory = cartItem.subCategory;
 		this.name = cartItem.name;
-		this.quantity = cartItem.quantity;
 		this.price = cartItem.price;
+		this.quantity = cartItem.quantity;
 	}
 
 	public int getItemId() {
@@ -185,13 +185,13 @@ public class CartItem implements Serializable {
 		} else if (!subCategory.equals(other.subCategory))
 			return false;
 		
-		if (quantity != other.quantity)
-			return false;
-		
 		if (price == null) {
 			if (other.price != null)
 				return false;
 		} else if (!price.equals(other.price))
+			return false;
+		
+		if (quantity != other.quantity)
 			return false;
 		
 		return true;
@@ -202,7 +202,7 @@ public class CartItem implements Serializable {
 		return "CartItem [id=" + itemId
 				+ ", name=" + name
 				+ ", category=" + category + ", subCategory=" + subCategory 
-				+ ", quantity=" + quantity + ", price=" + price 
+				 + ", price=" + price + ", quantity=" + quantity 
 				//+ ", cart=" + cart 
 				+ "]";
 	}

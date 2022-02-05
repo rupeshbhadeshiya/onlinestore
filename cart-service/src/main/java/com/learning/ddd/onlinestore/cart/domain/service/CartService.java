@@ -9,12 +9,12 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.learning.ddd.onlinestore.cart.application.dto.PullCartDTO;
+import com.learning.ddd.onlinestore.cart.application.dto.AddItemToCartDTO;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.cart.domain.event.CartEmptiedEvent;
-import com.learning.ddd.onlinestore.cart.domain.event.CartPulledAndItemAddedEvent;
-import com.learning.ddd.onlinestore.cart.domain.event.CartUpdatedEvent;
+import com.learning.ddd.onlinestore.cart.domain.event.ItemRemovedFromCartEvent;
+import com.learning.ddd.onlinestore.cart.domain.event.ItemsAddedToCartEvent;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.repository.CartRepository;
@@ -33,26 +33,41 @@ public class CartService {
 	public CartService() {
 	}
 	
-
 	@Transactional
-	public Cart pullCartAndAddItems(String consumerId, PullCartDTO pullCartDTO) {
+	public Cart addItem(AddItemToCartDTO addItemToCartDTO) {
 		
-		Cart cart = new Cart();
+		Cart cart;
 		
-		cart.setConsumerId(consumerId);
+		List<Cart> carts = cartRepository.findByConsumerId(addItemToCartDTO.getConsumerId());
 		
-		cart.addItems(pullCartDTO.getItems());
+		if (carts.isEmpty()) {
+			
+			cart = new Cart();
+			cart.setConsumerId(addItemToCartDTO.getConsumerId());
+			System.out.println("CartService.addItem() ====== creating new Cart "
+					+ " (consumerId="+cart.getConsumerId() + ")");
+			
+		} else {
+			
+			cart = carts.get(0); // every consumer should have at max one Cart only
+			System.out.println("CartService.addItem() ====== retrieved existring Cart "
+					+ " (cartId="+cart.getCartId() + ", consumerId="+cart.getConsumerId() + ")");
+			
+		}
+		
+		cart.addItems(addItemToCartDTO.getItems());
 		
 		Cart savedCart = cartRepository.save(cart);
 		
-		CartPulledAndItemAddedEvent cartPulledEvent = new CartPulledAndItemAddedEvent(cart);
-		domainEventPublisher.publishEvent(cartPulledEvent);
+		ItemsAddedToCartEvent itemsAddedToCartEvent = new ItemsAddedToCartEvent(savedCart, addItemToCartDTO.getItems());
 		
-		System.out.println("==== Cart - published - " + cartPulledEvent);
+		domainEventPublisher.publishEvent(itemsAddedToCartEvent);
+		
+		//System.out.println("==== pullCartAndAddItems(): Cart - published event - " + itemsAddedToCartEvent);
 		
 		return savedCart;
 	}
-
+	
 	public List<Cart> getAllCarts(String consumerId) {
 		
 		return cartRepository.findByConsumerId(consumerId);
@@ -62,8 +77,7 @@ public class CartService {
 		
 		return getCartInternal(cartId);
 	}
-
-
+	
 	private Cart getCartInternal(int cartId) throws CartNotFoundException {
 		
 		Optional<Cart> cartInDatabase = cartRepository.findById(cartId);
@@ -76,16 +90,43 @@ public class CartService {
 	}
 	
 	@Transactional
-	public Cart updateCart(Cart cart) {
+	public Cart removeItem(Integer cartId, Integer itemId) 
+			throws CartNotFoundException, CartItemNotFoundException, CloneNotSupportedException {
 		
-		Cart updatedCart = cartRepository.save(cart);
+		Cart cart =  getCartInternal(cartId);
 		
-		CartUpdatedEvent cartUpdatedEvent = new CartUpdatedEvent(cart);
-		domainEventPublisher.publishEvent(cartUpdatedEvent);
+		CartItem cartItemToBeRemoved = null, copyOfItemToBeRemoved = null;
 		
-		System.out.println("==== updateCart() - CartUpdatedEvent published - " + cartUpdatedEvent);
+		for (CartItem cartItem : cart.getItems()) {
+			
+			if (cartItem.getItemId() == itemId) {
+				
+				cartItemToBeRemoved = cartItem;	// if remove here, then throws ConcurrentModificationException!
+				break;							// so remove after exiting the for loop...
+				
+			}
+		}
 		
-		return updatedCart;
+		if (cartItemToBeRemoved != null) {
+			
+			copyOfItemToBeRemoved = cartItemToBeRemoved.clone();
+			
+			cart.removeItem(cartItemToBeRemoved);
+			
+			cartRepository.save(cart);
+			
+			ItemRemovedFromCartEvent itemRemovedFromCartEvent = new ItemRemovedFromCartEvent(cart, copyOfItemToBeRemoved);
+			domainEventPublisher.publishEvent(itemRemovedFromCartEvent);
+		}
+		
+		if (cart.getItems().isEmpty()) {
+			
+			this.emptyCart(cartId);
+			
+			cart = null;
+		}
+		
+		return cart;
 	}
 	
 	@Transactional
@@ -126,7 +167,7 @@ public class CartService {
 		
 		domainEventPublisher.publishEvent(cartEmptiedEvent);
 		
-		System.out.println("==== emptyCart(cartId) - CartEmptiedEvent published - " + cartEmptiedEvent);
+		//System.out.println("==== emptyCart(cartId) - CartEmptiedEvent published - " + cartEmptiedEvent);
 	}
 	
 	@Transactional
@@ -140,5 +181,6 @@ public class CartService {
 		//domainEventPublisher.publishEvent(cartEmptiedEvent);
 		//System.out.println("==== emptyCart(cartId) - CartEmptiedEvent published - " + cartEmptiedEvent);
 	}
-	
+
+
 }

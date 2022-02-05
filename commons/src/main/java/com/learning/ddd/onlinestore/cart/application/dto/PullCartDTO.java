@@ -1,11 +1,14 @@
 package com.learning.ddd.onlinestore.cart.application.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
 
-public class PullCartDTO {
+public class PullCartDTO implements Serializable {
+
+	private static final long serialVersionUID = 4636593656098766863L;
 
 	private String consumerId;
 	private List<CartItem> items = new ArrayList<CartItem>();

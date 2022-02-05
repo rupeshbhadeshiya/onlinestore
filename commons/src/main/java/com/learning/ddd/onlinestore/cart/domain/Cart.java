@@ -11,10 +11,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
 
 @Entity
+//@Table(schema="cart")
 public class Cart implements Serializable {
 
 	private static final long serialVersionUID = 8342884428850145205L;

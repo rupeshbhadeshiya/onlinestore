@@ -9,7 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.learning.ddd.onlinestore.cart.application.dto.PullCartDTO;
+import com.learning.ddd.onlinestore.cart.application.dto.AddItemToCartDTO;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.commons.util.ItemConversionUtil;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
@@ -29,16 +29,15 @@ public class CartServiceRestTemplateBasedProxy {
 //        return new RestTemplate();
 //    }
 	
-	
-	public Cart pullCartAndAddItem(InventoryItem inventoryItem) {
+	public Cart addItemToCart(int cartId, InventoryItem inventoryItem) {
 		
-		PullCartDTO dto = new PullCartDTO(CONSUMER_ID);
+		AddItemToCartDTO dto = new AddItemToCartDTO(CONSUMER_ID, cartId); 
 		dto.addItem(ItemConversionUtil.fromInventoryItemToCartItem(inventoryItem));
 		
-		HttpEntity<PullCartDTO> request = new HttpEntity<PullCartDTO>(dto);
+		HttpEntity<AddItemToCartDTO> request = new HttpEntity<AddItemToCartDTO>(dto);
 		
 		Cart cart = cartServiceRestTemplate.exchange(
-			"http://cart-service/consumers/" + CONSUMER_ID + "/carts", 
+			"http://cart-service/consumers/" + CONSUMER_ID + "/carts",
 			HttpMethod.POST,
 			request,
 			new ParameterizedTypeReference<Cart>() {}
@@ -47,33 +46,28 @@ public class CartServiceRestTemplateBasedProxy {
 		return cart;
 	}
 	
-	public Cart shopItem(int cartId, InventoryItem inventoryItem) {
-		
-		PullCartDTO dto = new PullCartDTO(CONSUMER_ID);
-		dto.addItem(ItemConversionUtil.fromInventoryItemToCartItem(inventoryItem));
-		
-		HttpEntity<PullCartDTO> request = new HttpEntity<PullCartDTO>(dto);
-		
-		Cart cart = cartServiceRestTemplate.exchange(
-			"http://cart-service/consumers/" + CONSUMER_ID + "/carts/" + cartId, 
-			HttpMethod.PUT,
-			request,
-			new ParameterizedTypeReference<Cart>() {}
-		).getBody();
-		
-		return cart;
-	}
+//	public List<Cart> getAllCarts() {
+//		
+//		List<Cart> allCarts = cartServiceRestTemplate.exchange(
+//			"http://cart-service/consumers/" + CONSUMER_ID + "/carts", 
+//			HttpMethod.GET,
+//			null,
+//			new ParameterizedTypeReference<List<Cart>>() {}
+//		).getBody();
+//		
+//		return allCarts;
+//	}
 	
-	public List<Cart> getAllCarts() {
+	public Cart getCart(String consumerId) {
 		
-		List<Cart> allCarts = cartServiceRestTemplate.exchange(
-			"http://cart-service/consumers/" + CONSUMER_ID + "/carts", 
+		List<Cart> carts = cartServiceRestTemplate.exchange(
+			"http://cart-service/consumers/" + consumerId + "/carts", 
 			HttpMethod.GET,
 			null,
 			new ParameterizedTypeReference<List<Cart>>() {}
 		).getBody();
 		
-		return allCarts;
+		return carts.isEmpty() ? null : carts.get(0); // every consumer have at max one cart only!
 	}
 	
 	public Cart getCart(Integer cartId) {
@@ -88,11 +82,22 @@ public class CartServiceRestTemplateBasedProxy {
 		return cart;
 	}
 
+	public Cart removeItemFromCart(String consumerId, int cartId, int itemId) {
+		
+		Cart cart = cartServiceRestTemplate.exchange(
+			"http://cart-service/consumers/" + consumerId + "/carts/" + cartId + "/items/" + itemId,
+			HttpMethod.DELETE,
+			null,
+			new ParameterizedTypeReference<Cart>() {}
+		).getBody();
+		
+		return cart;
+	}
 
-	public void emptyCart(Integer cartId) {
+	public void emptyCart(String consumerId, int cartId) {
 		
 		cartServiceRestTemplate.exchange(
-				"http://cart-service/consumers/" + CONSUMER_ID + "/carts/" + cartId, 
+				"http://cart-service/consumers/" + consumerId + "/carts/" + cartId, 
 			HttpMethod.DELETE,
 			null,
 			new ParameterizedTypeReference<Cart>() {}

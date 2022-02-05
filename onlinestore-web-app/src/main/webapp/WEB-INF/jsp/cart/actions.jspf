@@ -1,4 +1,4 @@
        	<div>
-       		<a class="btn btn-default" href="/onlinestore/view-carts">View Carts</a>
+       		<a class="btn btn-success" href="/onlinestore/shop-items-view">Shop Items</a>
        	</div>
 		    

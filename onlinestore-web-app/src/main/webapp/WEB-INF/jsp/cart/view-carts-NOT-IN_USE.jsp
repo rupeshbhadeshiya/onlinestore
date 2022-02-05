@@ -29,9 +29,9 @@
 	                        <td>${cart.cartId}</td>
 	                        <td>${cart.itemCount}</td>
 	                        <td>${cart.computeAmount()}</td>
-	                        <td><a class="btn btn-success" href="/onlinestore/view-cart-details?cartId=${cart.cartId}">View Details</a></td>
-	                        <td><a class="btn btn-success" href="/onlinestore/go-for-checkout?cartId=${cart.cartId}">Checkout</a></td>
-	                        <td><a class="btn btn-warning" href="/onlinestore/empty-cart?cartId=${cart.cartId}">Empty Cart</a></td>
+	                        <td><a class="btn btn-success" href="/onlinestore/view-cart">View Cart Details</a></td>
+	                        <td><a class="btn btn-success" href="/onlinestore/go-for-checkout">Checkout</a></td>
+	                        <td><a class="btn btn-warning" href="/onlinestore/empty-cart">Empty Cart</a></td>
 	                    </tr>
 	                </c:forEach>
 	            </tbody>

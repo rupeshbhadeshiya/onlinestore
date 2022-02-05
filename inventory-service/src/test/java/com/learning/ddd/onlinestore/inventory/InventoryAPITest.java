@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -15,11 +14,14 @@ import javax.transaction.Transactional;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.http.HttpStatus;
 
 import com.learning.ddd.onlinestore.commons.util.HttpUtil;
-import com.learning.ddd.onlinestore.inventory.application.dto.AddItemsRequestDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.AddItemsResponseDTO;
+import com.learning.ddd.onlinestore.inventory.application.ErrorDetails;
+import com.learning.ddd.onlinestore.inventory.application.dto.AddItemRequestDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.AddItemResponseDTO;
 import com.learning.ddd.onlinestore.inventory.application.dto.DeleteItemsRequestDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.GetItemsResponseDTO;
 import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsRequestDTO;
 import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsResponseDTO;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
@@ -49,21 +51,52 @@ import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
 //Consumer exits Mart with Payment Receipt and Items
 //~End~
 
+
+/*
+ * Test naming convention:
+ * 		* Test is of application/domain behavior and not of code <- v. imp
+ * 		* Test name should reflect domain behavior as <action><outcome>
+ * 		* Test name does not have: input, output, process, function name
+ * 		* Test name should separate words by underscore, for readability
+ * 
+ * 
+ * Scenarios being tested:
+ * 
+ * You can add an InventoryItem with valid values
+ * 		or, Adding an InventoryItem with valid values is allowed/accepted (/)
+ * 		or, Adding an InventoryItem with valid values is success
+ * 		or, Success in adding an InventoryItem with valid values
+ * You cannot add an InventoryItem with invalid values
+ * 		or, Adding an InventoryItem with invalid values is not allowed/rejected (/)
+ * 		or, Adding an InventoryItem with invalid values is failure
+ * 		or, Failure in adding an InventoryItem with invalid values
+ * 
+ * Adding an InventoryItem with valid values is successful
+ * 
+ * When try to add an InventoryItem with valid values of all fields then it is succeeded/accepted by system
+ * When try to add an InventoryItem with invalid values of all fields then it is failed/rejected by system
+ * 
+ * 
+ */
+
 @TestMethodOrder(OrderAnnotation.class)
 public class InventoryAPITest {
 
-	private static final String INVENTORY_SERVICE_URL = 
-		"http://localhost:9010/inventory/items";
-
+	private static final String ERROR_CATEGORY_IS_REQUIRED = "Category is required";
+	private static final String ERROR_SUBCATEGORY_IS_REQUIRED = "Sub-Category is required";
+	private static final String ERROR_NAME_IS_REQUIRED = "Name is required";
+	private static final String ERROR_PRICE_IS_REQUIRED = "Price should be a positive decimal number";
+	private static final String ERROR_QUANTITY_IS_REQUIRED = "Quantity should be a positive number";
+	private static final String ERROR_ITEM_ALREADY_EXIST = "Item already exists";
+	
+	private static final String INVENTORY_SERVICE_URL = "http://localhost:9010/inventory/items";
 	private static final String INVENTORY_SEARCH_URL = INVENTORY_SERVICE_URL + "/searches";
 	
-	private InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10, 10.0);
-	private InventoryItem CHIVDA_ITEM = new InventoryItem("Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
-	private InventoryItem BATHING_SOAP_ITEM = new InventoryItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
-	private InventoryItem PENCIL_ITEM = new InventoryItem("Stationery", "Pencil", "Natraj Pencil", 10, 5.0);
+	private InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10.0, 10);
+	private InventoryItem CHIVDA_ITEM = new InventoryItem("Grocery", "Chivda", "Real Farali Chivda", 20.0, 10);
+	private InventoryItem BATHING_SOAP_ITEM = new InventoryItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, 5);
+	private InventoryItem PENCIL_ITEM = new InventoryItem("Stationery", "Pencil", "Natraj Pencil", 5.0, 10);
 
-	private static int PENCIL_ITEM_ID;
-	
 //	@Autowired
 //	private ItemRepository itemRepository;
 	
@@ -87,87 +120,258 @@ public class InventoryAPITest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(1)
-	void addItems() throws IOException {
+	void adding_InventoryItem_with_valid_values() throws IOException {
+	//void addingInventoryItemWithValidValues() throws IOException {
+	//void addItem_Http201Created_Success() throws IOException {
 		
-		AddItemsRequestDTO requestDTO = new AddItemsRequestDTO(
-			Arrays.asList( new InventoryItem[] { BISCUIT_ITEM, CHIVDA_ITEM, BATHING_SOAP_ITEM } )
+		// Item1: Biscuit
+		AddItemRequestDTO requestDTO = new AddItemRequestDTO(BISCUIT_ITEM);
+		AddItemResponseDTO responseDTO = (AddItemResponseDTO) HttpUtil.post(
+			INVENTORY_SERVICE_URL, requestDTO, AddItemResponseDTO.class
 		);
-		
-		AddItemsResponseDTO responseDTO = (AddItemsResponseDTO) HttpUtil.post(
-			INVENTORY_SERVICE_URL, requestDTO, AddItemsResponseDTO.class
-		);
-		
 		assertNotNull(responseDTO);
-		List<InventoryItem> addedItems = responseDTO.getItems();
-		assertNotNull(addedItems);
-		assertEquals(3, addedItems.size());
-		assertEquals(
-				BISCUIT_ITEM.getQuantity()
-				+ CHIVDA_ITEM.getQuantity() 
-				+ BATHING_SOAP_ITEM.getQuantity(),
-			responseDTO.getItemsQuantitiesTotal()
-		);
-		assertTrue(addedItems.contains(BISCUIT_ITEM));
-		assertTrue(addedItems.contains(CHIVDA_ITEM));
-		assertTrue(addedItems.contains(BATHING_SOAP_ITEM));
+		InventoryItem addedItem = (InventoryItem) responseDTO.getItem();
+		assertNotNull(addedItem);
+		//assertEquals(BISCUIT_ITEM.getQuantity(), addedItem.getQuantity());
+		assertTrue(BISCUIT_ITEM.equals(addedItem));
+		assertTrue(addedItem.getItemId() > 0);	// when entities are persisted they will be assigned unique id 
 		
-		for (InventoryItem item : addedItems) {
-			assertTrue(item.getItemId() > 0);	// when entities are persisted they will be assigned unique id 
-		}
+		// Item2: Chivda
+		requestDTO = new AddItemRequestDTO(CHIVDA_ITEM);
+		responseDTO = (AddItemResponseDTO) HttpUtil.post(
+			INVENTORY_SERVICE_URL, requestDTO, AddItemResponseDTO.class
+		);
+		assertNotNull(responseDTO);
+		addedItem = (InventoryItem) responseDTO.getItem();
+		assertNotNull(addedItem);
+		//assertEquals(CHIVDA_ITEM.getQuantity(), addedItem.getQuantity());
+		assertTrue(CHIVDA_ITEM.equals(addedItem));
+		assertTrue(addedItem.getItemId() > 0);	// when entities are persisted they will be assigned unique id 
+		
+		// Item3: Bathing Soap
+		requestDTO = new AddItemRequestDTO(BATHING_SOAP_ITEM);
+		responseDTO = (AddItemResponseDTO) HttpUtil.post(
+			INVENTORY_SERVICE_URL, requestDTO, AddItemResponseDTO.class
+		);
+		assertNotNull(responseDTO);
+		addedItem = (InventoryItem) responseDTO.getItem();
+		assertNotNull(addedItem);
+		//assertEquals(BATHING_SOAP_ITEM.getQuantity(), addedItem.getQuantity());
+		assertTrue(BATHING_SOAP_ITEM.equals(addedItem));
+		assertTrue(addedItem.getItemId() > 0);	// when entities are persisted they will be assigned unique id
+		
+		// Item4: Pencil
+		requestDTO = new AddItemRequestDTO(PENCIL_ITEM);
+		responseDTO = (AddItemResponseDTO) HttpUtil.post(
+			INVENTORY_SERVICE_URL, requestDTO, AddItemResponseDTO.class
+		);
+		assertNotNull(responseDTO);
+		addedItem = (InventoryItem) responseDTO.getItem();
+		assertNotNull(addedItem);
+		//assertEquals(BATHING_SOAP_ITEM.getQuantity(), addedItem.getQuantity());
+		assertTrue(PENCIL_ITEM.equals(addedItem));
+		assertTrue(addedItem.getItemId() > 0);	// when entities are persisted they will be assigned unique id
 	}
-	
+
 	@Test
 	@org.junit.jupiter.api.Order(2)
-	void getAllItems() throws IOException {
+	void adding_InventoryItem_with_invalid_values() throws IOException {
+	//void adding_InventoryItem_with_invalid_values_is_not_allowed() throws IOException {
+	//void addingInventoryItemWithInvalidValues() throws IOException {
+	//void adding_inventoryItem_with_no_fields_is_invalid() throws IOException {
+	//void adding_inventoryItem_with_no_fields_is_badRequest() throws IOException {
+	//void givenAddItem_whenNoFields_thenHttp400BadRequest() throws IOException {
+	//void addItem_Http400BadRequest_SpecifyNoField() throws IOException {
 		
-		AddItemsResponseDTO responseDTO = (AddItemsResponseDTO) HttpUtil.get(
-			INVENTORY_SERVICE_URL, AddItemsResponseDTO.class
+		AddItemRequestDTO requestDTO = new AddItemRequestDTO(new InventoryItem());
+		
+		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
+			INVENTORY_SERVICE_URL, requestDTO, ErrorDetails.class
 		);
-		
-		assertNotNull(responseDTO);
-		List<InventoryItem> addedItems = responseDTO.getItems();
-		assertNotNull(addedItems);
-		assertEquals(3, addedItems.size());
-		assertEquals(
-				BISCUIT_ITEM.getQuantity()
-				+ CHIVDA_ITEM.getQuantity() 
-				+ BATHING_SOAP_ITEM.getQuantity(),
-			responseDTO.getItemsQuantitiesTotal()
-		);
-		assertTrue(addedItems.contains(BISCUIT_ITEM));
-		assertTrue(addedItems.contains(CHIVDA_ITEM));
-		assertTrue(addedItems.contains(BATHING_SOAP_ITEM));
-		
-		for (InventoryItem item : addedItems) {
-			assertTrue(item.getItemId() > 0);	// when entities are persisted they will be assigned unique id 
-		}
+		assertNotNull(errorDetails);
+		assertEquals(HttpStatus.BAD_REQUEST.value(), errorDetails.getStatus());
+		assertNotNull(errorDetails.getErrors());
+		assertTrue(errorDetails.getErrors().contains(ERROR_CATEGORY_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_SUBCATEGORY_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_NAME_IS_REQUIRED));
+		//assertTrue(errorDetails.getErrors().contains(ERROR_PRICE_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_QUANTITY_IS_REQUIRED));
 	}
 	
+	// scenario being tested: 
+	//  When try to add an InventoryItem with invalid values for all fields 
+	// 	then it is failed/rejected by system
 	@Test
 	@org.junit.jupiter.api.Order(3)
-	void getSpecificItem() throws IOException {
+	void adding_InventoryItem_with_only_category() throws IOException {
+	//void addingInventoryItemWithValidCategoryButOtherInvalidValues() throws IOException {
+	//void adding_inventoryItem_with_only_category_is_invalid() throws IOException {
+	//void addItem_Http400BadRequest_SpecifyOnlyCategory() throws IOException {
+	//void givenAddItem_whenSpecifyOnlyCategory_thenHttp400BadRequest() throws IOException {
 		
-		AddItemsRequestDTO requestDTO = new AddItemsRequestDTO(
-			Arrays.asList( new InventoryItem[] { PENCIL_ITEM } )
+		AddItemRequestDTO requestDTO = new AddItemRequestDTO(
+			new InventoryItem(BISCUIT_ITEM.getCategory(), null, null, 0, 0)
 		);
-		
-		AddItemsResponseDTO responseDTO = (AddItemsResponseDTO) HttpUtil.post(
-			INVENTORY_SERVICE_URL, requestDTO, AddItemsResponseDTO.class
+		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
+				INVENTORY_SERVICE_URL, requestDTO, ErrorDetails.class
 		);
-		assertNotNull(responseDTO);
-		PENCIL_ITEM_ID = responseDTO.getItems().get(0).getItemId();
+		assertNotNull(errorDetails);
+		assertFalse(errorDetails.getErrors().contains(ERROR_CATEGORY_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_SUBCATEGORY_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_NAME_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_PRICE_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_QUANTITY_IS_REQUIRED));
 		
-		InventoryItem pencilItem = (InventoryItem) HttpUtil.get(
-			INVENTORY_SERVICE_URL + "/" + PENCIL_ITEM_ID, InventoryItem.class
-		);
-		
-		assertNotNull(pencilItem);
-		assertEquals(PENCIL_ITEM, pencilItem);
 	}
 	
 	@Test
 	@org.junit.jupiter.api.Order(4)
-	void searchItemsMatchingCategory() throws IOException {
+	void adding_inventoryItem_with_only_category_and_subCategory() throws IOException {
+	//void adding_inventoryItem_with_only_category_and_subCategory_is_invalid() throws IOException {
+	//void addItem_Http400BadRequest_SpecifyOnlyCategoryAndSubCategory() throws IOException {
+		
+		AddItemRequestDTO requestDTO = new AddItemRequestDTO(
+			new InventoryItem(BISCUIT_ITEM.getCategory(), BISCUIT_ITEM.getSubCategory(), 
+					null, 0, 0)
+		);
+		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
+				INVENTORY_SERVICE_URL, requestDTO, ErrorDetails.class
+		);
+		assertNotNull(errorDetails);
+		assertFalse(errorDetails.getErrors().contains(ERROR_CATEGORY_IS_REQUIRED));
+		assertFalse(errorDetails.getErrors().contains(ERROR_SUBCATEGORY_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_NAME_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_PRICE_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_QUANTITY_IS_REQUIRED));
+		
+	}
+	
+	@Test
+	@org.junit.jupiter.api.Order(5)
+	void adding_InventoryItem_with_only_category_subCategory_and_name() throws IOException {
+	//void addItem_Http400BadRequest_SpecifyOnlyCategorySubCategoryAndName() throws IOException {
+		
+		AddItemRequestDTO requestDTO = new AddItemRequestDTO(
+			new InventoryItem(BISCUIT_ITEM.getCategory(), BISCUIT_ITEM.getSubCategory(), 
+					BISCUIT_ITEM.getName(), 0, 0)
+		);
+		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
+				INVENTORY_SERVICE_URL, requestDTO, ErrorDetails.class
+		);
+		assertNotNull(errorDetails);
+		assertFalse(errorDetails.getErrors().contains(ERROR_CATEGORY_IS_REQUIRED));
+		assertFalse(errorDetails.getErrors().contains(ERROR_SUBCATEGORY_IS_REQUIRED));
+		assertFalse(errorDetails.getErrors().contains(ERROR_NAME_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_PRICE_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_QUANTITY_IS_REQUIRED));
+
+	}
+
+	@Test
+	@org.junit.jupiter.api.Order(6)
+	void adding_InventoryItem_with_all_fields_except_quantity() throws IOException {
+	//void addItem_Http400BadRequest_SpecifyAllFieldsExceptQuantity() throws IOException {
+		
+		AddItemRequestDTO requestDTO = new AddItemRequestDTO(
+			new InventoryItem(BISCUIT_ITEM.getCategory(), BISCUIT_ITEM.getSubCategory(), 
+					BISCUIT_ITEM.getName(), BISCUIT_ITEM.getPrice(), 0)
+		);
+		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
+				INVENTORY_SERVICE_URL, requestDTO, ErrorDetails.class
+		);
+		assertNotNull(errorDetails);
+		assertFalse(errorDetails.getErrors().contains(ERROR_CATEGORY_IS_REQUIRED));
+		assertFalse(errorDetails.getErrors().contains(ERROR_SUBCATEGORY_IS_REQUIRED));
+		assertFalse(errorDetails.getErrors().contains(ERROR_NAME_IS_REQUIRED));
+		assertFalse(errorDetails.getErrors().contains(ERROR_PRICE_IS_REQUIRED));
+		assertTrue(errorDetails.getErrors().contains(ERROR_QUANTITY_IS_REQUIRED));
+		
+	}
+	
+	@Test
+	@org.junit.jupiter.api.Order(7)
+	void adding_InventoryItem_with_duplicate_values() throws IOException {
+	//void adding_duplicate_InventoryItem_is_not_allowed() throws IOException {
+	// void addItem_Http409Conflict_DuplicateRequest() throws IOException {
+		
+		// Scenario 1: Not specifying any field properly
+		
+		AddItemRequestDTO requestDTO = new AddItemRequestDTO(BISCUIT_ITEM);
+		
+		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
+			INVENTORY_SERVICE_URL, requestDTO, ErrorDetails.class
+		);
+		assertNotNull(errorDetails);
+		assertEquals(HttpStatus.CONFLICT.value(), errorDetails.getStatus());
+		assertNotNull(errorDetails.getErrors());
+		assertTrue(errorDetails.getErrors().contains(ERROR_ITEM_ALREADY_EXIST));
+
+	}
+	
+	@Test
+	@org.junit.jupiter.api.Order(8)
+	void retrieving_all_items() throws IOException {
+		
+		GetItemsResponseDTO responseDTO = (GetItemsResponseDTO) HttpUtil.get(
+			INVENTORY_SERVICE_URL, GetItemsResponseDTO.class
+		);
+		
+		assertNotNull(responseDTO);
+		List<InventoryItem> addedItems = responseDTO.getItems();
+		assertNotNull(addedItems);
+		assertEquals(4, addedItems.size());
+		assertEquals(
+				BISCUIT_ITEM.getQuantity()
+				+ CHIVDA_ITEM.getQuantity() 
+				+ BATHING_SOAP_ITEM.getQuantity()
+				+ PENCIL_ITEM.getQuantity(),
+			responseDTO.getItemsQuantitiesTotal()
+		);
+		assertTrue(addedItems.contains(BISCUIT_ITEM));
+		assertTrue(addedItems.contains(CHIVDA_ITEM));
+		assertTrue(addedItems.contains(BATHING_SOAP_ITEM));
+		assertTrue(addedItems.contains(PENCIL_ITEM));
+		
+		for (InventoryItem item : addedItems) {
+			assertTrue(item.getItemId() > 0);	// when entities are persisted they will be assigned unique id 
+		}
+	}
+	
+	@Test
+	@org.junit.jupiter.api.Order(9)
+	void retrieving_a_specific_item() throws IOException {
+		
+		GetItemsResponseDTO getItemsResponseDTO = (GetItemsResponseDTO) HttpUtil.get(
+			INVENTORY_SERVICE_URL, GetItemsResponseDTO.class
+		);
+		
+		InventoryItem inventoryItem = getItemsResponseDTO.getItems().get(0);
+		
+		// way-1: finding specific item way-1: using get passing itemId
+		
+		InventoryItem item = (InventoryItem) HttpUtil.get(
+			INVENTORY_SERVICE_URL + "/" + inventoryItem.getItemId(), InventoryItem.class
+		);
+		assertNotNull(item);
+		assertEquals(inventoryItem, item);
+		
+//		// way-2: finding specific item way-2: using search passing unique attributes
+//		
+//		item = (InventoryItem) HttpUtil.get(
+//			INVENTORY_SERVICE_URL + "?" + 
+//				"category="+inventoryItem.getCategory()+
+//				"&subCategory="+inventoryItem.getSubCategory()+
+//				"&name="+inventoryItem.getName(), 
+//			InventoryItem.class
+//		);
+//		assertNotNull(item);
+//		assertEquals(inventoryItem, item);
+	}
+	
+	@Test
+	@org.junit.jupiter.api.Order(10)
+	void searching_items_matching_category() throws IOException {
+	//void searchItemsMatchingCategory_Http200Ok() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
 		exampleItem.setCategory(BISCUIT_ITEM.getCategory());
@@ -189,8 +393,9 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@org.junit.jupiter.api.Order(5)
-	void searchItemsMatchingSubCategory() throws IOException {
+	@org.junit.jupiter.api.Order(11)
+	void searching_items_matching_subCategory() throws IOException {
+	//void searchItemsMatchingSubCategory_Http200Ok() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
 		exampleItem.setSubCategory(CHIVDA_ITEM.getSubCategory());
@@ -212,8 +417,9 @@ public class InventoryAPITest {
 	}		
 	
 	@Test
-	@org.junit.jupiter.api.Order(6)
-	void searchItemsMatchingName() throws IOException {
+	@org.junit.jupiter.api.Order(12)
+	void searching_items_matching_name() throws IOException {
+	//void searchItemsMatchingName_Http200Ok() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
 		exampleItem.setName(BATHING_SOAP_ITEM.getName());
@@ -235,8 +441,9 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@org.junit.jupiter.api.Order(7)
-	void searchItemsMatchingQuantity() throws IOException {
+	@org.junit.jupiter.api.Order(13)
+	void searching_items_matching_quantity() throws IOException {
+	//void searchItemsMatchingQuantity_Http200Ok() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
 		exampleItem.setQuantity(10);
@@ -258,8 +465,9 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@org.junit.jupiter.api.Order(8)
-	void searchItemsMatchingPrice() throws IOException {
+	@org.junit.jupiter.api.Order(14)
+	void searching_items_matching_price() throws IOException {
+	//void searchItemsMatchingPrice_Http200Ok() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
 		exampleItem.setPrice(30.0);
@@ -281,22 +489,31 @@ public class InventoryAPITest {
 	}
 	
 	@Test
-	@org.junit.jupiter.api.Order(9)
-	void removeSpecificItem() throws IOException {
-		
-		HttpUtil.delete(INVENTORY_SERVICE_URL + "/" + PENCIL_ITEM_ID);
-		
-		InventoryItem pencilItem = (InventoryItem) HttpUtil.get(
-			INVENTORY_SERVICE_URL + "/" + PENCIL_ITEM_ID, AddItemsResponseDTO.class
+	@org.junit.jupiter.api.Order(15)
+	void removing_a_specific_item() throws IOException {
+	//void removeSpecificItem_Http204NoContent() throws IOException {
+
+		GetItemsResponseDTO getItemsResponseDTO = (GetItemsResponseDTO) HttpUtil.get(
+			INVENTORY_SERVICE_URL, GetItemsResponseDTO.class
 		);
 		
-		assertNull(pencilItem);
+		int index = getItemsResponseDTO.getItems().indexOf(PENCIL_ITEM);
+		InventoryItem pencilItem = getItemsResponseDTO.getItems().get(index);
+		
+		HttpUtil.delete(INVENTORY_SERVICE_URL + "/" + pencilItem.getItemId());
+		
+		assertNull( 
+			HttpUtil.get(
+				INVENTORY_SERVICE_URL + "/" + pencilItem.getItemId(), InventoryItem.class
+			)
+		);
 	}
 
 	@Test
 	@Transactional // A modify operation (update/delete) has to be Transactional
-	@org.junit.jupiter.api.Order(10)
-	void removeItemsMatchingGivenCriteria() throws IOException {
+	@org.junit.jupiter.api.Order(16)
+	void removing_items_matching_given_criteria() throws IOException {
+	//void removeItemsMatchingGivenCriteria_Http204NoContent() throws IOException {
 		
 		// pattern-1
 		

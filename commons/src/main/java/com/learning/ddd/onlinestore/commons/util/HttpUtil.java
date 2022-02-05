@@ -3,6 +3,7 @@ package com.learning.ddd.onlinestore.commons.util;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -90,6 +91,7 @@ public class HttpUtil {
 					bw.write(requestJson);
 					//bw.flush();
 				} // try block takes care of closing the stream/writer
+				System.out.println("request = " + requestJson);
 				System.out.println("Sent " + requestJson.length() + " characters of request data");
 				
 //				System.out.println("Writing to HTTP URL Connection OutputStream");
@@ -112,11 +114,23 @@ public class HttpUtil {
 			
 			System.out.println("response code = " + httpConnection.getResponseCode());
 			
-			if ( (httpConnection.getResponseCode()==201) ||
-				 (httpConnection.getResponseCode()==200) ) {
+			InputStream responseStream = null;
 			
+			if ( (httpConnection.getResponseCode() == 201) ||
+				 (httpConnection.getResponseCode() == 200) ) {
+				
+				responseStream = httpConnection.getInputStream();
+				
+			} else if (httpConnection.getResponseCode() >= 400) {
+				
+				responseStream = httpConnection.getErrorStream();
+				
+			}
+			
+			if (responseStream != null) {
+				
 				StringBuffer responseJson = new StringBuffer();
-				try (BufferedReader br = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));) {
+				try (BufferedReader br = new BufferedReader(new InputStreamReader(responseStream))) {
 					for (String line; (line = br.readLine()) != null; ) {
 						responseJson.append(line);
 					}
@@ -132,7 +146,7 @@ public class HttpUtil {
 				}
 			
 			}
-				
+			
 			return null;
 			
 //			BufferedReader br = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));

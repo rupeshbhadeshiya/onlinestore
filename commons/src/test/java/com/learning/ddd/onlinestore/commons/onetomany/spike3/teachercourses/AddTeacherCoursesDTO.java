@@ -1,11 +1,14 @@
 package com.learning.ddd.onlinestore.commons.onetomany.spike3.teachercourses;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
 @Component
-public class AddTeacherCoursesDTO {
+public class AddTeacherCoursesDTO implements Serializable {
+
+	private static final long serialVersionUID = -3296636555702245652L;
 
 	private Teacher teacher;
 	private List<Course> courses;

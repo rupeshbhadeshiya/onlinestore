@@ -25,6 +25,15 @@ public interface InventoryItemJpaRepository extends JpaRepository<InventoryItem,
 			@Param("name") String name, 
 			@Param("price") Double price, 
 			@Param("quantity") Integer quantity);
+	
+	@Query(	  "	SELECT item "
+			+ " FROM InventoryItem item "
+			+ "	WHERE item.category=:category"
+			+ " 	AND item.subCategory=:subCategory"
+			+ " 	AND item.name=:name")
+	InventoryItem searchByUniqueFields(@Param("category") String category, 
+			@Param("subCategory") String subCategory,
+			@Param("name") String name);
 
 
 	@Query(	  "	SELECT item "

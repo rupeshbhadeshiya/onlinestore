@@ -1,6 +1,5 @@
 package com.learning.ddd.onlinestore.inventory.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,8 +11,7 @@ import org.springframework.stereotype.Component;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventPublisher;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemAddedToInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.ItemRemovedFromInventoryEvent;
-import com.learning.ddd.onlinestore.inventory.domain.event.ItemsAddedToInventoryEvent;
-import com.learning.ddd.onlinestore.inventory.domain.exception.ItemsAlreadyExistsException;
+import com.learning.ddd.onlinestore.inventory.domain.exception.ItemAlreadyExistsException;
 import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryItemJpaRepository;
 
 //What an Inventory can have and should do?
@@ -36,11 +34,16 @@ public class Inventory {
 
 	
 	public Inventory() {
+		
 	}
 	
 	
 	@Transactional
-	public InventoryItem addItem(InventoryItem item) {
+	public InventoryItem addItem(InventoryItem item) throws ItemAlreadyExistsException {
+		
+		if (searchItem(item) != null) {
+			throw new ItemAlreadyExistsException(item);
+		}
 		
 		final InventoryItem persistedItem = itemRepository.save(item);
 		
@@ -49,36 +52,36 @@ public class Inventory {
 		return persistedItem;
 	}
 	
-	@Transactional
-	public List<InventoryItem> addItems(List<InventoryItem> itemsToBeAdded) throws ItemsAlreadyExistsException {
-		
-		List<InventoryItem> items = new ArrayList<InventoryItem>();
-		List<InventoryItem> alreadyExistingItems = new ArrayList<InventoryItem>();
-		
-		for (InventoryItem item : itemsToBeAdded) {
-			Integer countByUniqueFields = itemRepository.countByUniqueFields(
-					item.getCategory(), item.getSubCategory(), 
-					item.getName(), item.getPrice(), item.getQuantity());
-			if (countByUniqueFields > 0) {	
-				// item exists in Inventory
-				alreadyExistingItems.add(item);
-			} else { //if (countByUniqueFields == 0)
-				// new item
-				items.add(item);
-			}
-		}
-		
-		if (!alreadyExistingItems.isEmpty() ) {
-			throw new ItemsAlreadyExistsException(alreadyExistingItems);
-		}
-		
-		if (!items.isEmpty() ) {
-			items = itemRepository.saveAll(items);
-			domainEventPublisher.publishEvent(new ItemsAddedToInventoryEvent(items));
-		}
-		
-		return items;
-	}
+//	@Transactional
+//	public List<InventoryItem> addItems(List<InventoryItem> itemsToBeAdded) throws ItemsAlreadyExistsException {
+//		
+//		List<InventoryItem> items = new ArrayList<InventoryItem>();
+//		List<InventoryItem> alreadyExistingItems = new ArrayList<InventoryItem>();
+//		
+//		for (InventoryItem item : itemsToBeAdded) {
+//			Integer countByUniqueFields = itemRepository.countByUniqueFields(
+//					item.getCategory(), item.getSubCategory(), 
+//					item.getName(), item.getPrice(), item.getQuantity());
+//			if (countByUniqueFields > 0) {	
+//				// item exists in Inventory
+//				alreadyExistingItems.add(item);
+//			} else { //if (countByUniqueFields == 0)
+//				// new item
+//				items.add(item);
+//			}
+//		}
+//		
+//		if (!alreadyExistingItems.isEmpty() ) {
+//			throw new ItemsAlreadyExistsException(alreadyExistingItems);
+//		}
+//		
+//		if (!items.isEmpty() ) {
+//			items = itemRepository.saveAll(items);
+//			domainEventPublisher.publishEvent(new ItemsAddedToInventoryEvent(items));
+//		}
+//		
+//		return items;
+//	}
 
 	public List<InventoryItem> getItems() {
 		
@@ -92,6 +95,15 @@ public class Inventory {
 		//System.out.println("-------------> itemFromDB = " + itemFromDB);
 		
 		return ((itemFromDB != null) && itemFromDB.isPresent()) ? itemFromDB.get() : null;
+	}
+	
+	// return items that matches any of field value of exampleItem
+	// wild card search for String fields like category/subCategory/name
+	public InventoryItem searchItem(InventoryItem item) {
+		
+		return itemRepository.searchByUniqueFields(
+			item.getCategory(), item.getSubCategory(), item.getName()
+		);
 	}
 	
 	// return items that matches any of field value of exampleItem

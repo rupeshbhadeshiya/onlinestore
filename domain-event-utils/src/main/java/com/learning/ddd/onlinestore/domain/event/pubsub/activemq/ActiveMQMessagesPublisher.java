@@ -11,6 +11,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.learning.ddd.onlinestore.domain.event.DomainEvent;
@@ -26,27 +27,30 @@ public class ActiveMQMessagesPublisher implements DomainEventPublisher, ServletC
 	private Session session = null;
 	private MessageProducer producer = null;
 	
+	@Value("${onlinestore.domain.events.topic.name:OnlinestoreDomainEventsTopic}")
+	private String topicName;
+	
 	@Override
 	public void publishEvent(DomainEvent domainEvent) throws DomainEventPublishingFailedException {
-		System.out.println("ActiveMQMessagesProducer: publishEvent() - started");
+		System.out.println("ActiveMQMessagesPublisher: publishEvent() - started");
 		
 		try { 
 			//String msg = "Hello World! Today is " + new Date();
 			//TextMessage message = session.createTextMessage(message);
 
 			ObjectMessage message = session.createObjectMessage(domainEvent);
-			System.out.println("ActiveMQMessagesProducer: publishEvent() - MessageProducer sending ObjectMessage - " + message);
+			System.out.println("ActiveMQMessagesPublisher: publishEvent() - MessageProducer sending ObjectMessage - " + message);
 			
 			producer.send(message);
-			System.out.println("ActiveMQMessagesProducer: publishEvent() - MessageProducer sent ObjectMessage - " + message);
+			System.out.println("ActiveMQMessagesPublisher: publishEvent() - MessageProducer sent ObjectMessage - " + message);
 
 		} catch (JMSException ex) {
-			System.err.println("ActiveMQMessagesProducer: publishEvent() - Exception while sending ObjectMessage!");
+			System.err.println("ActiveMQMessagesPublisher: publishEvent() - Exception while sending ObjectMessage!");
 			ex.printStackTrace();
 			throw new DomainEventPublishingFailedException(ex);
 			
 		} finally {
-			System.out.println("ActiveMQMessagesProducer: publishEvent() - completed");
+			System.out.println("ActiveMQMessagesPublisher: publishEvent() - completed");
 		}
 	}
 	
@@ -55,42 +59,42 @@ public class ActiveMQMessagesPublisher implements DomainEventPublisher, ServletC
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-		System.out.println("ActiveMQMessagesProducer: contextInitialized() - started");
+		System.out.println("ActiveMQMessagesPublisher: contextInitialized() - started");
 		
 		try {
 			
 			// Create a connection factory.
 			ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-			System.out.println("ActiveMQMessagesProducer: contextInitialized() - ActiveMQConnectionFactory created");
+			System.out.println("ActiveMQMessagesPublisher: contextInitialized() - ActiveMQConnectionFactory created");
 
 			// Create connection.
 			connection = factory.createConnection();
-			System.out.println("ActiveMQMessagesProducer: contextInitialized() - Connection created");
+			System.out.println("ActiveMQMessagesPublisher: contextInitialized() - Connection created");
 
 			// Start the connection
 			connection.start();
-			System.out.println("ActiveMQMessagesProducer: contextInitialized() - Connection started");
+			System.out.println("ActiveMQMessagesPublisher: contextInitialized() - Connection started");
 
 			// Create a session which is non transactional
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			System.out.println("ActiveMQMessagesProducer: contextInitialized() - Session created");
+			System.out.println("ActiveMQMessagesPublisher: contextInitialized() - Session created");
 
 			// Create Destination topic
-			Topic topic = session.createTopic("SampleActiveMQTopic");
-			System.out.println("ActiveMQMessagesProducer: contextInitialized() - Topic created - " + topic);
+			Topic topic = session.createTopic(topicName);
+			System.out.println("ActiveMQMessagesPublisher: contextInitialized() - Topic created - " + topic);
 
 			// Create a producer
 			producer = session.createProducer(topic);
-			System.out.println("ActiveMQMessagesProducer: contextInitialized() - MessageProducer created");
+			System.out.println("ActiveMQMessagesPublisher: contextInitialized() - MessageProducer created");
 
 			producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 			
 		} catch (Exception ex) {
-			System.err.println("ActiveMQMessagesProducer: contextInitialized() - Exception while creating Connection/Session/MessageProducer!");
+			System.err.println("ActiveMQMessagesPublisher: contextInitialized() - Exception while creating Connection/Session/MessageProducer!");
 			ex.printStackTrace();
 		}
 			
-		System.out.println("ActiveMQMessagesProducer: contextInitialized() - completed");
+		System.out.println("ActiveMQMessagesPublisher: contextInitialized() - completed");
 	}
 	
 	/**
@@ -98,17 +102,17 @@ public class ActiveMQMessagesPublisher implements DomainEventPublisher, ServletC
 	 */
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
-		System.out.println("ActiveMQMessagesProducer: contextDestroyed() - started");
+		System.out.println("ActiveMQMessagesPublisher: contextDestroyed() - started");
 		
 		try {
 			
 			if (session != null) {
 				session.close();
-				System.out.println("ActiveMQMessagesProducer: contextDestroyed() - Session closed");
+				System.out.println("ActiveMQMessagesPublisher: contextDestroyed() - Session closed");
 			}
 			
 		} catch (Exception ex) {
-			System.err.println("ActiveMQMessagesProducer: contextDestroyed() - Exception while closing Session!");
+			System.err.println("ActiveMQMessagesPublisher: contextDestroyed() - Exception while closing Session!");
 			ex.printStackTrace();
 		}
 		
@@ -116,15 +120,15 @@ public class ActiveMQMessagesPublisher implements DomainEventPublisher, ServletC
 			
 			if (connection != null) {
 				connection.close();
-				System.out.println("ActiveMQMessagesProducer: contextDestroyed() - Connection closed");
+				System.out.println("ActiveMQMessagesPublisher: contextDestroyed() - Connection closed");
 			}
 			
 		} catch (Exception ex) {
-			System.err.println("ActiveMQMessagesProducer: contextDestroyed() - Exception while closing Connection!");
+			System.err.println("ActiveMQMessagesPublisher: contextDestroyed() - Exception while closing Connection!");
 			ex.printStackTrace();
 		}
 		
-		System.out.println("ActiveMQMessagesProducer: contextDestroyed() - completed");
+		System.out.println("ActiveMQMessagesPublisher: contextDestroyed() - completed");
 	}
 
 }

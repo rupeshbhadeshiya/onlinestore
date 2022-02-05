@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -20,7 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
-import com.learning.ddd.onlinestore.inventory.domain.exception.ItemsAlreadyExistsException;
+import com.learning.ddd.onlinestore.inventory.domain.exception.ItemAlreadyExistsException;
 
 // An Inventory contains Items; it may be referred as Item Store. So you don't need to create an Inventory.
 
@@ -51,11 +50,11 @@ import com.learning.ddd.onlinestore.inventory.domain.exception.ItemsAlreadyExist
 @TestMethodOrder(OrderAnnotation.class)
 public class InventoryServiceTest {
 
-	private InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10, 10.0);
-	private InventoryItem CHIVDA_ITEM = new InventoryItem("Grocery", "Chivda", "Real Farali Chivda", 10, 20.0);
-	private InventoryItem BATHING_SOAP_ITEM = new InventoryItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 5, 30.0);
-	private InventoryItem PENCIL_ITEM = new InventoryItem("Stationery", "Pencil", "Natraj Pencil", 10, 5.0);
-	
+	private InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10.0, 10);
+	private InventoryItem CHIVDA_ITEM = new InventoryItem("Grocery", "Chivda", "Real Farali Chivda", 20.0, 10);
+	private InventoryItem BATHING_SOAP_ITEM = new InventoryItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, 5);
+	private InventoryItem PENCIL_ITEM = new InventoryItem("Stationery", "Pencil", "Natraj Pencil", 5.0, 10);
+
 	@Autowired
 	private Inventory inventory;
 	
@@ -82,20 +81,23 @@ public class InventoryServiceTest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(1)
-	void addItems() throws ItemsAlreadyExistsException {
+	void addItems() throws ItemAlreadyExistsException {
 		
-		List<InventoryItem> addedItems = inventory.addItems( Arrays.asList( 
-				new InventoryItem[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
-		assertNotNull(addedItems);
-		assertEquals(2, addedItems.size());
-		int EXPECTED_ITEM_COUNT = BISCUIT_ITEM.getQuantity() + CHIVDA_ITEM.getQuantity();
-		assertEquals(EXPECTED_ITEM_COUNT, inventory.getItemsQuantitiesTotal());
-		
-		InventoryItem addedItem = inventory.addItem(BATHING_SOAP_ITEM);
+		InventoryItem addedItem = inventory.addItem(BISCUIT_ITEM);
 		assertNotNull(addedItem);
-		EXPECTED_ITEM_COUNT = EXPECTED_ITEM_COUNT + BATHING_SOAP_ITEM.getQuantity();
+		int EXPECTED_ITEM_COUNT = BISCUIT_ITEM.getQuantity();
 		assertEquals(EXPECTED_ITEM_COUNT, inventory.getItemsQuantitiesTotal());
 		
+		addedItem = inventory.addItem(CHIVDA_ITEM);
+		assertNotNull(addedItem);
+		EXPECTED_ITEM_COUNT += CHIVDA_ITEM.getQuantity();
+		assertEquals(EXPECTED_ITEM_COUNT, inventory.getItemsQuantitiesTotal());
+		
+		addedItem = inventory.addItem(BATHING_SOAP_ITEM);
+		assertNotNull(addedItem);
+		EXPECTED_ITEM_COUNT += BATHING_SOAP_ITEM.getQuantity();
+		assertEquals(EXPECTED_ITEM_COUNT, inventory.getItemsQuantitiesTotal());
+
 //		System.out.println(
 //			"\n---------------------------------------"
 //			+ "\n----[ Total Items Quantities = " + inventory.getItemsQuantitiesTotal() + " ]----"
@@ -110,17 +112,16 @@ public class InventoryServiceTest {
 
 		// execute
 		
-		ItemsAlreadyExistsException ex = assertThrows(
-			ItemsAlreadyExistsException.class, () -> {
-				inventory.addItems(Arrays.asList(new InventoryItem[] { BISCUIT_ITEM } ) );
+		ItemAlreadyExistsException ex = assertThrows(
+			ItemAlreadyExistsException.class, () -> {
+				inventory.addItem(BISCUIT_ITEM);
 			}
 		);
 		
 		// validate
 		
 		assertNotNull(ex);
-		assertEquals(1, ex.getItems().size());
-		assertEquals(BISCUIT_ITEM, ex.getItems().get(0));
+		assertEquals(BISCUIT_ITEM, ex.getItem());
 	}
 	
 	@Test
@@ -143,7 +144,7 @@ public class InventoryServiceTest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(3)
-	void getSpecificItem() {
+	void getSpecificItem() throws ItemAlreadyExistsException {
 		
 		InventoryItem persistedPencilItem = inventory.addItem(PENCIL_ITEM);
 		

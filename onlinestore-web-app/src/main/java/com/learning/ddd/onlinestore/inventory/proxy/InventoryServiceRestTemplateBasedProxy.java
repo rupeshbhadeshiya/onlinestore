@@ -1,5 +1,6 @@
 package com.learning.ddd.onlinestore.inventory.proxy;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.learning.ddd.onlinestore.inventory.application.dto.AddItemsRequestDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.AddItemsResponseDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.AddItemRequestDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.AddItemResponseDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.GetItemsResponseDTO;
 import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsRequestDTO;
 import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsResponseDTO;
 import com.learning.ddd.onlinestore.inventory.application.dto.UpdateItemRequestDTO;
@@ -30,19 +32,19 @@ public class InventoryServiceRestTemplateBasedProxy {
 //    }
 	
 	
-	public List<InventoryItem> addItems(List<InventoryItem> items) {
+	public InventoryItem addItem(InventoryItem item) {
 		
-		AddItemsRequestDTO requestDTO = new AddItemsRequestDTO(items);
-		HttpEntity<AddItemsRequestDTO> request = new HttpEntity<AddItemsRequestDTO>(requestDTO);
+		AddItemRequestDTO requestDTO = new AddItemRequestDTO(item);
+		HttpEntity<AddItemRequestDTO> request = new HttpEntity<AddItemRequestDTO>(requestDTO);
 		
-		List<InventoryItem> savedItems = inventoryServiceRestTemplate.exchange(
+		InventoryItem addedItem = inventoryServiceRestTemplate.exchange(
 			"http://inventory-service/inventory/items", 
 			HttpMethod.POST,
 			request,
-			new ParameterizedTypeReference<AddItemsResponseDTO>() {}
-		).getBody().getItems();
+			new ParameterizedTypeReference<AddItemResponseDTO>() {}
+		).getBody().getItem();
 		
-		return savedItems;
+		return addedItem;
 		
 //		savedItems = Arrays.asList(
 //			restTemplate.postForObject(
@@ -56,11 +58,15 @@ public class InventoryServiceRestTemplateBasedProxy {
 	
 	public List<InventoryItem> getAllItems() {
 		
+//		return new ArrayList<>();
+		
+		// FIXME
+		
 		List<InventoryItem> allItems = inventoryServiceRestTemplate.exchange(
 			"http://inventory-service/inventory/items", 
 			HttpMethod.GET,
 			null,
-			new ParameterizedTypeReference<AddItemsResponseDTO>() {}
+			new ParameterizedTypeReference<GetItemsResponseDTO>() {}
 		).getBody().getItems();
 		
 		return allItems;

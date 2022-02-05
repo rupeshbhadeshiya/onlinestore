@@ -1,0 +1,25 @@
+spring.application.name=inventory-service
+
+server.port=9010
+#server.port=0
+
+#eureka.client.service-url.defaultZone = http://localhost:8761/eureka
+
+#debug=true
+spring.jpa.show-sql=true
+
+# create a table if it does not exist, using persistence annotations of an entity
+spring.jpa.hibernate.ddl-auto=update
+
+#PostgreSQL
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+#MongoDB
+#spring.datasource.url=jdbc:mongodb://localhost:27017/test
+#spring.datasource.driver-class-name=mongodb.jdbc.MongoDriver
+
+onlinestore.domain.events.topic.name=OnlinestoreDomainEventsTopic_Test

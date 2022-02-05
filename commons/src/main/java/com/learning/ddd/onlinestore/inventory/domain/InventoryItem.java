@@ -6,11 +6,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.NotEmpty;
+import javax.persistence.Table;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 
 //DDD: Entity
 @Entity
+@Table(schema="inventory")
 //@Document(collection = "inventory")
 public class InventoryItem implements Serializable {
 
@@ -20,31 +24,34 @@ public class InventoryItem implements Serializable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int itemId;				// ex. 1001, unique Id to identify an item uniquely
 	
-	@NotEmpty(message = "Specify Category")
+	@NotBlank(message = "Category is required")
 	private String category;		// ex. Grocery
 	
-	@NotEmpty(message = "Specify Sub-Category")
+	@NotBlank(message = "Sub-Category is required")
 	private String subCategory;		// ex. Biscuits
 	
-	@NotEmpty(message = "Specify Name")
+	@NotBlank(message = "Name is required")
 	private String name;			// ex. Parle-G
 	
-	@Positive(message = "Specify a positive number for Quantity")
-	private int quantity;			// ex. 5
-	
-	@Positive(message = "Specify a positive number for Price")
+	@Positive(message = "Price should be a positive decimal number")
+	@DecimalMin(value = "1.0", message = "Price should be a positive decimal number")
 	private Double price;			// ex. 30.0 INR (price of a single item)
+	
+	@Positive(message = "Quantity should be a positive number")
+	@Min(value = 1, message = "Quantity should be a positive number")
+	private int quantity;			// ex. 5
 
 	
 	public InventoryItem() {
 	}
 	
-	public InventoryItem(String category, String subCategory, String name, int quantity, double price) {
+	public InventoryItem(String category, String subCategory, String name, 
+			double price, int quantity) {
 		this.category = category;
 		this.subCategory = subCategory;
 		this.name = name;
-		this.quantity = quantity;
 		this.price = price;
+		this.quantity = quantity;
 	}
 
 	
@@ -108,8 +115,9 @@ public class InventoryItem implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "InventoryItem [itemId=" + itemId + ", category=" + category + ", subCategory=" + subCategory 
-				+ ", name=" + name + ", quantity=" + quantity + ", price=" + price + "]";
+		return "InventoryItem [itemId=" + itemId + ", category=" + category
+				+ ", subCategory=" + subCategory + ", name=" + name
+				+ ", price=" + price + ", quantity=" + quantity + "]";
 	}
 
 	@Override
@@ -117,50 +125,57 @@ public class InventoryItem implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((category == null) ? 0 : category.hashCode());
+		result = prime * result + ((subCategory == null) ? 0 : subCategory.hashCode());
 		//result = prime * result + itemId; // necessary fields except id field
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((price == null) ? 0 : price.hashCode());
 		result = prime * result + quantity;
-		result = prime * result + ((subCategory == null) ? 0 : subCategory.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		InventoryItem other = (InventoryItem) obj;
+		
 		if (category == null) {
 			if (other.category != null)
 				return false;
 		} else if (!category.equals(other.category))
 			return false;
-		//if (itemId != other.itemId)	// compare fields which truly represent
-		//	return false;				// an InventoryItem, itemId is not that field
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (price == null) {
-			if (other.price != null)
-				return false;
-		} else if (!price.equals(other.price))
-			return false;
-		if (quantity != other.quantity)
-			return false;
+		
 		if (subCategory == null) {
 			if (other.subCategory != null)
 				return false;
 		} else if (!subCategory.equals(other.subCategory))
 			return false;
+		
+		//if (itemId != other.itemId)	// compare fields which truly represent
+		//	return false;				// an InventoryItem, itemId is not that field
+		
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		
+		if (price == null) {
+			if (other.price != null)
+				return false;
+		} else if (!price.equals(other.price))
+			return false;
+		
+		if (quantity != other.quantity)
+			return false;
+		
 		return true;
 	}
-	
-	
 	
 }

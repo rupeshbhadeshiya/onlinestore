@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class SearchOrdersRequestDTO implements Serializable {
 
-	private static final long serialVersionUID = -4117530816685311198L;
+	private static final long serialVersionUID = -3197471656365920992L;
 
 	private String orderNumber;
 	private String transactionNumber;

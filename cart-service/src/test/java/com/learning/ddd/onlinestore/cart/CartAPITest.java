@@ -43,9 +43,9 @@ class CartAPITest {
 	private static final int BATHING_SOAP_ITEM_QUANTITY = 3;
 	
 	private final CartItem BISCUIT_ITEM = new CartItem("Grocery", "Biscuit", 
-		"Parle-G", BISCUIT_ITEM_QUANTITY, 10.0);
+		"Parle-G", 10.0, BISCUIT_ITEM_QUANTITY);
 	private final CartItem BATHING_SOAP_ITEM = new CartItem("Toiletries", 
-		"Bathing Soap", "Mysore Sandal Soap", BATHING_SOAP_ITEM_QUANTITY, 30.0);
+		"Bathing Soap", "Mysore Sandal Soap", 30.0, BATHING_SOAP_ITEM_QUANTITY);
 	
 	private static int CART_ID;
 	

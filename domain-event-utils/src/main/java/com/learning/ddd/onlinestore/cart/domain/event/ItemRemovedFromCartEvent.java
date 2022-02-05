@@ -1,5 +1,7 @@
 package com.learning.ddd.onlinestore.cart.domain.event;
 
+import java.io.Serializable;
+
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.domain.event.DomainEvent;
@@ -9,22 +11,12 @@ public class ItemRemovedFromCartEvent implements DomainEvent {
 
 	private static final long serialVersionUID = -1515002142339652818L;
 
-	private Cart cart;
-	private CartItem item;
+	private ItemRemovedFromCartEventData itemRemovedFromCartEventData;
 
 	public ItemRemovedFromCartEvent(Cart cart, CartItem item) {
-		this.cart = cart;
-		this.item = item;
+		this.itemRemovedFromCartEventData = new ItemRemovedFromCartEventData(cart, item);
 	}
 
-	public Cart getCart() {
-		return cart;
-	}
-	
-	public CartItem getItem() {
-		return item;
-	}
-	
 	@Override
 	public DomainEventName getEventName() {
 		return DomainEventName.ITEM_REMOVED_FROM_CART;
@@ -32,20 +24,22 @@ public class ItemRemovedFromCartEvent implements DomainEvent {
 	
 	@Override
 	public Object getEventData() {
-		return new CartItemRemovedData(cart, item);
+		return this.itemRemovedFromCartEventData;
 	}
 
 	@Override
 	public String toString() {
-		return "ItemRemovedFromCartEvent [Cart=" + cart + ", item=" + item + "]";
+		return "ItemRemovedFromCartEvent: " + itemRemovedFromCartEventData;
 	}
 	
-	public class CartItemRemovedData {
+	public class ItemRemovedFromCartEventData implements Serializable {
 		
-		private CartItem item;
+		private static final long serialVersionUID = 6572563233813619528L;
+
 		private Cart cart;
+		private CartItem item;
 		
-		public CartItemRemovedData(Cart cart, CartItem item) {
+		public ItemRemovedFromCartEventData(Cart cart, CartItem item) {
 			super();
 			this.item = item;
 			this.cart = cart;
@@ -58,10 +52,10 @@ public class ItemRemovedFromCartEvent implements DomainEvent {
 		public CartItem getItem() {
 			return item;
 		}
-		
+
 		@Override
 		public String toString() {
-			return "CartItemRemovedData [item=" + item + ", cart=" + cart + "]";
+			return "ItemRemovedFromCartEventData [cart=" + cart + ", itemRemoved=" + item + "]";
 		}
 		
 	}

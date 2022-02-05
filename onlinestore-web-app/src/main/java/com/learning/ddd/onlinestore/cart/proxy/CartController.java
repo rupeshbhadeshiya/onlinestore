@@ -24,8 +24,9 @@ import com.learning.ddd.onlinestore.utils.SessionLikeInMemoryStore;
 public class CartController {
 	
 	private static final String SHOP_ITEMS_JSP_NAME = "cart/shop-items";
-	private static final String VIEW_ALL_CARTS_JSP_NAME = "cart/view-carts";
 	private static final String VIEW_CART_DETAILS_JSP_NAME = "cart/view-cart-details";
+	
+	private static final String CONSUMER_ID = "11";
 
 	@Autowired
 	private InventoryServiceRestTemplateBasedProxy inventoryServiceProxy;
@@ -54,18 +55,15 @@ public class CartController {
     // thus, if you wish to have domainness then name resource like that way
     // example name /view-inventory-items rather than /view-items
     
-	
-	
-   // when someone clicks on link "add-items", this method is called
+
+	// when someone clicks on link "add-items", this method is called
   	@GetMapping("/shop-items-view")
     public String shopItemsView(Model model) {
-  		
-//  		List<InventoryItem> items = new ArrayList<>();
-//  		items.add(new InventoryItem());
   		
 		model.addAttribute("cartId", getCartId());
   		
   		List<InventoryItem> items = inventoryServiceProxy.getAllItems();
+  		
         model.addAttribute("items", items);
         
         return SHOP_ITEMS_JSP_NAME;			
@@ -78,33 +76,12 @@ public class CartController {
  		
   		InventoryItem inventoryItem = inventoryServiceProxy.getItem(inventoryItemId);
   		
-  		Cart cart = null;
-  		
-  		if (cartId == 0) {
+  		Cart cart = cartServiceProxy.addItemToCart(cartId, inventoryItem);
   			
-  			System.out.println(
-  		 			"--------------------- shopItem() --------------------\n"
-  		 			+ " cartId = " + cartId + " =>  First item being added to cart" +
-  		 			"\n--------------------------------------------------");
-  			
-  			// First item being added to cart
-  			cart = cartServiceProxy.pullCartAndAddItem(inventoryItem);
-  			
-  		} else {
-  			
-  			System.out.println(
-  		 			"--------------------- shopItem() --------------------\n"
-  		 			+ " cartId = " + cartId + " =>  Subsequent items being added to cart" +
-  		 			"\n--------------------------------------------------");
-  			
-  			// Subsequent items being added to cart
-  			cart = cartServiceProxy.shopItem(cartId, inventoryItem);
-  		}
-  		
   		System.out.println(
- 			"--------------------- shopItem() --------------------\n"
- 					+ " item added to cart = " + inventoryItem
- 					+ "\n updated cart = " + cart + 
+ 			"--------------------- shopItem() --------------------"
+ 					+ "\n An Item added to a Cart = " + inventoryItem
+ 					+ "\n cart = " + cart + 
  			"\n--------------------------------------------------");
  		
  		model.addAttribute("isItemShoppedSuccessfully", true);
@@ -114,33 +91,23 @@ public class CartController {
  		
  		List<InventoryItem> items = inventoryServiceProxy.getAllItems();
         model.addAttribute("items", items);
+        
+        System.out.println(
+ 			"--------------------- shopItem() --------------------"
+ 					+ "\n total items with inventory = " + items.size() +
+ 					", items with inventory = " + items + 
+ 			"\n--------------------------------------------------");
  		
  		return SHOP_ITEMS_JSP_NAME;		
  	}
 
- 	@GetMapping(value = "/view-carts")
- 	public String getAllCarts(Model model) {
+ 	@GetMapping(value = "/view-cart")	// every consumer can have at max one cart only
+ 	public String getCart(Model model) {
  		
-  		List<Cart> carts = cartServiceProxy.getAllCarts();
+  		Cart cart = cartServiceProxy.getCart(getConsumerId());
   		
   		System.out.println(
- 			"--------------------- getAllCarts() --------------------\n"
- 					+ "\n allCarts = " + carts + 
- 			"\n--------------------------------------------------");
- 		
- 		model.addAttribute("carts", carts);
- 		
- 		return VIEW_ALL_CARTS_JSP_NAME;		
- 	}
- 	
- 	@GetMapping(value = "/view-cart-details")
- 	public String getCardDetails(@RequestParam Integer cartId, Model model) {
- 		
-  		Cart cart = cartServiceProxy.getCart(cartId);
-  		
-  		System.out.println(
- 			"--------------------- getCardDetails() --------------------\n"
- 					+ "\n cartId = " + cartId
+ 			"--------------------- getCart() --------------------"
  					+ "\n cart = " + cart + 
  			"\n--------------------------------------------------");
  		
@@ -149,26 +116,78 @@ public class CartController {
  		return VIEW_CART_DETAILS_JSP_NAME;		
  	}
  	
+// 	@GetMapping(value = "/view-cart-details")
+// 	public String getCartDetails(Model model) {
+// 		
+// 		Cart cart = cartServiceProxy.getCart(CONSUMER_ID);
+//  		
+//  		System.out.println(
+// 			"--------------------- getCardDetails() --------------------"
+// 					+ "\n cartId = " + cartId
+// 					+ "\n cart = " + cart + 
+// 			"\n--------------------------------------------------");
+// 		
+// 		model.addAttribute("cart", cart);
+// 		
+// 		return VIEW_CART_DETAILS_JSP_NAME;		
+// 	}
+ 	
+ 	
+ 	@GetMapping(value = "/remove-item-from-cart")
+ 	public String removeItemFromCart(@RequestParam Integer cartId, 
+ 			@RequestParam Integer itemId, Model model) {
+ 		
+ 		System.out.println(
+ 			"--------------------- removeItemFromCart() : before --------------------"
+ 					+ "\n cartId = " + cartId
+ 					+ "\n itemId = " + itemId + 
+ 			"\n--------------------------------------------------");
+ 	 		
+ 		
+ 		Cart updatedCart = cartServiceProxy.removeItemFromCart(getConsumerId(), cartId, itemId);
+ 		
+ 		if (updatedCart != null) {
+ 			
+ 			System.out.println(
+	 			"--------------------- removeItemFromCart() : after --------------------"
+	 					+ "\n cartId = " + cartId
+	 					+ "\n itemId = " + itemId
+	 					+ "\n outcome => Cart is updated, redirecting back to Cart Details " 
+	 					+ "\n Updated Cart = " + updatedCart + 
+	 			"\n--------------------------------------------------");
+ 			
+ 			
+ 		} else {
+ 			
+ 			// Cart has become empty!
+ 			
+ 			System.out.println(
+	 			"--------------------- removeItemFromCart() : after --------------------"
+	 					+ "\n cartId = " + cartId
+	 					+ "\n itemId = " + itemId
+	 					+ "\n outcome => Cart is empty now! Redirecting to Shop Items!" +
+	 			"\n--------------------------------------------------");
+ 			
+ 		}
+ 		
+ 		model.addAttribute("isItemRemovedSuccessfully", true);
+			
+		model.addAttribute("cart", updatedCart);
+ 		
+ 		return VIEW_CART_DETAILS_JSP_NAME;	
+ 	}
+ 	
  	@GetMapping(value = "/empty-cart")
  	public String emptyCart(@RequestParam Integer cartId, Model model) {
  		
-  		cartServiceProxy.emptyCart(cartId);
+  		cartServiceProxy.emptyCart(getConsumerId(), cartId);
   		
   		System.out.println(
- 			"--------------------- emptyCart() --------------------\n"
- 					+ "\n cartId = " + cartId +
+ 			"--------------------- emptyCart() --------------------" +
  			"\n--------------------------------------------------");
  		
-  		List<Cart> carts = cartServiceProxy.getAllCarts();
   		
-  		System.out.println(
- 			"--------------------- getAllCarts() --------------------\n"
- 					+ "\n allCarts = " + carts + 
- 			"\n--------------------------------------------------");
- 		
- 		model.addAttribute("carts", carts);
- 		
- 		return VIEW_ALL_CARTS_JSP_NAME;		
+ 		return VIEW_CART_DETAILS_JSP_NAME;	
  	}
  	
  	// helper methods
@@ -185,6 +204,11 @@ public class CartController {
 	private void setCartId(Cart cart) {
 		inMemStore.setAttribute("cartId", cart.getCartId());
 	}
- 	
+	
+	private String getConsumerId() {
+		String consumerId = (String) inMemStore.getAttribute("CONSUMER_ID");
+		return (consumerId == null) ? CONSUMER_ID : consumerId;
+	}
+	
 }
 

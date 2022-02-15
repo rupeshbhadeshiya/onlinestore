@@ -3,6 +3,8 @@ package com.learning.ddd.onlinestore.order.application;
 import java.text.ParseException;
 import java.util.List;
 
+import javax.jms.JMSException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.order.application.dto.CreateOrderDTO;
 import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersRequestDTO;
 import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersResponseDTO;
@@ -33,11 +34,12 @@ public class OrderServiceController {
 	@PostMapping("/{consumerId}/orders")
 	public ResponseEntity<Order> createOrder(
 			@PathVariable String consumerId,
-			@RequestBody CreateOrderDTO createOrderDTO) {
+			@RequestBody CreateOrderDTO createOrderDTO) throws JMSException {
 		
-		Cart cart = createOrderDTO.getCart();
+		//Cart cart = createOrderDTO.getCart();
 		Order order = orderService.createOrderAndProcessPayment(
-				cart, 
+				//cart,
+				createOrderDTO.getCartId(),
 				createOrderDTO.getPaymentMethod(), 
 				createOrderDTO.getBillingAddress(), 
 				createOrderDTO.getShippingAddress()
@@ -98,7 +100,7 @@ public class OrderServiceController {
 	@DeleteMapping("/{consumerId}/orders/{orderId}")
 	public ResponseEntity<?> cancelOrder(
 			@PathVariable String consumerId,
-			@PathVariable Integer orderId) {
+			@PathVariable Integer orderId) throws CloneNotSupportedException, JMSException {
 		
 		orderService.cancelOrder(consumerId, orderId);
 		
@@ -109,7 +111,7 @@ public class OrderServiceController {
 	@DeleteMapping("/{consumerId}/orders")
 	public ResponseEntity<?> cancelOrder(
 			@PathVariable String consumerId,
-			@RequestParam String orderNumber) {
+			@RequestParam String orderNumber) throws CloneNotSupportedException, JMSException {
 		
 		orderService.cancelOrder(consumerId, orderNumber);
 		

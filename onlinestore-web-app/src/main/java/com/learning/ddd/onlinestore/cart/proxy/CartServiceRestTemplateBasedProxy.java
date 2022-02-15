@@ -31,8 +31,8 @@ public class CartServiceRestTemplateBasedProxy {
 	
 	public Cart addItemToCart(int cartId, InventoryItem inventoryItem) {
 		
-		AddItemToCartDTO dto = new AddItemToCartDTO(CONSUMER_ID, cartId); 
-		dto.addItem(ItemConversionUtil.fromInventoryItemToCartItem(inventoryItem));
+		AddItemToCartDTO dto = new AddItemToCartDTO(CONSUMER_ID, cartId, 
+			ItemConversionUtil.fromInventoryItemToCartItem(inventoryItem));
 		
 		HttpEntity<AddItemToCartDTO> request = new HttpEntity<AddItemToCartDTO>(dto);
 		

@@ -7,8 +7,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -16,14 +14,14 @@ import javax.persistence.Table;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
 
 @Entity
-@Table(schema="orders")
+@Table(schema="orders") // ensures that order-service stores in its local store all Carts received from cart-service 
 public class Cart implements Serializable {
 
 	private static final long serialVersionUID = 8342884428850145205L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int cartId;
+	//@GeneratedValue(strategy = GenerationType.AUTO) // V.IMP; Order must not generate new cartId but use same as received
+	private int cartId;							// else when checkout a Cart, order-service never finds an existing Cart!
 	
 	private String consumerId;	// Consumer currently associated with this Cart
 	

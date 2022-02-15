@@ -71,7 +71,8 @@ public class OrderController {
    		
    		order.setConsumerId(cart.getConsumerId());
    		
-   		Order createdOrder = orderServiceProxy.checkout(cart, order);
+   		// Order createdOrder = orderServiceProxy.checkout(cart, order);
+   		Order createdOrder = orderServiceProxy.checkout(Integer.parseInt(cartId), order);
    		
    		System.out.println(
  			"--------------------- checkout() --------------------\n"
@@ -125,6 +126,7 @@ public class OrderController {
    		List<Order> orders = orderServiceProxy.getAllOrders();
    		
         model.addAttribute("orders", orders);
+        model.addAttribute("isOrderCancelledSuccessfully", true);
          
         return VIEW_ALL_ORDERS_JSP_NAME;			
     }

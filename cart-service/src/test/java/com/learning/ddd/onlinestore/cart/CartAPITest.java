@@ -13,7 +13,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import com.learning.ddd.onlinestore.cart.application.dto.PullCartDTO;
+import com.learning.ddd.onlinestore.cart.application.dto.AddItemToCartDTO;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
@@ -84,12 +84,11 @@ class CartAPITest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(1)
-	void shopItemsInSameCart() throws IOException {
+	void shopItems() throws IOException {
 		
 		// add first item to a cart
 		
-		PullCartDTO dto = new PullCartDTO(CONSUMER_ID);
-		dto.addItem(BISCUIT_ITEM);
+		AddItemToCartDTO dto = new AddItemToCartDTO(CONSUMER_ID, 0, BISCUIT_ITEM);
 		
 		Cart cart = (Cart) HttpUtil.post(CART_SERVICE_URL, dto, Cart.class); 
 		
@@ -107,8 +106,7 @@ class CartAPITest {
 		
 		// add second item to the same cart
 		
-		dto = new PullCartDTO(CONSUMER_ID);
-		dto.addItem(BATHING_SOAP_ITEM);
+		dto = new AddItemToCartDTO(CONSUMER_ID, 0, BATHING_SOAP_ITEM);
 		
 		cart = (Cart) HttpUtil.put(CART_SERVICE_URL+"/"+CART_ID, dto, Cart.class);
 		

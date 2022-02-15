@@ -5,7 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import javax.jms.JMSException;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +15,20 @@ import org.springframework.stereotype.Service;
 
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
+import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
+import com.learning.ddd.onlinestore.cart.domain.repository.CartRepository;
+import com.learning.ddd.onlinestore.cart.proxy.CartServiceRestTemplateBasedProxy;
 import com.learning.ddd.onlinestore.commons.util.ItemConversionUtil;
-import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventPublisher;
+import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.DomainEventName;
 import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersRequestDTO;
 import com.learning.ddd.onlinestore.order.domain.Address;
 import com.learning.ddd.onlinestore.order.domain.Order;
 import com.learning.ddd.onlinestore.order.domain.OrderItem;
 import com.learning.ddd.onlinestore.order.domain.OrderTransaction;
-import com.learning.ddd.onlinestore.order.domain.event.OrderCancelledEvent;
-import com.learning.ddd.onlinestore.order.domain.event.OrderCreatedEvent;
+import com.learning.ddd.onlinestore.order.domain.event.OrderCancelledEventData;
+import com.learning.ddd.onlinestore.order.domain.event.OrderCreatedEventData;
+import com.learning.ddd.onlinestore.order.domain.event.pubsub.OrderEventsProducer;
 import com.learning.ddd.onlinestore.order.domain.repository.OrderRepository;
 import com.learning.ddd.onlinestore.payment.domain.PaymentGateway;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
@@ -36,13 +43,61 @@ public class OrderService {
 	private PaymentGateway paymentGateway;
 
 	@Autowired
-	private DomainEventPublisher domainEventPublisher;
+	private OrderEventsProducer orderEventsProducer;
+	
+	//@Autowired
+	//private DomainEventPublisher domainEventPublisher;
+	
+	@Autowired
+	private CartRepository cartRepository;
+	
+	@Autowired
+	private CartServiceRestTemplateBasedProxy cartServiceProxy;
 	
 
 	@Transactional
 	public Order createOrderAndProcessPayment(
-			Cart cart, PaymentMethod paymentMethod,
-			Address billingAddress, Address shippingAddress) {
+			//Cart cart,
+			int cartId,
+			PaymentMethod paymentMethod,
+			Address billingAddress, Address shippingAddress) throws JMSException {
+		
+		System.out.println(
+			"OrderService: createOrderAndProcessPayment() - started; "
+			+ "cartId="+cartId+", paymentMethod="+paymentMethod
+			+ ", billingAddress="+billingAddress+", shippingAddress="+shippingAddress);
+		
+		// First look in local store to find Cart for given cartId
+		Cart cart = null;
+		Optional<Cart> cartInDB = cartRepository.findById(cartId);
+		
+		if (cartInDB.isPresent()) {
+		
+			cart = cartInDB.get();
+			
+			System.out.println(
+				"OrderService: createOrderAndProcessPayment() - Found Cart in local DB; "
+				+ "cartId="+cartId + ", cart="+cart);
+			
+		} else { // try calling cart-service directly to confirm that Indeed the Cart does not exist
+			
+			System.out.println(
+				"OrderService: createOrderAndProcessPayment() - Did not found the Cart in local DB; "
+				+ " cartId="+cartId + ", so trying to get it from cart-service");
+			
+			cart = cartServiceProxy.getCart(cartId);
+			
+			if (cart == null) {
+				System.err.println(
+					"ERROR - OrderService: createOrderAndProcessPayment() - Did not found the Cart in cart-service too!! "
+					+ " cartId="+cartId + ", looks like a Cart which does not exist!"
+				);
+				throw new CartNotFoundException(cartId);
+			}
+			System.out.println(
+				"OrderService: createOrderAndProcessPayment() - Found out the Cart in cart-service; "
+				+ "cartId="+cartId + ", cart="+cart);
+		}
 		
 		// create an Order
 		
@@ -69,7 +124,16 @@ public class OrderService {
 		
 		order = orderRepository.save(order);
 		
-		domainEventPublisher.publishEvent(new OrderCreatedEvent(cart, order));
+		System.out.println(
+			"OrderService: createOrderAndProcessPayment() - Order created; "
+			+ "order="+order
+			+ "cartId="+cartId);
+		
+		//OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(new OrderCreatedEventData(order, cart));
+		DomainEvent orderCreatedEvent = new DomainEvent(
+			DomainEventName.ORDER_CREATED, new OrderCreatedEventData(order, cart)
+		);
+		orderEventsProducer.publishDomainEvent(orderCreatedEvent);
 		
 		return order;
 	}
@@ -130,23 +194,33 @@ public class OrderService {
 	}
 
 	@Transactional
-	public void cancelOrder(String consumerId, String orderNumber) {
+	public void cancelOrder(String consumerId, String orderNumber) throws CloneNotSupportedException, JMSException {
 		
-		System.out.println("--------- cancelOrder(orderNumber): orderNumber = " + orderNumber + " -----------");
+		System.out.println(
+			"OrderService: cancelOrder() - Going to cancel Order; "
+			+ "consumerId="+consumerId
+			+ "orderNumber="+orderNumber);
 		
 		Order order = orderRepository.findByOrderNumber(orderNumber);
+		Order copyOfOrderToBeCancelled = order.clone();
 		
 		System.out.println("--------- cancelOrder(orderNumber): order = " + order + " -----------");
 		
-		OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(order.getItems());
-		
 		orderRepository.deleteByConsumerIdAndOrderNumber(consumerId, orderNumber);
 		
-		domainEventPublisher.publishEvent(orderCancelledEvent);
+		System.out.println(
+			"OrderService: cancelOrder() - Cancelled the Order; "
+			+ "consumerId="+consumerId
+			+ "orderNumber="+orderNumber);
+		
+		DomainEvent orderCancelledEvent = new DomainEvent(
+			DomainEventName.ORDER_CANCELLED, new OrderCancelledEventData(copyOfOrderToBeCancelled)
+		);
+		orderEventsProducer.publishDomainEvent(orderCancelledEvent);
 	}
 	
 	@Transactional
-	public void cancelOrder(String consumerId, int orderId) {
+	public void cancelOrder(String consumerId, int orderId) throws CloneNotSupportedException, JMSException {
 		
 		System.out.println("--------- cancelOrder(orderId): orderId = " + orderId + " -----------");
 		
@@ -154,11 +228,16 @@ public class OrderService {
 		
 		System.out.println("--------- cancelOrder(orderId): order = " + order + " -----------");
 		
-		OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(order.getItems());
+		Order copyOfOrderToBeCancelled = order.clone();
+		
+		System.out.println("--------- cancelOrder(orderNumber): order = " + order + " -----------");
 		
 		orderRepository.deleteById(orderId);
 		
-		domainEventPublisher.publishEvent(orderCancelledEvent);
+		DomainEvent orderCancelledEvent = new DomainEvent(
+			DomainEventName.ORDER_CANCELLED, new OrderCancelledEventData(copyOfOrderToBeCancelled)
+		);
+		orderEventsProducer.publishDomainEvent(orderCancelledEvent);
 	}
 
 

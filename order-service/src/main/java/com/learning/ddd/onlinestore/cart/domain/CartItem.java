@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -14,14 +12,16 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(schema="orders")
+@Table(schema="orders") // ensures that order-service stores in its local store all CartItems received from cart-service
 public class CartItem implements Serializable {
 
 	private static final long serialVersionUID = 5472900313173264495L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	//@GeneratedValue(strategy = GenerationType.AUTO) // V.IMP; Order must not generate new itemId but use same as received
+											// else when checkout a Cart, order-service never finds an existing CartItem!
 	private int itemId;				// ex. 1001, unique Id to identify an item uniquely
+	
 	private String category;		// ex. Grocery
 	private String subCategory;		// ex. Biscuits
 	private String name;			// ex. Parle-G

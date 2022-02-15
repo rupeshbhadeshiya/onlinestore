@@ -10,7 +10,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.order.application.dto.CreateOrderDTO;
 import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersRequestDTO;
 import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersResponseDTO;
@@ -54,11 +53,32 @@ public class OrderServiceRestTemplateBasedProxy {
 		return Arrays.asList(PaymentMethod.values());
 	}
 	
-	public Order checkout(Cart cart, Order orderRequestData) {
+//	public Order checkout(Cart cart, Order orderRequestData) {
+//		
+//		CreateOrderDTO dto = new CreateOrderDTO(CONSUMER_ID);
+//		dto.setConsumerId(cart.getConsumerId());
+//		dto.setCart(cart);
+//		dto.setBillingAddress(orderRequestData.getBillingAddress());
+//		dto.setShippingAddress(orderRequestData.getShippingAddress());
+//		dto.setPaymentMethod(orderRequestData.getPaymentMethod());
+//		
+//		HttpEntity<CreateOrderDTO> request = new HttpEntity<CreateOrderDTO>(dto);
+//		
+//		Order order = orderServiceRestTemplate.exchange(
+//			"http://order-service/consumers/" + CONSUMER_ID + "/orders", 
+//			HttpMethod.POST,
+//			request,
+//			new ParameterizedTypeReference<Order>() {}
+//		).getBody();
+//		
+//		return order;
+//	}
+	
+	public Order checkout(int cartId, Order orderRequestData) {
 		
 		CreateOrderDTO dto = new CreateOrderDTO(CONSUMER_ID);
-		dto.setConsumerId(cart.getConsumerId());
-		dto.setCart(cart);
+		dto.setConsumerId(CONSUMER_ID);
+		dto.setCartId(cartId);
 		dto.setBillingAddress(orderRequestData.getBillingAddress());
 		dto.setShippingAddress(orderRequestData.getShippingAddress());
 		dto.setPaymentMethod(orderRequestData.getPaymentMethod());

@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.jms.JMSException;
+
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -22,6 +24,7 @@ import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.service.CartService;
+import com.learning.ddd.onlinestore.domain.event.DomainEventName;
 
 //~Cart-Specific~
 //
@@ -50,13 +53,13 @@ class CartServiceTest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(1)
-	void pullCartAndAddItems() {
+	void addItemsInCart() throws JMSException {
 		
-		AddItemToCartDTO dto = new AddItemToCartDTO(CONSUMER_ID, 0);
-		dto.addItem(BISCUIT_ITEM);
-		dto.addItem(BATHING_SOAP_ITEM);
-		
+		AddItemToCartDTO dto = new AddItemToCartDTO(CONSUMER_ID, 0, BISCUIT_ITEM);
 		Cart cart = cartService.addItem(dto);
+		
+		dto = new AddItemToCartDTO(CONSUMER_ID, 0, BATHING_SOAP_ITEM);
+		cart = cartService.addItem(dto);
 		
 		// record for use in other tests
 		CART_ID = cart.getCartId();
@@ -207,9 +210,9 @@ class CartServiceTest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(33) // too big number to make sure it executes last!
-	void emptyCart() throws CartNotFoundException, CloneNotSupportedException {
+	void emptyCart() throws CartNotFoundException, CloneNotSupportedException, JMSException {
 		
-		cartService.emptyCart(CART_ID);
+		cartService.emptyCart(CART_ID, DomainEventName.CART_EMPTIED_BY_CONSUMER);
 		
 		assertNull(cartService.getCart(CART_ID));
 	}
@@ -226,7 +229,7 @@ class CartServiceTest {
 		
 		CartItemNotFoundException ex = assertThrows(
 			CartItemNotFoundException.class, () -> {
-				cartService.emptyCart(unknownCartId);
+				cartService.emptyCart(unknownCartId, DomainEventName.CART_EMPTIED_BY_CONSUMER);
 			}
 		);
 		

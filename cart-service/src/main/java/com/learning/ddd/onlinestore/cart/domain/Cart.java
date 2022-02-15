@@ -44,6 +44,17 @@ public class Cart implements Serializable {
 		this.consumerId = consumerId;
 	}
 	
+	public Cart(Cart cart) {
+		super();
+		this.cartId = cart.cartId;
+		this.consumerId = cart.consumerId;
+		this.itemCount = cart.itemCount;
+		this.items = new ArrayList<>();
+		for (CartItem cartItem : items) {
+			this.items.add(new CartItem(cartItem));
+		}
+	}
+
 	public Double computeAmount() {
 		double totalAmount = 0.0; 
 		for (CartItem item : items) {
@@ -198,6 +209,11 @@ public class Cart implements Serializable {
 				+ ", itemCount=" + itemCount
 				+ ", items=" + items 
 				+ "]";
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return new Cart(this);
 	}
 
 }

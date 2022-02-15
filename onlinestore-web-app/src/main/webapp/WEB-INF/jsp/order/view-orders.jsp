@@ -2,14 +2,18 @@
 
     <div class="container">
     
+    	<c:if test="${isOrderCancelledSuccessfully}">
+            <div class="text-success">Order cancelled successfully</div>
+            <br/>
+        </c:if>
         <c:if test="${empty orders}">
             <div class="text-info">No Order Found! Do some Shopping!</div>
             <br/>
         </c:if>
-        <c:if test="${noOrdersFound}">
+        <%-- <c:if test="${noOrdersFound}">
             <div class="text-info">No Order Found!</div>
             <br/>
-        </c:if>
+        </c:if> --%>
         <c:if test="${numOrdersFound > 0}">
             <div class="text-success">${numOrdersFound} Order(s) Found</div>
             <br/>

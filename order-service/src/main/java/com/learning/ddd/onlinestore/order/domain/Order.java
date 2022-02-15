@@ -70,6 +70,21 @@ public class Order implements Serializable {
 	}
 
 	
+	public Order(Order order) {
+		this.consumerId = order.consumerId;
+		this.orderId = order.orderId;
+		this.orderNumber = order.orderNumber;
+		this.billingAddress = order.billingAddress;
+		this.shippingAddress = order.shippingAddress;
+		this.items = order.items;
+		this.itemCount = order.itemCount;
+		this.paymentMethod = order.paymentMethod;
+		this.amount = order.amount;
+		this.creationDate = order.creationDate;
+		this.transactions = order.transactions;
+	}
+
+
 	// allocate a new Order Number, a human-readable String
 	// which a Consumer can use to refer to a Order later
 	private void allocateOrderNumber() {
@@ -272,5 +287,11 @@ public class Order implements Serializable {
 				+ ", transactions=" + transactions
 				+ "]";
 	}
+	
+	@Override
+	public Order clone() throws CloneNotSupportedException {
+		return new Order(this);
+	}
+	
 
 }

@@ -2,6 +2,8 @@ package com.learning.ddd.onlinestore.cart.application;
 
 import java.util.List;
 
+import javax.jms.JMSException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.service.CartService;
+import com.learning.ddd.onlinestore.domain.event.DomainEventName;
 
 @RequestMapping("/consumers")
 //@RequestMapping("/carts")
@@ -29,7 +32,7 @@ public class CartServiceController {
 	
 	@PostMapping("/{consumerId}/carts")
 	public ResponseEntity<Cart> addItemToCart(@PathVariable String consumerId, 
-			@RequestBody AddItemToCartDTO addItemToCartDTO) {
+			@RequestBody AddItemToCartDTO addItemToCartDTO) throws JMSException {
 		
 		Cart cart = cartService.addItem(addItemToCartDTO);
 		
@@ -58,7 +61,7 @@ public class CartServiceController {
 	@DeleteMapping("/{consumerId}/carts/{cartId}/items/{itemId}")
 	public ResponseEntity<Cart> removeItemFromCart(@PathVariable String consumerId,
 			@PathVariable Integer cartId, @PathVariable Integer itemId) 
-				throws CartNotFoundException, CartItemNotFoundException, CloneNotSupportedException {
+				throws CartNotFoundException, CartItemNotFoundException, CloneNotSupportedException, JMSException {
 		
 		Cart cart = cartService.removeItem(cartId, itemId);
 		
@@ -68,9 +71,9 @@ public class CartServiceController {
 	@DeleteMapping("/{consumerId}/carts/{cartId}")
 	public ResponseEntity<?> emptyCart(@PathVariable String consumerId,
 			@PathVariable Integer cartId) 
-					throws CartNotFoundException, CloneNotSupportedException {
+					throws CartNotFoundException, CloneNotSupportedException, JMSException {
 		
-		cartService.emptyCart(cartId);
+		cartService.emptyCart(cartId, DomainEventName.CART_EMPTIED_BY_CONSUMER);
 		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

@@ -3,14 +3,17 @@ package com.learning.ddd.onlinestore.inventory.domain;
 import java.util.List;
 import java.util.Optional;
 
+import javax.jms.JMSException;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventPublisher;
-import com.learning.ddd.onlinestore.inventory.domain.event.ItemAddedToInventoryEvent;
-import com.learning.ddd.onlinestore.inventory.domain.event.ItemRemovedFromInventoryEvent;
+import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.DomainEventName;
+import com.learning.ddd.onlinestore.inventory.domain.event.ItemAddedToInventoryEventData;
+import com.learning.ddd.onlinestore.inventory.domain.event.ItemRemovedFromInventoryEventData;
+import com.learning.ddd.onlinestore.inventory.domain.event.pubsub.InventoryEventsProducer;
 import com.learning.ddd.onlinestore.inventory.domain.exception.ItemAlreadyExistsException;
 import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryItemJpaRepository;
 
@@ -30,7 +33,10 @@ public class Inventory {
 	private InventoryItemJpaRepository itemRepository;
 
 	@Autowired
-	private DomainEventPublisher domainEventPublisher;
+	private InventoryEventsProducer inventoryEventsProducer;
+	
+	//@Autowired
+	//private DomainEventPublisher domainEventPublisher;
 
 	
 	public Inventory() {
@@ -39,7 +45,7 @@ public class Inventory {
 	
 	
 	@Transactional
-	public InventoryItem addItem(InventoryItem item) throws ItemAlreadyExistsException {
+	public InventoryItem addItem(InventoryItem item) throws ItemAlreadyExistsException, JMSException {
 		
 		if (searchItem(item) != null) {
 			throw new ItemAlreadyExistsException(item);
@@ -47,7 +53,10 @@ public class Inventory {
 		
 		final InventoryItem persistedItem = itemRepository.save(item);
 		
-		domainEventPublisher.publishEvent(new ItemAddedToInventoryEvent(item));
+		
+		ItemAddedToInventoryEventData eventData = new ItemAddedToInventoryEventData(persistedItem);
+		DomainEvent itemAddedToInventoryEvent = new DomainEvent(DomainEventName.ITEM_ADDED_TO_INVENTORY, eventData);
+		inventoryEventsProducer.publishDomainEvent(itemAddedToInventoryEvent);
 		
 		return persistedItem;
 	}
@@ -137,21 +146,27 @@ public class Inventory {
 	}
 	
 	@Transactional
-	public void removeItem(Integer itemId) {
+	public void removeItem(Integer itemId) throws CloneNotSupportedException, JMSException {
 		
-		InventoryItem item = getItem(itemId);
+		InventoryItem copyOfItemToBeRemoved = getItem(itemId).clone();
 		
 		itemRepository.deleteById(itemId);
 		
-		domainEventPublisher.publishEvent(new ItemRemovedFromInventoryEvent(item));
+		ItemRemovedFromInventoryEventData eventData = new ItemRemovedFromInventoryEventData(copyOfItemToBeRemoved);
+		DomainEvent itemRemovedFromInventoryEvent = new DomainEvent(DomainEventName.ITEM_REMOVED_FROM_INVENTORY, eventData);
+		inventoryEventsProducer.publishDomainEvent(itemRemovedFromInventoryEvent);
 	}
 
 	@Transactional
-	public void removeItem(InventoryItem item) {
+	public void removeItem(InventoryItem item) throws CloneNotSupportedException, JMSException {
+		
+		InventoryItem copyOfItemToBeRemoved = item.clone();
 		
 		itemRepository.delete(item);
 		
-		domainEventPublisher.publishEvent(new ItemRemovedFromInventoryEvent(item));
+		ItemRemovedFromInventoryEventData eventData = new ItemRemovedFromInventoryEventData(copyOfItemToBeRemoved);
+		DomainEvent itemRemovedFromInventoryEvent = new DomainEvent(DomainEventName.ITEM_REMOVED_FROM_INVENTORY, eventData);
+		inventoryEventsProducer.publishDomainEvent(itemRemovedFromInventoryEvent);
 	}
 
 	@Transactional

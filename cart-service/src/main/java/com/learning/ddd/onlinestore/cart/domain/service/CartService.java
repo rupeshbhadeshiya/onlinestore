@@ -1,9 +1,9 @@
 package com.learning.ddd.onlinestore.cart.domain.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.jms.JMSException;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +12,15 @@ import org.springframework.stereotype.Service;
 import com.learning.ddd.onlinestore.cart.application.dto.AddItemToCartDTO;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
-import com.learning.ddd.onlinestore.cart.domain.event.CartEmptiedEvent;
-import com.learning.ddd.onlinestore.cart.domain.event.ItemRemovedFromCartEvent;
-import com.learning.ddd.onlinestore.cart.domain.event.ItemsAddedToCartEvent;
+import com.learning.ddd.onlinestore.cart.domain.event.CartEmptiedEventData;
+import com.learning.ddd.onlinestore.cart.domain.event.ItemAddedToCartEventData;
+import com.learning.ddd.onlinestore.cart.domain.event.ItemRemovedFromCartEventData;
+import com.learning.ddd.onlinestore.cart.domain.event.pubsub.CartEventsProducer;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.repository.CartRepository;
-import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventPublisher;
+import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.DomainEventName;
 
 @Service
 public class CartService {
@@ -27,14 +29,17 @@ public class CartService {
 	private CartRepository cartRepository;
 	
 	@Autowired
-	private DomainEventPublisher domainEventPublisher;
+	private CartEventsProducer cartEventsProducer;
+	
+	//@Autowired
+	//private DomainEventPublisher domainEventPublisher;
 	
 	
 	public CartService() {
 	}
 	
 	@Transactional
-	public Cart addItem(AddItemToCartDTO addItemToCartDTO) {
+	public Cart addItem(AddItemToCartDTO addItemToCartDTO) throws JMSException {
 		
 		Cart cart;
 		
@@ -55,13 +60,14 @@ public class CartService {
 			
 		}
 		
-		cart.addItems(addItemToCartDTO.getItems());
+		cart.addItem(addItemToCartDTO.getItem());
 		
 		Cart savedCart = cartRepository.save(cart);
 		
-		ItemsAddedToCartEvent itemsAddedToCartEvent = new ItemsAddedToCartEvent(savedCart, addItemToCartDTO.getItems());
+		ItemAddedToCartEventData eventData = new ItemAddedToCartEventData(savedCart, addItemToCartDTO.getItem());
+		DomainEvent itemsAddedToCartEvent = new DomainEvent(DomainEventName.ITEM_ADDED_TO_CART, eventData);
 		
-		domainEventPublisher.publishEvent(itemsAddedToCartEvent);
+		cartEventsProducer.publishDomainEvent(itemsAddedToCartEvent);
 		
 		//System.out.println("==== pullCartAndAddItems(): Cart - published event - " + itemsAddedToCartEvent);
 		
@@ -91,7 +97,7 @@ public class CartService {
 	
 	@Transactional
 	public Cart removeItem(Integer cartId, Integer itemId) 
-			throws CartNotFoundException, CartItemNotFoundException, CloneNotSupportedException {
+			throws CartNotFoundException, CartItemNotFoundException, CloneNotSupportedException, JMSException {
 		
 		Cart cart =  getCartInternal(cartId);
 		
@@ -115,13 +121,15 @@ public class CartService {
 			
 			cartRepository.save(cart);
 			
-			ItemRemovedFromCartEvent itemRemovedFromCartEvent = new ItemRemovedFromCartEvent(cart, copyOfItemToBeRemoved);
-			domainEventPublisher.publishEvent(itemRemovedFromCartEvent);
+			ItemRemovedFromCartEventData eventData = new ItemRemovedFromCartEventData(cart, copyOfItemToBeRemoved);
+			DomainEvent ItemRemovedFromCartEvent = new DomainEvent(DomainEventName.ITEM_REMOVED_FROM_CART, eventData);
+			
+			cartEventsProducer.publishDomainEvent(ItemRemovedFromCartEvent);
 		}
 		
 		if (cart.getItems().isEmpty()) {
 			
-			this.emptyCart(cartId);
+			this.emptyCart(cartId, DomainEventName.CART_EMPTIED_BY_CONSUMER);
 			
 			cart = null;
 		}
@@ -146,41 +154,36 @@ public class CartService {
 	}
 	
 	@Transactional
-	public void emptyCart(Integer cartId) throws CartNotFoundException, CloneNotSupportedException {
+	public void emptyCart(Integer cartId, DomainEventName eventThatTriggeredCartEmptying) throws CartNotFoundException, CloneNotSupportedException, JMSException {
 		
 		// prepare event to publish - very imp - to let Inventory know to reclaim these items
 		
 		Cart cart =  getCartInternal(cartId);
 		
-		List<CartItem> cartItemsBeingReleased = new ArrayList<>();
-		for (CartItem cartItem : cart.getItems()) {
-			cartItemsBeingReleased.add(cartItem.clone());
-		}
-		
-		CartEmptiedEvent cartEmptiedEvent = new CartEmptiedEvent(cartId, cartItemsBeingReleased);
+		Cart cartThatIsEmptied = (Cart) cart.clone();
+		CartEmptiedEventData cartEmptiedEventData = new CartEmptiedEventData(cartThatIsEmptied);
 		
 		// delete cart
-		
 		cartRepository.deleteById(cartId);
 		
-		// publish event
+		DomainEvent cartEmptiedEvent = null;
+		if (eventThatTriggeredCartEmptying == DomainEventName.ORDER_CREATED) {
+			cartEmptiedEvent = new DomainEvent(
+				DomainEventName.CART_EMPTIED_DUE_TO_ORDER_CREATION, cartEmptiedEventData
+			);
+			
+		} else if (eventThatTriggeredCartEmptying == DomainEventName.CART_EMPTIED_BY_CONSUMER) {
+			cartEmptiedEvent = new DomainEvent(
+				DomainEventName.CART_EMPTIED_BY_CONSUMER, cartEmptiedEventData
+			);
+			
+		} else {
+			throw new RuntimeException("emptyCart(): Unknown eventThatTriggeredCartEmptying = " + eventThatTriggeredCartEmptying);
+		}
 		
-		domainEventPublisher.publishEvent(cartEmptiedEvent);
+		cartEventsProducer.publishDomainEvent(cartEmptiedEvent);
 		
 		//System.out.println("==== emptyCart(cartId) - CartEmptiedEvent published - " + cartEmptiedEvent);
 	}
 	
-	@Transactional
-	public void emptyCartWithoutPublishingEvent(Integer cartId) throws CartNotFoundException, CloneNotSupportedException {
-		
-		// delete cart
-		
-		cartRepository.deleteById(cartId);
-		
-		// since this is internal one, event not to be published
-		//domainEventPublisher.publishEvent(cartEmptiedEvent);
-		//System.out.println("==== emptyCart(cartId) - CartEmptiedEvent published - " + cartEmptiedEvent);
-	}
-
-
 }

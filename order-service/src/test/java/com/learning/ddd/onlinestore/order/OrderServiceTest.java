@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import javax.jms.JMSException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,7 +75,7 @@ public class OrderServiceTest {
 	}
 	
 	@Test
-	void createOrderAndProcessPayment() {
+	void createOrderAndProcessPayment() throws JMSException {
 		
 		Cart cart = new Cart(CONSUMER_ID);
 		
@@ -88,7 +90,7 @@ public class OrderServiceTest {
 			AddressType.SHIPPING_ADDRESS);
 		
 		Order order = orderService.createOrderAndProcessPayment(
-			cart, paymentMethod, billingAddress, shippingAddress
+			cart.getCartId(), paymentMethod, billingAddress, shippingAddress
 		);
 			
 		assertNotNull(order);
@@ -121,7 +123,7 @@ public class OrderServiceTest {
 	}
 	
 	@Test
-	void getAllOrders() {
+	void getAllOrders() throws JMSException {
 		
 		// initially, no order!
 		List<Order> orders = orderService.getOrders(CONSUMER_ID);
@@ -145,7 +147,7 @@ public class OrderServiceTest {
 			AddressType.SHIPPING_ADDRESS);
 		
 		orderService.createOrderAndProcessPayment(
-			cart, paymentMethod, billingAddress, shippingAddress
+			cart.getCartId(), paymentMethod, billingAddress, shippingAddress
 		);
 			
 		orders = orderService.getOrders(CONSUMER_ID);

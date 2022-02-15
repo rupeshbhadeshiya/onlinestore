@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import javax.jms.JMSException;
 import javax.transaction.Transactional;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -81,7 +82,7 @@ public class InventoryServiceTest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(1)
-	void addItems() throws ItemAlreadyExistsException {
+	void addItems() throws ItemAlreadyExistsException, JMSException {
 		
 		InventoryItem addedItem = inventory.addItem(BISCUIT_ITEM);
 		assertNotNull(addedItem);
@@ -144,7 +145,7 @@ public class InventoryServiceTest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(3)
-	void getSpecificItem() throws ItemAlreadyExistsException {
+	void getSpecificItem() throws ItemAlreadyExistsException, JMSException {
 		
 		InventoryItem persistedPencilItem = inventory.addItem(PENCIL_ITEM);
 		
@@ -257,7 +258,7 @@ public class InventoryServiceTest {
 	@Test
 	@Transactional // A modify operation (update/delete) has to be Transactional
 	@org.junit.jupiter.api.Order(9)
-	void removeSpecificItem() {
+	void removeSpecificItem() throws CloneNotSupportedException, JMSException {
 		
 		//inventory.addItems( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
 		

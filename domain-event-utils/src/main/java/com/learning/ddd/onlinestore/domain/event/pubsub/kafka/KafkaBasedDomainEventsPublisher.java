@@ -1,16 +1,18 @@
-package com.learning.ddd.onlinestore.commons.domain.event.pubsub.kafka;
+package com.learning.ddd.onlinestore.domain.event.pubsub.kafka;
 
 import java.util.Properties;
+
+import javax.jms.JMSException;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
-import com.learning.ddd.onlinestore.commons.domain.event.DomainEvent;
-import com.learning.ddd.onlinestore.commons.domain.event.pubsub.DomainEventsPublisher;
+import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsPublisher;
 
 //@Primary
 //@Component
-public class KafkaBasedDomainEventsPublisher implements DomainEventsPublisher {
+public class KafkaBasedDomainEventsPublisher extends DomainEventsPublisher {
 
 	private static final String ONLINESTORE_INVENTORY_TOPIC = "onlinestore-inventory-events";
 	
@@ -34,7 +36,7 @@ public class KafkaBasedDomainEventsPublisher implements DomainEventsPublisher {
 	}
 
 	@Override
-	public void publishEvent(DomainEvent domainEvent) {
+	public void publishDomainEvent(DomainEvent domainEvent) throws JMSException {
 		System.out.println("------- KafkaBasedDomainEventsPublisher.publishEvent() started...");
 		
 //		if (domainEvent instanceof ItemsAddedToInventoryEvent) {
@@ -70,6 +72,17 @@ public class KafkaBasedDomainEventsPublisher implements DomainEventsPublisher {
 //		}
 
 		System.out.println("------- KafkaBasedDomainEventsPublisher.publishEvent() completed.");
+	}
+
+	@Override
+	protected String getTopicName() {
+		return ONLINESTORE_INVENTORY_TOPIC;
+	}
+
+	@Override
+	protected String getCallingServiceName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

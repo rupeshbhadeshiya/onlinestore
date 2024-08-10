@@ -1,4 +1,4 @@
-package com.learning.ddd.onlinestore.commons.domain.event.pubsub.kafka_with_spring;
+package com.learning.ddd.onlinestore.domain.event.pubsub.kafka_with_spring;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +15,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 
-@Configuration
+// @Configuration
 public class KafkaConsumerConfig {
 
 	@Value("${spring.kafka.bootstrap-servers}")

@@ -1,4 +1,4 @@
-package com.learning.ddd.onlinestore.commons.domain.event.pubsub.kafka_with_spring;
+package com.learning.ddd.onlinestore.domain.event.pubsub.kafka_with_spring;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
-@Configuration
+// @Configuration
 public class KafkaProducerConfig {
 
 	@Value("${spring.kafka.bootstrap-servers}")

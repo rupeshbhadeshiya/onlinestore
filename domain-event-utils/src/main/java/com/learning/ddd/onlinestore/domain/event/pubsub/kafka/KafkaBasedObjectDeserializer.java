@@ -1,4 +1,4 @@
-package com.learning.ddd.onlinestore.commons.domain.event.pubsub.kafka;
+package com.learning.ddd.onlinestore.domain.event.pubsub.kafka;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

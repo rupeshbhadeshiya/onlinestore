@@ -1,0 +1,53 @@
+# This Service run related configurations
+server:
+  # This service will be listening over port 9010
+  port: '8100'
+  # web context root name
+  servlet:
+    context-path: /onlinestore
+
+spring:
+
+  # Service Name using which other services locates its instances from Service Registry
+  application:
+    name: onlinestore-web-app
+
+  # Database configurations: Postgresql   
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/onlinestore
+    username: postgres
+    password: password
+
+  # JPA specific configurations
+  jpa:
+    show-sql: 'true'
+    hibernate:
+      ddl-auto: update
+
+    # Configuration to resolve error Method org.postgresql.jdbc.PgConnection.createClob() is not yet implemented
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: 'true'      
+
+  # Spring Web MVC related configurations
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+
+# Details of Service Discovery to which this service registers itself so other services can discover its instances and call it
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: 'false'
+
+# Pub/Sub Topics (Apache Kafka)
+onlinestore:
+  cart:
+    events:
+      topic:
+        name: CartEventsTopic

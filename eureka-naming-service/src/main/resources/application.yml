@@ -1,0 +1,28 @@
+# This service will be listening over port 9010
+server:
+  port: '8761'
+
+spring:
+
+  # Service Name using which other services locates its instances from Service Registry
+  application:
+    name: eureka
+
+  # JPA specific configurations
+#  jpa:
+#    show-sql: 'true'
+
+
+# Details of Service Discovery to which this service registers itself so other services can discover its instances and call it
+eureka:
+  client:
+    fetch-registry: 'false'
+    register-with-eureka: 'false'
+
+# Logging configurations to turn off logs of service discovery as we don't need it here
+logging:
+  level:
+    com:
+      netflix:
+        discovery: 'OFF'
+        eureka: 'OFF'

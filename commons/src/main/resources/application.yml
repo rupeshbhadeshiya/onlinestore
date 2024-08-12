@@ -1,0 +1,25 @@
+# This service will be listening over port 9010
+server:
+  port: '9009'
+
+spring:
+
+  # Service Name using which other services locates its instances from Service Registry
+  application:
+    name: commons
+
+  # JPA specific configurations
+  jpa:
+    show-sql: 'true'
+
+# Logging configurations for Spring, Apache Kafka
+#logging:
+#  level:
+#    org:
+#      springframework: INFO
+#      apache:
+#        kafka:
+#          common: INFO
+#          clients:
+#            consumer: INFO
+#            producer: INFO

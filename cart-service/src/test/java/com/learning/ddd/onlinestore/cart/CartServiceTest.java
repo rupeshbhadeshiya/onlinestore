@@ -1,6 +1,5 @@
 package com.learning.ddd.onlinestore.cart;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.learning.ddd.onlinestore.cart.application.dto.AddItemToCartDTO;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
@@ -36,8 +36,9 @@ import com.learning.ddd.onlinestore.domain.event.DomainEventName;
 //
 //~End~
 
-@SpringBootTest
+@ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
+@SpringBootTest //this annotation includes, @RunWith(SpringRunner.class)
 class CartServiceTest {
 
 	private static final String CONSUMER_ID = "11";
@@ -210,33 +211,15 @@ class CartServiceTest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(33) // too big number to make sure it executes last!
-	void emptyCart() throws CartNotFoundException, CloneNotSupportedException, JMSException {
+	void emptyCartAndExpectCartNotFoundException() throws CartNotFoundException, CloneNotSupportedException, JMSException {
 		
 		cartService.emptyCart(CART_ID, DomainEventName.CART_EMPTIED_BY_CONSUMER);
 		
-		assertNull(cartService.getCart(CART_ID));
-	}
-	
-	@Test
-	@org.junit.jupiter.api.Order(34)
-	void catchCartItemNotFoundExceptionInEmptyCart() {
-
-		// prepare
+		Throwable throwable =  assertThrows(CartNotFoundException.class, () -> {
+			cartService.getCart(CART_ID);
+		});
+		assertEquals(CartNotFoundException.class, throwable.getClass());
 		
-		final int unknownCartId = -1;
-		
-		// execute
-		
-		CartItemNotFoundException ex = assertThrows(
-			CartItemNotFoundException.class, () -> {
-				cartService.emptyCart(unknownCartId, DomainEventName.CART_EMPTIED_BY_CONSUMER);
-			}
-		);
-		
-		// validate
-		
-		assertNotNull(ex);
-		assertEquals(unknownCartId, ex.getCart().getCartId());
 	}
 	
 }

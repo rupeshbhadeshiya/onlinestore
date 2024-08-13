@@ -11,8 +11,11 @@ import javax.jms.JMSException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
@@ -49,7 +52,9 @@ import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
 //Consumer exits Mart with Payment Receipt and Items
 //~End~
 
-@SpringBootTest
+@ActiveProfiles("test")
+@TestMethodOrder(OrderAnnotation.class)
+@SpringBootTest //this annotation includes, @RunWith(SpringRunner.class)
 public class OrderServiceTest {
 
 	private static final String CONSUMER_ID = "11";

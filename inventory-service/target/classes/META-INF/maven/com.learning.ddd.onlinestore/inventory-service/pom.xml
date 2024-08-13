@@ -15,6 +15,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.1.7.RELEASE</version>
+		<!-- <version>2.7.18</version> -->
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	
@@ -23,12 +24,50 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<!-- <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version> -->
-	    <maven.compiler.source>1.8</maven.compiler.source>
-	    <maven.compiler.target>1.8</maven.compiler.target>
+	    <!-- <maven.compiler.source>1.8</maven.compiler.source>
+	    <maven.compiler.target>1.8</maven.compiler.target> -->
 	    <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
 	</properties>
 
 	<dependencies>
+	
+		<!-- jUnit 5 dependencies section start -->
+	
+		<dependency>
+		    <groupId>org.junit.jupiter</groupId>
+		    <artifactId>junit-jupiter-api</artifactId>
+		    <version>5.8.2</version>
+		    <scope>test</scope>
+		</dependency>
+	    
+		<dependency>
+		    <groupId>org.junit.jupiter</groupId>
+		    <artifactId>junit-jupiter-engine</artifactId>
+		    <version>5.8.2</version>
+		    <scope>test</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.junit.platform</groupId>
+		    <artifactId>junit-platform-engine</artifactId>
+		    <version>1.8.2</version>
+		    <scope>test</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.junit.platform</groupId>
+		    <artifactId>junit-platform-commons</artifactId>
+		    <version>1.8.2</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apiguardian</groupId>
+		    <artifactId>apiguardian-api</artifactId>
+		    <version>1.1.2</version>
+		</dependency>
+		
+		<!-- jUnit 5 dependencies section over -->
+		
 	
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -58,12 +97,6 @@
 		        </exclusion>
 		    </exclusions>
 		</dependency> -->
-		
-		<dependency>
-		    <groupId>org.junit.jupiter</groupId>
-		    <artifactId>junit-jupiter-api</artifactId>
-		    <scope>test</scope>
-		</dependency>
 		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -129,6 +162,12 @@
 					<exclude>**/*.java</exclude>
 				</excludes>
 			</resource>
+			<resource>
+				<directory>src/test/resources</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
 		</resources>
 		<plugins>
 		    <plugin>
@@ -141,12 +180,14 @@
 		    <plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-compiler-plugin</artifactId>
-		        <!-- <version>3.7.0</version> -->
-		        <configuration>
+		        <version>3.8.1</version>
+		        <!-- <version>3.13.0</version> -->
+		        <!-- <configuration>
+		        	<release>8</release>
 		            <source>1.8</source>
 		            <target>1.8</target>
 		            <verbose>true</verbose>
-		        </configuration>
+		        </configuration> -->
 		    </plugin>
 		</plugins>
     </build>

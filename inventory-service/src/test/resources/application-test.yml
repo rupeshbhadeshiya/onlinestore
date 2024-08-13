@@ -11,7 +11,7 @@ spring:
   # Database configurations: H2   
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:testdb;INIT=CREATE SCHEMA IF NOT EXISTS inventory
     username: sa
     password: password
 
@@ -29,8 +29,23 @@ spring:
 #      defaultZone: http://localhost:8761/eureka
 
 # Pub/Sub Topics (Apache Kafka)
+#onlinestore:
+#  domain:
+#    events:
+#      topic:
+#        name: OnlinestoreDomainEventsTopic_Test
+
+# Pub/Sub Topics (Apache Kafka)
 onlinestore:
-  domain:
+  inventory:
     events:
       topic:
-        name: OnlinestoreDomainEventsTopic_Test
+        name: InventoryEventsTopic_Test
+  cart:
+    events:
+      topic:
+        name: CartEventsTopic_Test
+  order:
+    events:
+      topic:
+        name: OrderEventsTopic_Test

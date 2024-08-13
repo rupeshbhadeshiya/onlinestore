@@ -15,7 +15,7 @@ spring:
   # Database configurations: H2   
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:testdb;INIT=CREATE SCHEMA IF NOT EXISTS inventory\\;CREATE SCHEMA IF NOT EXISTS carts\\;CREATE SCHEMA IF NOT EXISTS orders\\;CREATE SCHEMA IF NOT EXISTS productcatalog
     username: sa
     password: password
 

@@ -1,2 +1,3 @@
-/Users/rupesh/git/onlinestore5/onlinestore/checkout-service/src/test/java/com/learning/ddd/onlinestore/order/OrderServiceIntegrationTest.java
-/Users/rupesh/git/onlinestore5/onlinestore/checkout-service/src/test/java/com/learning/ddd/onlinestore/order/DummyAddressFactory.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/order-service/src/test/java/com/learning/ddd/onlinestore/order/DummyAddressFactory.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/order-service/src/test/java/com/learning/ddd/onlinestore/order/OrderAPITest.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/order-service/src/test/java/com/learning/ddd/onlinestore/order/OrderServiceTest.java

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
@@ -47,8 +48,9 @@ import com.learning.ddd.onlinestore.inventory.domain.exception.ItemAlreadyExists
 //Consumer exits Mart with Payment Receipt and Items
 //~End~
 
-@SpringBootTest //this annotation includes, @RunWith(SpringRunner.class)
+@ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
+@SpringBootTest //this annotation includes, @RunWith(SpringRunner.class)
 public class InventoryServiceTest {
 
 	private InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10.0, 10);

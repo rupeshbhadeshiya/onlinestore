@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
+		<!-- <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version> -->
 		<spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
     </properties>
 
@@ -94,6 +94,18 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-compiler-plugin</artifactId>
+		        <version>3.8.1</version>
+		        <!--
+		        <configuration>
+		            <source>1.8</source>
+		            <target>1.8</target>
+		            <verbose>true</verbose>
+		        </configuration>
+		        -->
+		    </plugin>
         </plugins>
     </build>
 

@@ -1,0 +1,11 @@
+
+# Select these tables in this order
+select * from inventory.inventory_item;
+
+
+# Delete all data from these tables in this order only
+delete from inventory.inventory_item;
+
+
+# Drop these tables in this order only
+drop table inventory.inventory_item;

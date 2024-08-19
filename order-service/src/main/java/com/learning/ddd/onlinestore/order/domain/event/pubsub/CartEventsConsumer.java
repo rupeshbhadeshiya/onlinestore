@@ -1,111 +1,101 @@
 package com.learning.ddd.onlinestore.order.domain.event.pubsub;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import com.learning.ddd.onlinestore.cart.domain.Cart;
-import com.learning.ddd.onlinestore.cart.domain.event.CartEmptiedEventData;
-import com.learning.ddd.onlinestore.cart.domain.event.ItemAddedToCartEventData;
-import com.learning.ddd.onlinestore.cart.domain.event.ItemRemovedFromCartEventData;
-import com.learning.ddd.onlinestore.cart.domain.repository.CartRepository;
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
-import com.learning.ddd.onlinestore.domain.event.DomainEventName;
-import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsConsumer;
-
-@Component
-public class CartEventsConsumer extends DomainEventsConsumer {
-
-	public static final String SERVICE_COMPONENT = "==== [order-service] " + CartEventsConsumer.class.getSimpleName();
+public class CartEventsConsumer {
 	
-	@Autowired
-	private CartRepository cartRepository;
-	
-	
-	@Value("${onlinestore.cart.events.topic.name:CartEventsTopic}")
-	private String topicName;
-	
-	
-	@Override
-	protected String getCallingServiceName() {
-		return "[order-service] " + CartEventsConsumer.class.getSimpleName();
-	}
-	
-	
-	@Override
-	protected String getTopicName() {
-		return topicName;
-	}
-	
-	
-	@Override
-	protected void consumeDomainEvent(DomainEvent domainEvent) throws CloneNotSupportedException {
-
-		if (domainEvent.getEventName().equals(DomainEventName.ITEM_ADDED_TO_CART)) {
-			
-			ItemAddedToCartEventData eventData = (ItemAddedToCartEventData) domainEvent.getEventData();
-			
-			Cart cart = eventData.getCart();
-			
-			System.out.println(
-				SERVICE_COMPONENT + " - Event: " + DomainEventName.ITEM_ADDED_TO_CART.name()
-				+ ", Going to Create/Update Cart to local data store - "
-				+ "cart = " + cart
-				+ ", event is due to an item has been added to a Cart = " + eventData.getItem());
-			
-			cartRepository.save(cart);
-			
-			System.out.println(
-				SERVICE_COMPONENT + " - Event: " + DomainEventName.ITEM_ADDED_TO_CART.name()
-				+ ", Created/Updated Cart to local data store - "
-				+ "cart = " + cart
-				+ ", event is due to an item has been added to a Cart = " + eventData.getItem());
-		}
-		
-		else if (domainEvent.getEventName().equals(DomainEventName.ITEM_REMOVED_FROM_CART)) {
-
-			ItemRemovedFromCartEventData eventData = (ItemRemovedFromCartEventData) domainEvent.getEventData();
-			
-			Cart cart = eventData.getCart();
-			
-			System.out.println(
-				SERVICE_COMPONENT + " - Event: " + DomainEventName.ITEM_REMOVED_FROM_CART.name()
-				+ ", Going to Create/Update Cart to local data store - "
-				+ "cart = " + cart
-				+ ", event is due to an item has been removed from a Cart = " + eventData.getItem());
-			
-			cartRepository.save(cart);
-			
-			System.out.println(
-				SERVICE_COMPONENT + " - Event: " + DomainEventName.ITEM_REMOVED_FROM_CART.name()
-				+ ", Created/Updated Cart to local data store - "
-				+ "cart = " + cart
-				+ ", event is due to an item has been removed from a Cart = " + eventData.getItem());
-		}
-		
-		else if (domainEvent.getEventName().equals(DomainEventName.CART_EMPTIED_DUE_TO_ORDER_CREATION) || 
-				domainEvent.getEventName().equals(DomainEventName.CART_EMPTIED_BY_CONSUMER)) {
-			
-			CartEmptiedEventData cartEmptiedEventData = (CartEmptiedEventData) domainEvent.getEventData();
-			
-			Cart cart = cartEmptiedEventData.getCart();
-			
-			System.out.println(
-				SERVICE_COMPONENT + " - Event: " + DomainEventName.CART_EMPTIED_DUE_TO_ORDER_CREATION.name()
-				+ ", Going to delete Cart from local data store "
-				+ ", event is due to a Cart is emptied by Consumer or due to Order creation "
-				+ ", cart = " + cart);
-			
-			cartRepository.delete(cart);
-			
-			System.out.println(
-				SERVICE_COMPONENT + " - Event: " + DomainEventName.CART_EMPTIED_DUE_TO_ORDER_CREATION.name()
-				+ ", Deleted a Cart from local data store "
-				+ ", event is due to a Cart is emptied by Consumer or due to Order creation "
-				+ ", cart = " + cart);
-			
-		} // else-if
-		
-	}
-
 }
+
+//@Component
+//public class CartEventsConsumer extends DomainEventsConsumer {
+//
+//	public static final String SERVICE_COMPONENT = "==== [order-service] " + CartEventsConsumer.class.getSimpleName();
+//	
+//	@Autowired
+//	private CartInfoRepository CartInfoRepository;
+//	
+//	
+//	@Value("${onlinestore.cart.events.topic.name:CartEventsTopic}")
+//	private String topicName;
+//	
+//	
+//	@Override
+//	protected String getCallingServiceName() {
+//		return "[order-service] " + CartEventsConsumer.class.getSimpleName();
+//	}
+//	
+//	
+//	@Override
+//	protected String getTopicName() {
+//		return topicName;
+//	}
+//	
+//	
+//	@Override
+//	protected void consumeDomainEvent(OnlinestoreDomainEvent domainEvent) throws CloneNotSupportedException {
+//
+//		if (domainEvent.getEventName().equals(OnlinestoreDomainEventName.PRODUCT_ADDED_TO_CART)) {
+//				
+//			ProductAddedToCartEvent event = (ProductAddedToCartEvent) domainEvent;
+//			
+//			CartInfo CartInfo = event.getCartInfo();
+//			Product product = event.getProduct();
+//			
+//			// ... persist Cart to local DB for referring it when an Order is placed
+//			// this will avoid doing http call to cart-service thereby making 
+//			// order-service autonomous one
+//
+//			// ...
+//			// here saving Cart object will ensure any newly added CartItem also gets stored in local data store
+//			CartInfoRepository.save(CartInfo);
+//			
+//			System.out.println(
+//				SERVICE_COMPONENT + " - Event: " + domainEvent.getEventName()
+//				+ ", Product added to Cart = " + product
+//				+ ", Created/Updated Cart to local data store, Cart = " + CartInfo
+//			);
+//		
+//		} else if (domainEvent.getEventName().equals(OnlinestoreDomainEventName.PRODUCT_REMOVED_FROM_CART)) {
+//
+//			ProductRemovedFromCartEvent event = (ProductRemovedFromCartEvent) domainEvent;
+//			
+//			CartInfo CartInfo = event.getCartInfo();
+//			Product product = event.getProduct();
+//			
+//			// ... persist Cart to local DB for referring it when an Order is placed
+//			// this will avoid doing http call to cart-service thereby making 
+//			// order-service autonomous one
+//			
+//			// ...
+//			// here saving Cart object will ensure any removed CartItem also gets deleted from local data store
+//			CartInfoRepository.save(CartInfo);
+//			
+//			System.out.println(
+//				SERVICE_COMPONENT + " - Event: " + domainEvent.getEventName()
+//				+ ", Product removed from Cart = " + product
+//				+ ", Deleted relevant Cart and associated Products (CartItems) from "
+//				+ "local data store, CartInfo = " + CartInfo
+//			);
+//		
+//		} else if (domainEvent.getEventName().equals(OnlinestoreDomainEventName.CART_EMPTIED_DUE_TO_ORDER_CREATION) || 
+//				domainEvent.getEventName().equals(OnlinestoreDomainEventName.CART_EMPTIED_BY_CONSUMER)) {
+//			
+//			CartEmptiedEvent event = (CartEmptiedEvent) domainEvent;
+//			
+//			Integer cartId = (Integer) event.getCartId();
+//			
+//			// ... delete the Cart from local data store which will also delete 
+//			// associated CartItems i.e. Products in the Cart from local data store
+//			
+//			CartInfoRepository.deleteById(cartId);
+//			
+//			System.out.println(
+//				SERVICE_COMPONENT + " - Event: " + domainEvent.getEventName() 
+//				+ ", CartId = " + cartId
+//				+ ", Deleted relevant Cart and associated Products (CartInfo) from "
+//				+ "local data store"
+//			);
+//			
+//		} // else-if
+//		
+//	}
+//
+//}

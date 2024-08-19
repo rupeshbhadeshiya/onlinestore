@@ -16,7 +16,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsWriter;
 import com.learning.ddd.onlinestore.domain.event.pubsub.exception.DomainEventPublishingFailedException;
 
@@ -99,7 +99,7 @@ public class ActiveMQBasedDomainEventsWriter implements DomainEventsWriter {
 	}
 	
 	@Override
-	public void write(DomainEvent domainEvent) throws JMSException {
+	public void write(OnlinestoreDomainEvent domainEvent) throws JMSException {
 
 		System.out.println(this.serviceAndListerName + ": write() - started, Topic = " + topicName);
 		

@@ -2,16 +2,17 @@ package com.learning.ddd.onlinestore.productcatalog;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
 import javax.jms.JMSException;
 import javax.transaction.Transactional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -19,8 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.learning.ddd.onlinestore.productcatalog.domain.Product;
-import com.learning.ddd.onlinestore.productcatalog.domain.exception.ProductAlreadyExistsException;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
+import com.learning.ddd.onlinestore.productcatalog.domain.repository.ProductCatalogRepository;
 import com.learning.ddd.onlinestore.productcatalog.domain.service.ProductCatalogService;
 
 // An Inventory contains Items; it may be referred as Item Store. So you don't need to create an Inventory.
@@ -54,29 +56,46 @@ import com.learning.ddd.onlinestore.productcatalog.domain.service.ProductCatalog
 @SpringBootTest //this annotation includes, @RunWith(SpringRunner.class)
 public class ProductCatalogServiceTest {
 
-	private Product BISCUIT_PRODUCT = new Product("Grocery", "Biscuit", "Parle-G", 10.0, 10);
-	private Product CHIVDA_PRODUCT = new Product("Grocery", "Chivda", "Real Farali Chivda", 20.0, 10);
-	private Product BATHING_SOAP_PRODUCT = new Product("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, 5);
-	private Product PENCIL_PRODUCT = new Product("Stationery", "Pencil", "Natraj Pencil", 5.0, 10);
-
-	@Autowired
-	private ProductCatalogService productcatalogService;
+	private static final int BISCUIT_PRODUCT_ID = 11;
+	private static final int BATHING_SOAP_PRODUCT_ID = 22;
+	private static final int CHIVDA_PRODUCT_ID = 33;
+	private static final int PENCIL_PRODUCT_ID = 44;
 	
-//	@Autowired
-//	private static InventoryItemRepository itemRepository;
+	private static final int BISCUIT_PRODUCT_QUANTITY = 10;
+	private static final int BATHING_SOAP_PRODUCT_QUANTITY = 5;
+	private static final int CHIVDA_PRODUCT_QUANTITY = 10;
+	private static final int PENCIL_PRODUCT_QUANTITY = 10;
+	
+	private final Product BISCUIT_PRODUCT = new Product(BISCUIT_PRODUCT_ID, "Grocery", "Biscuit", "Parle-G", 10.0, BISCUIT_PRODUCT_QUANTITY);
+	private final Product BATHING_SOAP_PRODUCT = new Product(BATHING_SOAP_PRODUCT_ID, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, BATHING_SOAP_PRODUCT_QUANTITY);
+	private final Product CHIVDA_PRODUCT = new Product(CHIVDA_PRODUCT_ID, "Grocery", "Chivda", "Real Farali Chivda", 20.0, CHIVDA_PRODUCT_QUANTITY);
+	private final Product PENCIL_PRODUCT = new Product(PENCIL_PRODUCT_ID, "Stationery", "Pencil", "Natraj Pencil", 5.0, PENCIL_PRODUCT_QUANTITY);
+	
+//	private final ProductCatalogItem BISCUIT_PRODUCT_CATALOG_ITEM = new ProductCatalogItem(BISCUIT_PRODUCT);
+//	private final ProductCatalogItem BATHING_SOAP_PRODUCT_CATALOG_ITEM = new ProductCatalogItem(BATHING_SOAP_PRODUCT);
+//	private final ProductCatalogItem CHIVDA_PRODUCT_CATALOG_ITEM = new ProductCatalogItem(CHIVDA_PRODUCT);
+//	private final ProductCatalogItem PENCIL_PRODUCT_CATALOG_ITEM = new ProductCatalogItem(PENCIL_PRODUCT);
+	
+	@Autowired
+	private ProductCatalogService productCatalogService;
+	
+	@Autowired
+	private ProductCatalogRepository productCatalogRepository;
 	
 //	@BeforeEach
 //	void setupBeforeEachTest() {
-//		//inventory.addProducts( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
-////		BISCUIT_ITEM = inventory.addProduct( BISCUIT_ITEM );
-////		CHIVDA_ITEM = inventory.addProduct( CHIVDA_ITEM );
-////		BATHING_SOAP_ITEM = inventory.addProduct( BATHING_SOAP_ITEM );
+//		//productCatalogService.addProducts( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
+////		BISCUIT_ITEM = productCatalogService.addProduct( BISCUIT_ITEM );
+////		CHIVDA_ITEM = productCatalogService.addProduct( CHIVDA_ITEM );
+////		BATHING_SOAP_ITEM = productCatalogService.addProduct( BATHING_SOAP_ITEM );
 //	}
 	
-//	@AfterEach
-//	void cleanUpAfterEachTest() {
-////		itemRepository.deleteAll(); // ensures that each test starts clean
-//	}
+	@AfterEach
+	void cleanUpAfterEachTest() {
+		// ensures to clean database after each test 
+		// so that new test starts with clean database
+		productCatalogRepository.deleteAll(); 
+	}
 	
 //	@AfterAll
 //	public static void cleanUpAfterAllTests() {
@@ -85,40 +104,82 @@ public class ProductCatalogServiceTest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(1)
-	void addProducts() throws ProductAlreadyExistsException, JMSException {
+	void addProductsAndGetAllAvailableProducts() throws ProductAlreadyExistsException, JMSException {
 		
-		Product addedItem = productcatalogService.addProduct(BISCUIT_PRODUCT);
-		assertNotNull(addedItem);
-		int EXPECTED_ITEM_COUNT = BISCUIT_PRODUCT.getQuantity();
-		assertEquals(EXPECTED_ITEM_COUNT, productcatalogService.getItemsQuantitiesTotal());
-		
-		addedItem = productcatalogService.addProduct(CHIVDA_PRODUCT);
-		assertNotNull(addedItem);
-		EXPECTED_ITEM_COUNT += CHIVDA_PRODUCT.getQuantity();
-		assertEquals(EXPECTED_ITEM_COUNT, productcatalogService.getItemsQuantitiesTotal());
-		
-		addedItem = productcatalogService.addProduct(BATHING_SOAP_PRODUCT);
-		assertNotNull(addedItem);
-		EXPECTED_ITEM_COUNT += BATHING_SOAP_PRODUCT.getQuantity();
-		assertEquals(EXPECTED_ITEM_COUNT, productcatalogService.getItemsQuantitiesTotal());
+		List<Product> availableProductsInInventory;
+		int EXPECTED_PRODUCT_COUNT, EXPECTED_PRODUCT_QUANTITIES_COUNT, DESIRED_PRODUCT_INDEX;
 
-//		System.out.println(
-//			"\n---------------------------------------"
-//			+ "\n----[ Total Items Quantities = " + inventory.getItemsQuantitiesTotal() + " ]----"
-//			+ "\n---------------------------------------"
-//		);
+		// initially no products in inventory
+		availableProductsInInventory = productCatalogService.getAllProducts();
+		assertTrue(availableProductsInInventory.isEmpty());
 		
+		// ... add 1st product ...
+		Product addedProduct = productCatalogService.addProduct(BISCUIT_PRODUCT);
+		assertNotNull(addedProduct);
+		
+		EXPECTED_PRODUCT_COUNT = 1;
+		EXPECTED_PRODUCT_QUANTITIES_COUNT = BISCUIT_PRODUCT.getQuantity();
+		DESIRED_PRODUCT_INDEX = 0;
+		
+		// now inventory should have one product
+		availableProductsInInventory = productCatalogService.getAllProducts();
+		assertNotNull(availableProductsInInventory);
+		assertEquals(EXPECTED_PRODUCT_COUNT, availableProductsInInventory.size());
+		assertEquals(EXPECTED_PRODUCT_QUANTITIES_COUNT, productCatalogService.getProductQuantitiesTotal());
+		assertEquals(BISCUIT_PRODUCT, availableProductsInInventory.get(DESIRED_PRODUCT_INDEX));
+		
+		//System.out.println(
+		//	"\n---------------------------------------"
+		//	+ "\n----[ #1 - Products in Inventory = " + productCatalogService.getAllProducts() + " ]----"
+		//	+ "\n---------------------------------------"
+		//);
+		
+		// ... add 2nd product ...		
+		addedProduct = productCatalogService.addProduct(CHIVDA_PRODUCT);
+		assertNotNull(addedProduct);
+		
+		EXPECTED_PRODUCT_COUNT = 2;
+		EXPECTED_PRODUCT_QUANTITIES_COUNT += CHIVDA_PRODUCT.getQuantity();
+		DESIRED_PRODUCT_INDEX = 1;
+		
+		// now inventory should have two products
+		availableProductsInInventory = productCatalogService.getAllProducts();
+		assertNotNull(availableProductsInInventory);
+		assertEquals(EXPECTED_PRODUCT_COUNT, availableProductsInInventory.size());
+		assertEquals(EXPECTED_PRODUCT_QUANTITIES_COUNT, productCatalogService.getProductQuantitiesTotal());
+		assertEquals(CHIVDA_PRODUCT, availableProductsInInventory.get(DESIRED_PRODUCT_INDEX));
+		
+		
+		// ... add 3rd product ...		
+		addedProduct = productCatalogService.addProduct(BATHING_SOAP_PRODUCT);
+		assertNotNull(addedProduct);
+		
+		EXPECTED_PRODUCT_COUNT = 3;
+		EXPECTED_PRODUCT_QUANTITIES_COUNT += BATHING_SOAP_PRODUCT.getQuantity();
+		DESIRED_PRODUCT_INDEX = 2;
+		
+		// now inventory should have two products
+		availableProductsInInventory = productCatalogService.getAllProducts();
+		assertNotNull(availableProductsInInventory);
+		assertEquals(EXPECTED_PRODUCT_COUNT, availableProductsInInventory.size());
+		assertEquals(EXPECTED_PRODUCT_QUANTITIES_COUNT, productCatalogService.getProductQuantitiesTotal());
+		assertEquals(BATHING_SOAP_PRODUCT, availableProductsInInventory.get(DESIRED_PRODUCT_INDEX));
 	}
 	
 	@Test
 	@org.junit.jupiter.api.Order(2)
-	void addProductsCatchItemsAlreadyExistsException() {
+	void addDuplicateProductToCatchProductsAlreadyExistsException() throws ProductAlreadyExistsException, JMSException {
 
-		// execute
+		// set up
+		
+		Product addedProduct = productCatalogService.addProduct(BISCUIT_PRODUCT);
+		assertNotNull(addedProduct);
+		
+		// test
 		
 		ProductAlreadyExistsException ex = assertThrows(
 			ProductAlreadyExistsException.class, () -> {
-				productcatalogService.addProduct(BISCUIT_PRODUCT);
+				productCatalogService.addProduct(BISCUIT_PRODUCT);
 			}
 		);
 		
@@ -130,170 +191,206 @@ public class ProductCatalogServiceTest {
 	
 	@Test
 	@org.junit.jupiter.api.Order(3)
-	void getAllItems() {
+	void retrievingProductByProductId() throws ProductAlreadyExistsException, JMSException {
 		
-		List<Product> items = productcatalogService.getProducts();
-		assertNotNull(items);
-		assertFalse(items.isEmpty());
+		Product addedProduct = productCatalogService.addProduct(PENCIL_PRODUCT);
 		
-		final int EXPECTED_ITEM_COUNT = BISCUIT_PRODUCT.getQuantity() 
-										+ CHIVDA_PRODUCT.getQuantity() 
-										+ BATHING_SOAP_PRODUCT.getQuantity();
-		assertEquals(EXPECTED_ITEM_COUNT, productcatalogService.getItemsQuantitiesTotal());
+		Product pencilProduct = productCatalogService.getProduct(addedProduct.getProductId());
 		
-		assertTrue(items.contains(BISCUIT_PRODUCT));
-		assertTrue(items.contains(CHIVDA_PRODUCT));
-		assertTrue(items.contains(BATHING_SOAP_PRODUCT));
+		assertNotNull(pencilProduct);
+		assertEquals(PENCIL_PRODUCT, pencilProduct);
 	}
 	
 	@Test
 	@org.junit.jupiter.api.Order(4)
-	void getSpecificItem() throws ProductAlreadyExistsException, JMSException {
+	void searchProductsMatchingCategory() throws ProductAlreadyExistsException, JMSException {
 		
-		Product persistedPencilItem = productcatalogService.addProduct(PENCIL_PRODUCT);
+		// set up
 		
-		Product item = productcatalogService.getProduct(persistedPencilItem.getProductId());
+		productCatalogService.addProduct(BISCUIT_PRODUCT);
+		productCatalogService.addProduct(CHIVDA_PRODUCT);
 		
-		assertNotNull(item);
+		Product exampleProduct = new Product();
+		exampleProduct.setCategory(BISCUIT_PRODUCT.getCategory());	// search by Category
+
+		// test
+		
+		List<Product> products = productCatalogService.searchProductsByExample(exampleProduct);
+		
+		// validate
+		
+		assertNotNull(products);
+		assertEquals(2, products.size());						// 2 matching products to be found
+
+		assertTrue(products.contains(BISCUIT_PRODUCT));			// same category
+		assertTrue(products.contains(CHIVDA_PRODUCT));			// same category
+		
+		assertFalse(products.contains(BATHING_SOAP_PRODUCT));	// different category
+		assertFalse(products.contains(PENCIL_PRODUCT));			// different category
 	}
 	
 	@Test
 	@org.junit.jupiter.api.Order(5)
-	void searchItemsMatchingCategory() {
+	void searchProductsMatchingSubCategory() throws ProductAlreadyExistsException, JMSException {
 		
-		//inventory.addProducts( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
+		// set up
 		
-		Product exampleItem = new Product();
-		exampleItem.setCategory(BISCUIT_PRODUCT.getCategory());
+		productCatalogService.addProduct(BISCUIT_PRODUCT);
+		productCatalogService.addProduct(CHIVDA_PRODUCT);
 		
-		List<Product> items = productcatalogService.searchProducts(exampleItem);
+		Product exampleProduct = new Product();
+		exampleProduct.setSubCategory(CHIVDA_PRODUCT.getSubCategory());	// search by SubCategory
 		
-		assertNotNull(items);
-		assertEquals(2, items.size());
-		assertTrue(items.contains(BISCUIT_PRODUCT));		// same category
-		assertTrue(items.contains(CHIVDA_PRODUCT));		// same category
-		assertFalse(items.contains(BATHING_SOAP_PRODUCT));	// different category
-		assertFalse(items.contains(PENCIL_PRODUCT));		// different category
+		// test
+		
+		List<Product> products = productCatalogService.searchProductsByExample(exampleProduct);
+		
+		// validate
+		
+		assertNotNull(products);
+		assertEquals(1, products.size());						// 1 matching product to be found
+		
+		assertTrue(products.contains(CHIVDA_PRODUCT));			// same sub-category
+
+		assertFalse(products.contains(BISCUIT_PRODUCT));		// different sub-category
+		assertFalse(products.contains(BATHING_SOAP_PRODUCT));	// different sub-category
+		assertFalse(products.contains(PENCIL_PRODUCT));			// different sub-category
 	}
 	
 	@Test
 	@org.junit.jupiter.api.Order(6)
-	void searchItemsMatchingSubCategory() {
+	void searchProductsMatchingName() throws ProductAlreadyExistsException, JMSException {
 		
-		//inventory.addProducts( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
+		// set up
 		
-		Product exampleItem = new Product();
-		exampleItem.setSubCategory(CHIVDA_PRODUCT.getSubCategory());
+		productCatalogService.addProduct(BISCUIT_PRODUCT);
+		productCatalogService.addProduct(CHIVDA_PRODUCT);
 		
-		List<Product> items = productcatalogService.searchProducts(exampleItem);
+		Product exampleProduct = new Product();
+		exampleProduct.setName(CHIVDA_PRODUCT.getName());
 		
-		assertNotNull(items);
-		assertEquals(1, items.size());
-		assertTrue(items.contains(CHIVDA_PRODUCT));		// same sub-category
-		assertFalse(items.contains(BISCUIT_PRODUCT));		// different sub-category
-		assertFalse(items.contains(BATHING_SOAP_PRODUCT));	// different sub-category
-		assertFalse(items.contains(PENCIL_PRODUCT));		// different sub-category
+		// test
+		
+		List<Product> products = productCatalogService.searchProductsByExample(exampleProduct);
+		
+		// validate
+		
+		assertNotNull(products);
+		assertEquals(1, products.size());						// 1 matching product to be found
+		
+		assertTrue(products.contains(CHIVDA_PRODUCT));			// correct matching name
+		
+		assertFalse(products.contains(BISCUIT_PRODUCT));		// different name
+		assertFalse(products.contains(BATHING_SOAP_PRODUCT));	// different name
+		assertFalse(products.contains(PENCIL_PRODUCT));			// different name
 	}
 	
 	@Test
 	@org.junit.jupiter.api.Order(7)
-	void searchItemsMatchingName() {
+	void searchProductsMatchingQuantity() throws ProductAlreadyExistsException, JMSException {
 		
-		//inventory.addProducts( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
+		// set up
+
+		productCatalogService.addProduct(BISCUIT_PRODUCT);
+		productCatalogService.addProduct(CHIVDA_PRODUCT);
+		productCatalogService.addProduct(PENCIL_PRODUCT);
 		
-		Product exampleItem = new Product();
-		exampleItem.setName(BATHING_SOAP_PRODUCT.getName());
+		Product exampleProduct = new Product();
+		exampleProduct.setQuantity(10);
 		
-		List<Product> items = productcatalogService.searchProducts(exampleItem);
+		// test
 		
-		assertNotNull(items);
-		assertEquals(1, items.size());
-		assertTrue(items.contains(BATHING_SOAP_PRODUCT));	// correct name
-		assertFalse(items.contains(BISCUIT_PRODUCT));		// different name
-		assertFalse(items.contains(CHIVDA_PRODUCT));		// different name
-		assertFalse(items.contains(PENCIL_PRODUCT));		// different name
+		List<Product> products = productCatalogService.searchProductsByExample(exampleProduct);
+		
+		// validate
+		
+		assertNotNull(products);
+		assertEquals(3, products.size());						// 3 matching products to be found
+		
+		assertTrue(products.contains(BISCUIT_PRODUCT));			// same quantity product
+		assertTrue(products.contains(CHIVDA_PRODUCT));			// same quantity product
+		assertTrue(products.contains(PENCIL_PRODUCT));			// same quantity product
+		
+		assertFalse(products.contains(BATHING_SOAP_PRODUCT));	// different quantity product
 	}
 	
 	@Test
 	@org.junit.jupiter.api.Order(8)
-	void searchItemsMatchingQuantity() {
+	void searchProductsMatchingPrice() throws ProductAlreadyExistsException, JMSException {
 		
-		//inventory.addProducts( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
+		// set up
+
+		productCatalogService.addProduct(BISCUIT_PRODUCT);
+		productCatalogService.addProduct(CHIVDA_PRODUCT);
 		
-		Product exampleItem = new Product();
-		exampleItem.setQuantity(10);
+		Product exampleProduct = new Product();
+		exampleProduct.setPrice(BISCUIT_PRODUCT.getPrice());
 		
-		List<Product> items = productcatalogService.searchProducts(exampleItem);
+		// test
 		
-//		System.out.println(
-//				"\n-----------searchItemsMatchingQuantity()--------------\n" +
-//				items +
-//				"\n------------------------------------------------------\n"
-//			);
+		List<Product> products = productCatalogService.searchProductsByExample(exampleProduct);
 		
-		assertNotNull(items);
-		assertEquals(3, items.size());
-		assertTrue(items.contains(BISCUIT_PRODUCT));
-		assertTrue(items.contains(CHIVDA_PRODUCT));
-		assertTrue(items.contains(PENCIL_PRODUCT));
-		assertFalse(items.contains(BATHING_SOAP_PRODUCT));
-	}
-	
-	@Test
-	@org.junit.jupiter.api.Order(9)
-	void searchItemsMatchingPrice() {
+		// validate
 		
-		//inventory.addProducts( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
+		assertNotNull(products);
+		assertEquals(1, products.size());						// 1 matching product to be found
 		
-		Product exampleItem = new Product();
-		exampleItem.setPrice(30.0);
+		assertTrue(products.contains(BISCUIT_PRODUCT));			// same price product
 		
-		List<Product> items = productcatalogService.searchProducts(exampleItem);
-		
-		assertNotNull(items);
-		assertEquals(1, items.size());
-		assertTrue(items.contains(BATHING_SOAP_PRODUCT));
-		assertFalse(items.contains(BISCUIT_PRODUCT));
-		assertFalse(items.contains(CHIVDA_PRODUCT));
-		assertFalse(items.contains(PENCIL_PRODUCT));
+		assertFalse(products.contains(CHIVDA_PRODUCT));			// different price product
+		assertFalse(products.contains(BATHING_SOAP_PRODUCT));	// different price product
+		assertFalse(products.contains(PENCIL_PRODUCT));			// different price product
 	}
 	
 	@Test
 	@Transactional // A modify operation (update/delete) has to be Transactional
-	@org.junit.jupiter.api.Order(10)
-	void removeSpecificItem() throws CloneNotSupportedException, JMSException {
+	@org.junit.jupiter.api.Order(9)
+	void removeSpecificProduct() throws ProductAlreadyExistsException, JMSException {
 		
-		//inventory.addProducts( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
+		// set up
+
+		productCatalogService.addProduct(BISCUIT_PRODUCT);
+		productCatalogService.addProduct(CHIVDA_PRODUCT);
 		
-		productcatalogService.removeProduct(PENCIL_PRODUCT);
+		// test
 		
-		assertNull(productcatalogService.getProduct(PENCIL_PRODUCT.getProductId()));
+		productCatalogService.removeProduct(PENCIL_PRODUCT.getProductId());
+		
+		// validate
+		
+		assertNull(productCatalogService.getProduct(PENCIL_PRODUCT.getProductId()));
 	}
 
-	@Test
-	@Transactional // A modify operation (update/delete) has to be Transactional
-	@org.junit.jupiter.api.Order(11)
-	void removeItemsMatchingGivenCriteria() {
-		
-		//inventory.addProducts( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
-		
-		// pattern-1
-		Product exampleItem = new Product();
-		exampleItem.setCategory("Grocery");
-		productcatalogService.removeProducts(exampleItem);
-		assertTrue(productcatalogService.searchProducts(exampleItem).isEmpty());
-		
-		// pattern-2
-		exampleItem = new Product();
-		exampleItem.setCategory("Toiletries");
-		productcatalogService.removeProducts(exampleItem);
-		assertTrue(productcatalogService.searchProducts(exampleItem).isEmpty());
-		
-		// pattern-3
-		exampleItem = new Product();
-		exampleItem.setName("Parle-G");
-		productcatalogService.removeProducts(exampleItem);
-		assertTrue(productcatalogService.searchProducts(exampleItem).isEmpty());
-	}
+//	@Test
+//	@Transactional // A modify operation (update/delete) has to be Transactional
+//	@org.junit.jupiter.api.Order(10)
+//	void removeProductsMatchingGivenCriteria() {
+//		
+//		// set up
+//
+//		productCatalogService.addProduct(BISCUIT_PRODUCT);
+//		productCatalogService.addProduct(CHIVDA_PRODUCT);
+//		
+//
+//		// test and validate
+//		
+//		// pattern-1
+//		Product exampleProduct = new Product();
+//		exampleProduct.setCategory("Grocery");
+//		productCatalogService.removeProducts(exampleProduct);
+//		assertTrue(productCatalogService.searchProductsByExample(exampleProduct).isEmpty());
+//		
+//		// pattern-2
+//		exampleProduct = new Product();
+//		exampleProduct.setCategory("Toiletries");
+//		productCatalogService.removeProducts(exampleProduct);
+//		assertTrue(productCatalogService.searchProductsByExample(exampleProduct).isEmpty());
+//		
+//		// pattern-3
+//		exampleProduct = new Product();
+//		exampleProduct.setName("Parle-G");
+//		productCatalogService.removeProducts(exampleProduct);
+//		assertTrue(productCatalogService.searchProductsByExample(exampleProduct).isEmpty());
+//	}
 	
 }

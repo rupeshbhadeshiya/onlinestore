@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.learning.ddd.onlinestore.cart.domain.Cart;
+import com.learning.ddd.onlinestore.cart.application.dto.CartInfo;
 import com.learning.ddd.onlinestore.cart.proxy.CartServiceRestTemplateBasedProxy;
 import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersRequestDTO;
 import com.learning.ddd.onlinestore.order.domain.Order;
@@ -38,19 +38,19 @@ public class OrderController {
     // - assume that /onlinestore/inventory is web context-root and they prefix
     // - all their calls with it which then fails, so every URL call from
     // - web pages must be in this format "<context-root>/<html-item>
-    // - example... /onlinestore/view-items where /onlinestore is web context-root
+    // - example... /onlinestore/view-products where /onlinestore is web context-root
     //
-    //@RequestMapping("/onlinestore/inventory/view-items")
+    //@RequestMapping("/onlinestore/inventory/view-products")
     //
     // thus, if you wish to have domainness then name resource like that way
-    // example name /view-inventory-items rather than /view-items
+    // example name /view-inventory-products rather than /view-products
     
 	
 	@GetMapping("/go-for-checkout")
     public String checkoutView(@RequestParam Integer cartId, Model model) {
 
-		Cart cart = cartServiceProxy.getCart(cartId);
-		model.addAttribute("cart", cart);
+		CartInfo cartInfo = cartServiceProxy.getCartInfo(cartId);
+		model.addAttribute("cart", cartInfo);
 		
 		List<PaymentMethod> paymentMethods = orderServiceProxy.getSupportedPaymentMethods();
 		model.addAttribute("paymentMethods", paymentMethods);
@@ -64,20 +64,21 @@ public class OrderController {
 	// when someone clicks on link "Checkout", this method is called
    	@PostMapping("/checkout")
     public String checkout(Model model,
-    		@RequestParam String cartId, 
+    		@RequestParam Integer cartId, 
     		@ModelAttribute("order") Order order) {
 
-   		Cart cart = cartServiceProxy.getCart(Integer.parseInt(cartId));
+   		CartInfo cartInfo = cartServiceProxy.getCartInfo(cartId);
    		
-   		order.setConsumerId(cart.getConsumerId());
+   		order.setConsumerId(cartInfo.getConsumerId());
    		
    		// Order createdOrder = orderServiceProxy.checkout(cart, order);
-   		Order createdOrder = orderServiceProxy.checkout(Integer.parseInt(cartId), order);
+   		Order createdOrder = orderServiceProxy.checkout(cartId, order);
    		
    		System.out.println(
  			"--------------------- checkout() --------------------\n"
- 			+ " order = " + createdOrder +
- 			"\n--------------------------------------------------");
+ 			+ " order = " + createdOrder
+ 			+ "\n cartInfo = " + cartInfo
+ 			+ "\n--------------------------------------------------");
    		
         model.addAttribute("order", createdOrder);
         model.addAttribute("isOrderCreatedSuccessfully", true);

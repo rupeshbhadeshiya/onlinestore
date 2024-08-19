@@ -6,7 +6,7 @@ import javax.servlet.ServletContextListener;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 
 //@Component (no need for this bean to be a @Component, as extending bean will be anyway declaring itself a @Component)
 public abstract class DomainEventsPublisher implements ServletContextListener {
@@ -43,14 +43,16 @@ public abstract class DomainEventsPublisher implements ServletContextListener {
 	}
 	
 	
-	public void publishDomainEvent(DomainEvent domainEvent) throws JMSException {
+	public void publishDomainEvent(OnlinestoreDomainEvent domainEvent) throws JMSException {
 		
-		System.out.println(getCallingServiceName() + ": publishDomainEvent() - started");
+		System.out.println(getCallingServiceName() + ": publishDomainEvent() - started"
+			+ " - event = " + domainEvent.getEventName());
 		
 		//domainEventsWritingWorker.stopWork();
 		domainEventsWriter.write(domainEvent);
 		
-		System.out.println(getCallingServiceName() + ": publishDomainEvent() - completed");
+		System.out.println(getCallingServiceName() + ": publishDomainEvent() - completed"
+			+ " - event = " + domainEvent.getEventName());
 	}
 	
 	

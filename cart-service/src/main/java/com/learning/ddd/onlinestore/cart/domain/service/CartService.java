@@ -1,5 +1,6 @@
 package com.learning.ddd.onlinestore.cart.domain.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,18 +10,18 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.learning.ddd.onlinestore.cart.application.dto.AddItemToCartDTO;
+import com.learning.ddd.onlinestore.cart.application.dto.AddProductToCartDTO;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.CartItem;
-import com.learning.ddd.onlinestore.cart.domain.event.CartEmptiedEventData;
-import com.learning.ddd.onlinestore.cart.domain.event.ItemAddedToCartEventData;
-import com.learning.ddd.onlinestore.cart.domain.event.ItemRemovedFromCartEventData;
+import com.learning.ddd.onlinestore.cart.domain.event.CartEmptiedEvent;
+import com.learning.ddd.onlinestore.cart.domain.event.ProductAddedToCartEvent;
+import com.learning.ddd.onlinestore.cart.domain.event.ProductRemovedFromCartEvent;
 import com.learning.ddd.onlinestore.cart.domain.event.pubsub.CartEventsProducer;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.repository.CartRepository;
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
-import com.learning.ddd.onlinestore.domain.event.DomainEventName;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 
 @Service
 public class CartService {
@@ -39,16 +40,16 @@ public class CartService {
 	}
 	
 	@Transactional
-	public Cart addItem(AddItemToCartDTO addItemToCartDTO) throws JMSException {
+	public Cart addProduct(AddProductToCartDTO addProductToCartDTO) throws JMSException {
 		
 		Cart cart;
 		
-		List<Cart> carts = cartRepository.findByConsumerId(addItemToCartDTO.getConsumerId());
+		List<Cart> carts = cartRepository.findByConsumerId(addProductToCartDTO.getConsumerId());
 		
 		if (carts.isEmpty()) {
 			
 			cart = new Cart();
-			cart.setConsumerId(addItemToCartDTO.getConsumerId());
+			cart.setConsumerId(addProductToCartDTO.getConsumerId());
 			System.out.println("CartService.addItem() ====== creating new Cart "
 					+ " (consumerId="+cart.getConsumerId() + ")");
 			
@@ -59,19 +60,21 @@ public class CartService {
 					+ " (cartId="+cart.getCartId() + ", consumerId="+cart.getConsumerId() + ")");
 			
 		}
+
+		cart.addItem(new CartItem(addProductToCartDTO.getProduct()));
 		
-		cart.addItem(addItemToCartDTO.getItem());
-		
-		Cart savedCart = cartRepository.save(cart);
-		
-		ItemAddedToCartEventData eventData = new ItemAddedToCartEventData(savedCart, addItemToCartDTO.getItem());
-		DomainEvent itemsAddedToCartEvent = new DomainEvent(DomainEventName.ITEM_ADDED_TO_CART, eventData);
-		
-		cartEventsProducer.publishDomainEvent(itemsAddedToCartEvent);
+		// ... persist the Product to CartItem table
+		Cart persistedCart = cartRepository.save(cart);
+
+		// ... and publish the change as a domain event
+		ProductAddedToCartEvent event = new ProductAddedToCartEvent(
+			persistedCart.getCartInfo(), addProductToCartDTO.getProduct()
+		);
+		cartEventsProducer.publishDomainEvent(event);
 		
 		//System.out.println("==== pullCartAndAddItems(): Cart - published event - " + itemsAddedToCartEvent);
 		
-		return savedCart;
+		return persistedCart;
 	}
 	
 	public List<Cart> getAllCarts(String consumerId) {
@@ -96,7 +99,7 @@ public class CartService {
 	}
 	
 	@Transactional
-	public Cart removeItem(Integer cartId, Integer itemId) 
+	public Cart removeProduct(Integer cartId, Integer productId) 
 			throws CartNotFoundException, CartItemNotFoundException, CloneNotSupportedException, JMSException {
 		
 		Cart cart =  getCartInternal(cartId);
@@ -105,7 +108,7 @@ public class CartService {
 		
 		for (CartItem cartItem : cart.getItems()) {
 			
-			if (cartItem.getItemId() == itemId) {
+			if (cartItem.getProduct().getProductId() == productId) {
 				
 				cartItemToBeRemoved = cartItem;	// if remove here, then throws ConcurrentModificationException!
 				break;							// so remove after exiting the for loop...
@@ -119,69 +122,62 @@ public class CartService {
 			
 			cart.removeItem(cartItemToBeRemoved);
 			
-			cartRepository.save(cart);
+			if (cart.getItemCount() != 0) { // is Cart still having any Products in it?
+				
+				// ... persist the Product to CartItem table
+				cartRepository.save(cart);
+				
+				// ... and publish the change as a domain event
+				ProductRemovedFromCartEvent event = new ProductRemovedFromCartEvent(
+					cart.getCartInfo(), copyOfItemToBeRemoved.getProduct()
+				);
+				cartEventsProducer.publishDomainEvent(event);
+
+			} else { // has Cart become empty?
+				
+				// ... persist the Product to CartItem table
+				cartRepository.delete(cart);
+				
+				// ... and publish the change as a domain event
+				CartEmptiedEvent  event = new CartEmptiedEvent(
+					cartId,
+					Arrays.asList( new Product[] { copyOfItemToBeRemoved.getProduct() } )
+				);
+				cartEventsProducer.publishDomainEvent(event);
+			}
 			
-			ItemRemovedFromCartEventData eventData = new ItemRemovedFromCartEventData(cart, copyOfItemToBeRemoved);
-			DomainEvent ItemRemovedFromCartEvent = new DomainEvent(DomainEventName.ITEM_REMOVED_FROM_CART, eventData);
-			
-			cartEventsProducer.publishDomainEvent(ItemRemovedFromCartEvent);
-		}
-		
-		if (cart.getItems().isEmpty()) {
-			
-			this.emptyCart(cartId, DomainEventName.CART_EMPTIED_BY_CONSUMER);
-			
-			cart = null;
 		}
 		
 		return cart;
 	}
 	
 	@Transactional
-	public void removeItems(int cartId, List<CartItem> itemsToRemove) 
-			throws CartNotFoundException, CartItemNotFoundException {
+	public void emptyCart(Integer cartId, OnlinestoreDomainEventName eventName) throws CartNotFoundException, CloneNotSupportedException, JMSException {
 		
-		Cart cart =  getCartInternal(cartId);
-		
-		for (CartItem cartItemToRemove : itemsToRemove) {
-			cart.removeItem(cartItemToRemove);
+		if ((eventName != OnlinestoreDomainEventName.ORDER_CREATED)
+				&& (eventName != OnlinestoreDomainEventName.CART_EMPTIED_BY_CONSUMER)) {
+			
+			throw new RuntimeException("emptyCart(): Unknown event = " + eventName);
 		}
 		
-		cartRepository.save(cart);
+		List<Product> products = cartRepository.findById(cartId).get().getProducts();
 		
-		// FIXME Add Event Publishing code
-		
-	}
-	
-	@Transactional
-	public void emptyCart(Integer cartId, DomainEventName eventThatTriggeredCartEmptying) throws CartNotFoundException, CloneNotSupportedException, JMSException {
-		
-		// prepare event to publish - very imp - to let Inventory know to reclaim these items
-		
-		Cart cart =  getCartInternal(cartId);
-		
-		Cart cartThatIsEmptied = (Cart) cart.clone();
-		CartEmptiedEventData cartEmptiedEventData = new CartEmptiedEventData(cartThatIsEmptied);
-		
-		// delete cart
+		// ... delete the Cart from local data store which will also delete 
+		// associated CartItems i.e. Products in the Cart from local data store
 		cartRepository.deleteById(cartId);
-		
-		DomainEvent cartEmptiedEvent = null;
-		if (eventThatTriggeredCartEmptying == DomainEventName.ORDER_CREATED) {
-			cartEmptiedEvent = new DomainEvent(
-				DomainEventName.CART_EMPTIED_DUE_TO_ORDER_CREATION, cartEmptiedEventData
-			);
+
+		// ... and publish the change as a domain event
+		CartEmptiedEvent event = null;
+		if (eventName == OnlinestoreDomainEventName.ORDER_CREATED) {
+			eventName = OnlinestoreDomainEventName.CART_EMPTIED_DUE_TO_ORDER_CREATION;
 			
-		} else if (eventThatTriggeredCartEmptying == DomainEventName.CART_EMPTIED_BY_CONSUMER) {
-			cartEmptiedEvent = new DomainEvent(
-				DomainEventName.CART_EMPTIED_BY_CONSUMER, cartEmptiedEventData
-			);
-			
-		} else {
-			throw new RuntimeException("emptyCart(): Unknown eventThatTriggeredCartEmptying = " + eventThatTriggeredCartEmptying);
+		} else if (eventName == OnlinestoreDomainEventName.CART_EMPTIED_BY_CONSUMER) {
+			eventName = OnlinestoreDomainEventName.CART_EMPTIED_BY_CONSUMER;
+
 		}
 		
-		cartEventsProducer.publishDomainEvent(cartEmptiedEvent);
+		event = new CartEmptiedEvent(eventName, cartId, products);
+		cartEventsProducer.publishDomainEvent(event);
 		
 		//System.out.println("==== emptyCart(cartId) - CartEmptiedEvent published - " + cartEmptiedEvent);
 	}

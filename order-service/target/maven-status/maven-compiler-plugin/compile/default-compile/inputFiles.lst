@@ -16,6 +16,7 @@
 /Users/rupesh/git/onlinestore2/onlinestore_new/order-service/src/main/java/com/learning/ddd/onlinestore/order/domain/event/pubsub/CartEventsConsumer.java
 /Users/rupesh/git/onlinestore2/onlinestore_new/order-service/src/main/java/com/learning/ddd/onlinestore/cart/domain/exception/ItemNotFoundInCartException.java
 /Users/rupesh/git/onlinestore2/onlinestore_new/order-service/src/main/java/com/learning/ddd/onlinestore/cart/domain/Cart.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/order-service/src/main/java/com/learning/ddd/onlinestore/order/domain/Product.java
 /Users/rupesh/git/onlinestore2/onlinestore_new/order-service/src/main/java/com/learning/ddd/onlinestore/order/application/OrderServiceController.java
 /Users/rupesh/git/onlinestore2/onlinestore_new/order-service/src/main/java/com/learning/ddd/onlinestore/order/domain/TransactionStatus.java
 /Users/rupesh/git/onlinestore2/onlinestore_new/order-service/src/main/java/com/learning/ddd/onlinestore/cart/domain/repository/CartRepository.java

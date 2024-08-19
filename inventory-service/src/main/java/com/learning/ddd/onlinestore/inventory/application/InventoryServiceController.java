@@ -20,17 +20,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.learning.ddd.onlinestore.inventory.application.dto.AddItemRequestDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.AddItemResponseDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.DeleteItemsRequestDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.GetItemsResponseDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsRequestDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsResponseDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.GetProductsResponseDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.SingleProductRequestRequestDTO;
 import com.learning.ddd.onlinestore.inventory.application.dto.UpdateItemRequestDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.UpdateItemResponseDTO;
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
-import com.learning.ddd.onlinestore.inventory.domain.exception.ItemAlreadyExistsException;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
 
 @RestController
 @RequestMapping("/inventory")
@@ -40,286 +36,81 @@ public class InventoryServiceController { //must be in root package of project
 	@Autowired
 	private Inventory inventory;
 	
-	// Using Spring validations
-	@PostMapping("/items")
-	public ResponseEntity<AddItemResponseDTO> addItem(
-		@Valid @RequestBody AddItemRequestDTO requestDTO) throws ItemAlreadyExistsException, JMSException {
+	
+	@PostMapping("/products")
+	public ResponseEntity<SingleProductRequestRequestDTO> addProduct(
+		@Valid @RequestBody SingleProductRequestRequestDTO requestDTO) throws ProductAlreadyExistsException, JMSException {
 		
-//		InventoryItem item = requestDTO.getItem();
-//		
-//		// Validation - Format/Value
-//		
-//		List<String> errors = new ArrayList<>();
-//		
-//		if (!ItemCategorySubCategory.isCategoryPresent(item.getCategory())) {
-//			errors.add("Category: Missing or Invalid value");
-//		}
-//		
-//		if (!ItemCategorySubCategory.isSubCategoryPresent(item.getSubCategory())) {
-//			errors.add("SubCategory: Missing or Invalid value");
-//		}
-//		
-//		if (item.getName() == null || item.getName().isEmpty()) {
-//			errors.add("Name: Missing");
-//		}
-//		
-//		if (item.getPrice() == null) {
-//			errors.add("Price: Missing");
-//		} else if (item.getPrice().isNaN()) {
-//			errors.add("Price: Invalid value");
-//		} else if (item.getPrice() <= 0) {
-//			errors.add("Price: Invalid value");
-//		}
-//		
-//		if (item.getQuantity() < 1 || item.getQuantity() > 100) {
-//			errors.add("Quantity: Invalid value");
-//		}
-//		
-//		if (!errors.isEmpty()) {
-//			AddItemResponseDTO responseDTO = new AddItemResponseDTO();
-//			responseDTO.setErrors(errors);
-//			
-//			// for sending body along with error, use this way
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//									.body(responseDTO);
-//		}
-//		
-//		// Validation - Business
-//		
-//		if (inventory.searchItem(item) != null) {
-//			errors.add("Item already exist");
-//		}
-//		
-//		if (!errors.isEmpty()) {
-//			AddItemResponseDTO responseDTO = new AddItemResponseDTO();
-//			responseDTO.setErrors(errors);
-//			
-//			// for sending body along with error, use this way
-//			return ResponseEntity.status(HttpStatus.CONFLICT)
-//									.body(responseDTO);
-//		}
+		Product addedProduct = inventory.addProduct(requestDTO.getProduct());
 		
-		
-		// Processing
-		
-		InventoryItem addedItem = inventory.addItem(requestDTO.getItem());
-		
-		return new ResponseEntity<AddItemResponseDTO>(
-			new AddItemResponseDTO(addedItem), HttpStatus.CREATED
+		return new ResponseEntity<SingleProductRequestRequestDTO>(
+			new SingleProductRequestRequestDTO(addedProduct), HttpStatus.CREATED
 		);
+
 	}
 	
-	
-//	@ResponseStatus(HttpStatus.CONFLICT)
-//	@ExceptionHandler(ItemAlreadyExistsException.class)
-//	public ErrorDetails handleItemAlreadyExistsException(ItemAlreadyExistsException ex) {
-//		
-//		ErrorDetails errorDetails = new ErrorDetails();
-//		
-//		errorDetails.setTimestamp(new Date());
-//		errorDetails.setStatus(HttpStatus.CONFLICT.value());
-//		List<String> errors = new ArrayList<>();
-//        errors.add("Item already exists");
-//		errorDetails.setErrors(errors);
-//
-//		return errorDetails;
-//	}
-//	
-//	@ResponseStatus(HttpStatus.BAD_REQUEST)
-//	@ExceptionHandler(MethodArgumentNotValidException.class)
-//	public ErrorDetails handleConstraintViolationException(MethodArgumentNotValidException ex) {
-//		
-//		ErrorDetails errorDetails = new ErrorDetails();
-//		
-//		errorDetails.setTimestamp(new Date());
-//		errorDetails.setStatus(HttpStatus.BAD_REQUEST.value());
-//		
-//		List<String> errors = new ArrayList<>();
-//	    ex.getBindingResult().getAllErrors().forEach((error) -> {
-//	       // String fieldName = ((FieldError) error).getField();
-//	        String errorMessage = error.getDefaultMessage();
-//	        errors.add(errorMessage);
-//	    });
-////		ex.getConstraintViolations().forEach((constraintViolation) -> {
-////			errors.add(constraintViolation.getMessage());
-////		});
-//		errorDetails.setErrors(errors);
-//
-//		return errorDetails;
-//	}
-	
-//	Basic validations
-//	
-//	@PostMapping("/items")
-//	public ResponseEntity<AddItemResponseDTO> addItem(
-//			@RequestBody AddItemRequestDTO requestDTO) throws ItemAlreadyExistsException {
-//		
-//		InventoryItem item = requestDTO.getItem();
-//		
-//		// Validation - Format/Value
-//		
-//		List<String> errors = new ArrayList<>();
-//		
-//		if (!ItemCategorySubCategory.isCategoryPresent(item.getCategory())) {
-//			errors.add("Category: Missing or Invalid value");
-//		}
-//		
-//		if (!ItemCategorySubCategory.isSubCategoryPresent(item.getSubCategory())) {
-//			errors.add("SubCategory: Missing or Invalid value");
-//		}
-//		
-//		if (item.getName() == null || item.getName().isEmpty()) {
-//			errors.add("Name: Missing");
-//		}
-//		
-//		if (item.getPrice() == null) {
-//			errors.add("Price: Missing");
-//		} else if (item.getPrice().isNaN()) {
-//			errors.add("Price: Invalid value");
-//		} else if (item.getPrice() <= 0) {
-//			errors.add("Price: Invalid value");
-//		}
-//		
-//		if (item.getQuantity() < 1 || item.getQuantity() > 100) {
-//			errors.add("Quantity: Invalid value");
-//		}
-//		
-//		if (!errors.isEmpty()) {
-//			AddItemResponseDTO responseDTO = new AddItemResponseDTO();
-//			responseDTO.setErrors(errors);
-//			
-//			// for sending body along with error, use this way
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//									.body(responseDTO);
-//		}
-//		
-//		// Validation - Business
-//		
-//		if (inventory.searchItem(item) != null) {
-//			errors.add("Item already exist");
-//		}
-//		
-//		if (!errors.isEmpty()) {
-//			AddItemResponseDTO responseDTO = new AddItemResponseDTO();
-//			responseDTO.setErrors(errors);
-//			
-//			// for sending body along with error, use this way
-//			return ResponseEntity.status(HttpStatus.CONFLICT)
-//									.body(responseDTO);
-//		}
-//		
-//		
-//		// Processing
-//		
-//		InventoryItem addedItem = inventory.addItem(requestDTO.getItem());
-//		
-//		return new ResponseEntity<AddItemResponseDTO>(
-//			new AddItemResponseDTO(addedItem), HttpStatus.CREATED
-//		);
-//	}
-	
-	@GetMapping("/items")
-	public ResponseEntity<GetItemsResponseDTO> getAllItems() {
+	@GetMapping("/products/{productId}")
+	public ResponseEntity<Product> getProduct(@PathVariable Integer productId) {
 		
-		List<InventoryItem> items = inventory.getItems();
+		Product product = inventory.getProduct(productId);
 		
-		GetItemsResponseDTO responseDTO = new GetItemsResponseDTO(
-			items,
-			inventory.getItemsQuantitiesTotal()
-		);
-		
-		return new ResponseEntity<GetItemsResponseDTO>(
-			responseDTO, 
+		return new ResponseEntity<Product>(
+			product, 
 			HttpStatus.OK
 		);
 	}
 	
-	@GetMapping("/items/{itemId}")
-	public ResponseEntity<InventoryItem> getItem(@PathVariable Integer itemId) {
+	@GetMapping("/products")
+	public ResponseEntity<GetProductsResponseDTO> getAllAvailableProducts() {
 		
-		InventoryItem item = inventory.getItem(itemId);
-		
-		return new ResponseEntity<InventoryItem>(
-			item, 
+		return new ResponseEntity<GetProductsResponseDTO>(
+			new GetProductsResponseDTO(inventory.getAvailableProducts()), 
 			HttpStatus.OK
 		);
 	}
 	
-//	// Search Item through unique fields
-//	
-//	@GetMapping("/items")
-//	public ResponseEntity<InventoryItem> getItem(@RequestParam String category,
-//			@RequestParam String subCategory, @RequestParam String name) {
-//		
-//		InventoryItem item = inventory.searchItem(new InventoryItem(category, subCategory, name, 0, 0));
-//		
-//		return new ResponseEntity<InventoryItem>(
-//			item, 
-//			HttpStatus.OK
-//		);
-//	}
-	
-	@PostMapping("/items/searches")
-	public ResponseEntity<SearchItemsResponseDTO> searchItems(
-			@RequestBody SearchItemsRequestDTO searchItemsRequestDTO) {
+	@PostMapping("/products/searches")
+	public ResponseEntity<GetProductsResponseDTO> searchProductsByExample(
+		@Valid @RequestBody SingleProductRequestRequestDTO requestDTO) throws ProductAlreadyExistsException, JMSException {
 		
-		InventoryItem exampleItem = searchItemsRequestDTO.getExampleItem();
+		List<Product> products = inventory.searchProductsByExample(requestDTO.getProduct());
 		
-		List<InventoryItem> items = inventory.searchItems(exampleItem);
-		
-		System.out.println(
-  			"--------------------- InventoryServiceController.searchItems() --------------------\n"
-  					+ " searchItemsRequestDTO = " + searchItemsRequestDTO
-  					+ " items = " + items
-  			+ "\n--------------------------------------------------");
-		
-		SearchItemsResponseDTO responseDTO = new SearchItemsResponseDTO(items);
-		
-		return new ResponseEntity<SearchItemsResponseDTO>(
-			responseDTO, 
+		return new ResponseEntity<GetProductsResponseDTO>(
+			new GetProductsResponseDTO(products), 
 			HttpStatus.OK
 		);
+
 	}
-	
-	@PutMapping("/items/{itemId}")
-	public ResponseEntity<UpdateItemResponseDTO> updateItem(
-			@PathVariable Integer itemId,
-			@RequestBody UpdateItemRequestDTO updateItemsRequestDTO) {
+
+	@PutMapping("/products/{productId}")
+	public ResponseEntity<SingleProductRequestRequestDTO> updateProduct(
+			@PathVariable Integer productId,
+			@RequestBody UpdateItemRequestDTO requestDTO) {
 		
-		InventoryItem itemToUpdate = updateItemsRequestDTO.getItem();
-		
-		InventoryItem updatedItem = inventory.updateItem(itemToUpdate);
+		InventoryItem itemToUpdate = requestDTO.getItem();
+		Product productToUpdate = inventory.updateProduct(itemToUpdate.getProduct());
 		
 		System.out.println(
   			"--------------------- updateItem() --------------------\n"
-  							+ " itemToUpdate = " + itemToUpdate
-  							+ " updatedItem = " + updatedItem
+				+ " itemToUpdate = " + itemToUpdate
+				+ " productToUpdate = " + productToUpdate
   			+ "\n--------------------------------------------------");
 		
-		UpdateItemResponseDTO responseDTO = new UpdateItemResponseDTO(updatedItem);
+		SingleProductRequestRequestDTO responseDTO = 
+			new SingleProductRequestRequestDTO(productToUpdate);
 		
-		return new ResponseEntity<UpdateItemResponseDTO>(
+		return new ResponseEntity<SingleProductRequestRequestDTO>(
 			responseDTO, 
 			HttpStatus.OK
 		);
 	}
 	
-	@DeleteMapping("/items/{itemId}")
+	@DeleteMapping("/products/{productId}")
 	@Transactional
-	public ResponseEntity<InventoryItem> deleteItem(@PathVariable Integer itemId) throws CloneNotSupportedException, JMSException {
+	public ResponseEntity<Product> deleteProduct(
+			@PathVariable Integer productId) throws CloneNotSupportedException, JMSException {
 		
-		inventory.removeItem(itemId);
-		
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	}
-	
-	@DeleteMapping("/items")
-	@Transactional
-	public ResponseEntity<InventoryItem> deleteItem(@RequestBody DeleteItemsRequestDTO deleteItemsRequestDTO) {
-		
-		InventoryItem deleteExampleItem = deleteItemsRequestDTO.getExampleItem();
-		
-		inventory.removeItems(deleteExampleItem);
+		inventory.removeProduct(productId);
 		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

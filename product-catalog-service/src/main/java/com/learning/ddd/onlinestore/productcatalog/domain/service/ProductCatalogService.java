@@ -1,7 +1,6 @@
 package com.learning.ddd.onlinestore.productcatalog.domain.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.jms.JMSException;
 import javax.transaction.Transactional;
@@ -9,177 +8,86 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.learning.ddd.onlinestore.productcatalog.domain.Product;
-import com.learning.ddd.onlinestore.productcatalog.domain.exception.ProductAlreadyExistsException;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
+import com.learning.ddd.onlinestore.productcatalog.domain.ProductCatalogItem;
 import com.learning.ddd.onlinestore.productcatalog.domain.repository.ProductCatalogRepository;
 
 @Service
 public class ProductCatalogService {
 
 	@Autowired
-	private ProductCatalogRepository productcatalogRepository;
+	private ProductCatalogRepository productCatalogRepository;
 	
 	//@Autowired
-	//private CartEventsProducer cartEventsProducer;
-	
-	//@Autowired
-	//private DomainEventPublisher domainEventPublisher;
+	//private ProductCatalogEventsProducer productCatalogEventsProducer;
 	
 	
 	public ProductCatalogService() {
 	}
-	
+
+	public List<Product> getAllProducts() {
+		return productCatalogRepository.findAllProducts();
+	}
+
 	@Transactional
-	public Product addProduct(Product product) throws ProductAlreadyExistsException, JMSException {
+	public Product addProduct(Product product) throws JMSException, ProductAlreadyExistsException {
 		
-		if (searchProduct(product) != null) {
+		// imp:
+		// searching Product for uniqueness have to be only by matching unique fields Category/SubCategory/name
+		// if you try to search by productId then it will anyway be different for even similar product added repeatedly
+		// ...
+		// so, if you wish to allow adding same products again then here search by productId
+		// and, if you wish to not allow adding same products again then here search by unique fields Category/SubCategory/name
+		// ...
+		if (searchProduct(product) != null) { 
 			throw new ProductAlreadyExistsException(product);
 		}
 		
-		final Product persistedProduct = productcatalogRepository.save(product);
-		
-		
-		//ItemAddedToInventoryEventData eventData = new ItemAddedToInventoryEventData(persistedProduct);
-		//DomainEvent itemAddedToInventoryEvent = new DomainEvent(DomainEventName.ITEM_ADDED_TO_INVENTORY, eventData);
-		// inventoryEventsProducer.publishDomainEvent(itemAddedToInventoryEvent);
-		
-		return persistedProduct;
-	}
-	
-//	@Transactional
-//	public List<InventoryItem> addItems(List<InventoryItem> itemsToBeAdded) throws ItemsAlreadyExistsException {
-//		
-//		List<InventoryItem> items = new ArrayList<InventoryItem>();
-//		List<InventoryItem> alreadyExistingItems = new ArrayList<InventoryItem>();
-//		
-//		for (InventoryItem item : itemsToBeAdded) {
-//			Integer countByUniqueFields = productcatalogRepository.countByUniqueFields(
-//					item.getCategory(), item.getSubCategory(), 
-//					item.getName(), item.getPrice(), item.getQuantity());
-//			if (countByUniqueFields > 0) {	
-//				// item exists in Inventory
-//				alreadyExistingItems.add(item);
-//			} else { //if (countByUniqueFields == 0)
-//				// new item
-//				items.add(item);
-//			}
-//		}
-//		
-//		if (!alreadyExistingItems.isEmpty() ) {
-//			throw new ItemsAlreadyExistsException(alreadyExistingItems);
-//		}
-//		
-//		if (!items.isEmpty() ) {
-//			items = productcatalogRepository.saveAll(items);
-//			domainEventPublisher.publishEvent(new ItemsAddedToInventoryEvent(items));
-//		}
-//		
-//		return items;
-//	}
+		// reaching here means the Product doesn't already exist in local data store
 
-	public List<Product> getProducts() {
+		ProductCatalogItem productCatalogItem = new ProductCatalogItem(product);
 		
-		return productcatalogRepository.findAll();
+		final ProductCatalogItem persistedItem = productCatalogRepository.save(productCatalogItem);
+
+//		// no events needed to be published from product-catalog as of now (19.Aug.2024)
+//		ProductAddedToInventoryEvent event = new ProductAddedToInventoryEvent(persistedItem.getProduct());
+//		productCatalogEventsProducer.publishDomainEvent(event);
 		
+		return persistedItem.getProduct();
 	}
 	
 	public Product getProduct(final int productId) {
 		
-		Optional<Product> productFromDB = productcatalogRepository.findById(productId);
-		//System.out.println("-------------> itemFromDB = " + itemFromDB);
+		return productCatalogRepository.findByProductId(productId);
+	}
+
+	public Integer getProductQuantitiesTotal() {
 		
-		return ((productFromDB != null) && productFromDB.isPresent()) ? productFromDB.get() : null;
+		Integer allProductsQuantitiesTotal = productCatalogRepository.calculateAllProductsQuantitiesTotal();
+		return allProductsQuantitiesTotal != null ? allProductsQuantitiesTotal : 0;
 	}
 	
 	// return items that matches any of field value of exampleItem
 	// wild card search for String fields like category/subCategory/name
 	public Product searchProduct(Product product) {
 		
-		return productcatalogRepository.searchByUniqueFields(
+		return productCatalogRepository.searchProductsByUniqueFields(
 			product.getCategory(), product.getSubCategory(), product.getName()
 		);
 	}
-	
-	// return items that matches any of field value of exampleItem
-	// wild card search for String fields like category/subCategory/name
-	public List<Product> searchProducts(Product exampleProduct) {
+
+	public List<Product> searchProductsByExample(Product exampleProduct) {
 		
-		return productcatalogRepository.searchProductsByExample(exampleProduct.getCategory(),
+		return productCatalogRepository.searchProductsByExample(exampleProduct.getCategory(),
 			exampleProduct.getSubCategory(), exampleProduct.getName(),
 			exampleProduct.getPrice(), exampleProduct.getQuantity()
 		);
-		
-//		return productcatalogRepository.findAll(Example.of(exampleItem));
-		
-//		return getItems().stream()
-//				.filter(item ->
-//							item.getItemId()==exampleItem.getItemId() 
-//							|| item.getCategory().equals(exampleItem.getCategory())
-//							|| item.getSubCategory().equals(exampleItem.getSubCategory())
-//							|| item.getName().equals(exampleItem.getName())
-//							|| item.getPrice().equals(exampleItem.getPrice())
-//							|| item.getQuantity()==exampleItem.getQuantity()
-//						)
-//				.collect(Collectors.toList());
-		
-	}
-	
-	@Transactional
-	public Product updateProduct(Product productToUpdate) {
-		
-		return productcatalogRepository.save(productToUpdate);
-	}
-	
-	@Transactional
-	public void removeProduct(Integer productId) throws CloneNotSupportedException, JMSException {
-		
-		//Product copyOfProductToBeRemoved = getProduct(productId).clone();
-		
-		productcatalogRepository.deleteById(productId);
-		
-		//ItemRemovedFromInventoryEventData eventData = new ItemRemovedFromInventoryEventData(copyOfProductToBeRemoved);
-		//DomainEvent itemRemovedFromInventoryEvent = new DomainEvent(DomainEventName.ITEM_REMOVED_FROM_INVENTORY, eventData);
-		// inventoryEventsProducer.publishDomainEvent(itemRemovedFromInventoryEvent);
 	}
 
 	@Transactional
-	public void removeProduct(Product product) throws CloneNotSupportedException, JMSException {
-		
-		//Product copyOfItemToBeRemoved = product.clone();
-		
-		productcatalogRepository.delete(product);
-		
-		//ItemRemovedFromInventoryEventData eventData = new ItemRemovedFromInventoryEventData(copyOfItemToBeRemoved);
-		//DomainEvent itemRemovedFromInventoryEvent = new DomainEvent(DomainEventName.ITEM_REMOVED_FROM_INVENTORY, eventData);
-		// inventoryEventsProducer.publishDomainEvent(itemRemovedFromInventoryEvent);
-	}
-
-	@Transactional
-	public void removeProducts(Product exampleProduct) {
-		
-		productcatalogRepository.deleteProducts(
-				exampleProduct.getProductId(), exampleProduct.getCategory(), exampleProduct.getSubCategory(),
-				exampleProduct.getName(), exampleProduct.getPrice(), exampleProduct.getQuantity());
-		
-//		List<Item> items = getItems();
-//		boolean anyItemRemoved = 
-//				items.removeIf(item ->
-//					item.getItemId()==exampleItem.getItemId() 
-//					|| item.getCategory().equals(exampleItem.getCategory())
-//					|| item.getSubCategory().equals(exampleItem.getSubCategory())
-//					|| item.getName().equals(exampleItem.getName())
-//					|| item.getPrice().equals(exampleItem.getPrice())
-//					|| item.getQuantity()==exampleItem.getQuantity()
-//				);
-//		productcatalogRepository.saveAll(items);		
-//		domainEventPublisher.publishEvent(new ItemsRemovedFromInventoryEvent(exampleItem));
-//		return anyItemRemoved;
-	}
-
-	public int getItemsQuantitiesTotal() {
-		
-		Integer allItemsQuantitiesTotal = productcatalogRepository.calculateAllProductsQuantitiesTotal();
-		return allItemsQuantitiesTotal != null ? allItemsQuantitiesTotal : 0;
+	public void removeProduct(Integer productId) {
+		productCatalogRepository.deleteByProductId(productId);
 	}
 
 }

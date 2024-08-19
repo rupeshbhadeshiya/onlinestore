@@ -1,6 +1,5 @@
 package com.learning.ddd.onlinestore.inventory.proxy;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,18 +9,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.learning.ddd.onlinestore.inventory.application.dto.AddItemRequestDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.AddItemResponseDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.GetItemsResponseDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsRequestDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsResponseDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.UpdateItemRequestDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.UpdateItemResponseDTO;
-import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
+import com.learning.ddd.onlinestore.inventory.application.dto.GetProductsResponseDTO;
+import com.learning.ddd.onlinestore.inventory.application.dto.SingleProductRequestRequestDTO;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 
 @Component
 public class InventoryServiceRestTemplateBasedProxy {
 
+	private static final String INVENTORY_SERVICE_PRODUCTS_URI = 
+			"http://inventory-service/inventory/products/";
+	
 	@Autowired
 	private RestTemplate inventoryServiceRestTemplate;
 	
@@ -32,95 +29,84 @@ public class InventoryServiceRestTemplateBasedProxy {
 //    }
 	
 	
-	public InventoryItem addItem(InventoryItem item) {
+	public Product addProduct(Product product) {
 		
-		AddItemRequestDTO requestDTO = new AddItemRequestDTO(item);
-		HttpEntity<AddItemRequestDTO> request = new HttpEntity<AddItemRequestDTO>(requestDTO);
+		SingleProductRequestRequestDTO requestDTO = new SingleProductRequestRequestDTO(product);
+		HttpEntity<SingleProductRequestRequestDTO> request = new HttpEntity<SingleProductRequestRequestDTO>(requestDTO);
 		
-		InventoryItem addedItem = inventoryServiceRestTemplate.exchange(
-			"http://inventory-service/inventory/items", 
+		Product addedProduct = inventoryServiceRestTemplate.exchange(
+			"http://inventory-service/inventory/products", 
 			HttpMethod.POST,
 			request,
-			new ParameterizedTypeReference<AddItemResponseDTO>() {}
-		).getBody().getItem();
+			new ParameterizedTypeReference<SingleProductRequestRequestDTO>() {}
+		).getBody().getProduct();
 		
-		return addedItem;
-		
-//		savedItems = Arrays.asList(
-//			restTemplate.postForObject(
-//				new URI("http://inventory-service/inventory/items"), 
-//				items, 
-//				InventoryItem[].class
-//			)
-//		);
-//		return (List<Item>) responseEntity.getBody();
+		return addedProduct;
 	}
 	
-	public List<InventoryItem> getAllItems() {
+	public List<Product> getAllAvailableProducts() {
 		
-//		return new ArrayList<>();
-		
-		// FIXME
-		
-		List<InventoryItem> allItems = inventoryServiceRestTemplate.exchange(
-			"http://inventory-service/inventory/items", 
+		List<Product> products = inventoryServiceRestTemplate.exchange(
+			"http://inventory-service/inventory/products", 
 			HttpMethod.GET,
 			null,
-			new ParameterizedTypeReference<GetItemsResponseDTO>() {}
-		).getBody().getItems();
+			new ParameterizedTypeReference<GetProductsResponseDTO>() {}
+		).getBody().getProducts();
 		
-		return allItems;
+		return products;
 	}
 	
-	public InventoryItem getItem(Integer itemId) {
+	public Product getProduct(Integer productId) {
 		
-		InventoryItem item = inventoryServiceRestTemplate.exchange(
-			"http://inventory-service/inventory/items/" + itemId, 
+		Product product = inventoryServiceRestTemplate.exchange(
+			INVENTORY_SERVICE_PRODUCTS_URI + productId, 
 			HttpMethod.GET,
 			null,
-			new ParameterizedTypeReference<InventoryItem>() {}
+			new ParameterizedTypeReference<Product>() {}
 		).getBody();
 			
-		return item;
+		return product;
 	}
 	
-	public List<InventoryItem> searchItems(InventoryItem exampleItem) {
+	public Product updateProduct(Product productToUpdate) {
 		
-		SearchItemsRequestDTO requestDTO = new SearchItemsRequestDTO(exampleItem);
+		SingleProductRequestRequestDTO requestDTO = new SingleProductRequestRequestDTO(productToUpdate);
 		
-		HttpEntity<SearchItemsRequestDTO> request = 
-				new HttpEntity<SearchItemsRequestDTO>(requestDTO);
+		HttpEntity<SingleProductRequestRequestDTO> request = 
+				new HttpEntity<SingleProductRequestRequestDTO>(requestDTO);
 		
-		List<InventoryItem> searchedItems = inventoryServiceRestTemplate.exchange(
-			"http://inventory-service/inventory/items/searches", 
-			HttpMethod.POST,
-			request,
-			new ParameterizedTypeReference<SearchItemsResponseDTO>() {}
-		).getBody().getItems();
-		
-		return searchedItems;
-	}
-	
-	public InventoryItem updateItem(InventoryItem itemToUpdate) {
-		
-		UpdateItemRequestDTO requestDTO = new UpdateItemRequestDTO(itemToUpdate);
-		
-		HttpEntity<UpdateItemRequestDTO> request = 
-				new HttpEntity<UpdateItemRequestDTO>(requestDTO);
-		
-		UpdateItemResponseDTO responseDTO = inventoryServiceRestTemplate.exchange(
-			"http://inventory-service/inventory/items/" + itemToUpdate.getItemId(), 
+		SingleProductRequestRequestDTO responseDTO = inventoryServiceRestTemplate.exchange(
+			INVENTORY_SERVICE_PRODUCTS_URI + productToUpdate.getProductId(), 
 			HttpMethod.PUT,
 			request,
-			new ParameterizedTypeReference<UpdateItemResponseDTO>() {}
+			new ParameterizedTypeReference<SingleProductRequestRequestDTO>() {}
 		).getBody();
 			
-		return responseDTO.getItem();
-	}
-
-	public void removeItem(Integer itemId) {
+		return responseDTO.getProduct();
+	}	
+	
+	public void removeProduct(Integer productId) {
 		
-		inventoryServiceRestTemplate.delete("http://inventory-service/inventory/items/"+itemId);
+		inventoryServiceRestTemplate.delete(INVENTORY_SERVICE_PRODUCTS_URI + productId);
 	}
-
+	
+	
+	public List<Product> searchProducts(Product exampleProduct) {
+		
+		SingleProductRequestRequestDTO requestDTO = 
+			new SingleProductRequestRequestDTO(exampleProduct);
+		
+		HttpEntity<SingleProductRequestRequestDTO> request = 
+			new HttpEntity<SingleProductRequestRequestDTO>(requestDTO);
+		
+		List<Product> searchedProducts = inventoryServiceRestTemplate.exchange(
+			INVENTORY_SERVICE_PRODUCTS_URI + "/searches", 
+			HttpMethod.POST,
+			request,
+			new ParameterizedTypeReference<GetProductsResponseDTO>() {}
+		).getBody().getProducts();
+		
+		return searchedProducts;
+	}
+	
 }

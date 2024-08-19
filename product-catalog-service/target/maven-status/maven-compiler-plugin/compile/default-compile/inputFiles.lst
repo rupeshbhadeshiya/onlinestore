@@ -1,0 +1,16 @@
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/event/ItemRemovedFromInventoryEventData.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/application/ProductCatalogExceptionHandler.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/application/dto/GetProductsResponseDTO.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/domain/event/pubsub/InventoryEventsConsumer.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/domain/repository/ProductCatalogRepository.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/ProductCatalogServiceBootApp.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/domain/Product.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/domain/service/ProductCatalogService.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/InventoryItem.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/application/ProductCatalogServiceController.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/domain/exception/ProductAlreadyExistsException.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/event/ItemAddedToInventoryEventData.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/application/ErrorDetails.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/productcatalog/domain/ProductCategorySubCategory.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/inventory/domain/ItemCategorySubCategory.java
+/Users/rupesh/git/onlinestore2/onlinestore_new/product-catalog-service/src/main/java/com/learning/ddd/onlinestore/commons/util/ItemConversionUtil.java

@@ -7,7 +7,8 @@ import javax.servlet.ServletContextListener;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
+import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
 
 //@Component (no need for this bean to be a @Component, as extending bean will be anyway declaring itself a @Component)
 public abstract class DomainEventsConsumer implements ServletContextListener {
@@ -48,7 +49,7 @@ public abstract class DomainEventsConsumer implements ServletContextListener {
 	
 	
 	/* Consumer specific implementation to be provided by the class extending this one */
-	protected abstract void consumeDomainEvent(DomainEvent domainEvent) throws CloneNotSupportedException, JMSException;
+	protected abstract void consumeDomainEvent(OnlinestoreDomainEvent domainEvent) throws CloneNotSupportedException, JMSException, ProductAlreadyExistsException;
 	
 	/* Consumer to provide name of Topic where this listener listens to */
 	protected abstract String getTopicName();
@@ -138,26 +139,40 @@ public abstract class DomainEventsConsumer implements ServletContextListener {
 
 		public void run() {
 			
-			System.out.println(getCallingServiceName() + " - DomainEventsConsumptionJob: started processing message - " + message + ", Topic = " + getTopicName());
+			System.out.println(getCallingServiceName() + " - DomainEventsConsumptionJob: "
+				+ "started processing message - " + message + ", Topic = " + getTopicName());
 			
 			// FIXME Write proper handling of this once this basic validation is done
 			try {
-				DomainEvent domainEvent = (DomainEvent) message.getObject();
-				System.out.println(getCallingServiceName() + " - DomainEventsConsumptionJob: received Domain Event: " + domainEvent + ", Topic = " + getTopicName());
+				OnlinestoreDomainEvent domainEvent = (OnlinestoreDomainEvent) message.getObject();
+				
+				System.out.println(getCallingServiceName() + " - DomainEventsConsumptionJob: "
+					+ "received Domain Event = " + domainEvent.getEventName()
+					+ ", Topic = " + getTopicName() + ", domainEvent = " + domainEvent);
 				
 				consumeDomainEvent(domainEvent);
 				
-				System.out.println(getCallingServiceName() + " - DomainEventsConsumptionJob: processed message - " + message + ", Topic = " + getTopicName());
+				System.out.println(getCallingServiceName() + " - DomainEventsConsumptionJob: "
+					+ "processed message - " + message + ", Topic = " + getTopicName());
 				
 			} catch (JMSException e) {
-				System.err.println(getCallingServiceName() + " - DomainEventsConsumptionJob: error while receiving message from Topic " + getTopicName());
+				System.err.println(getCallingServiceName() + " - DomainEventsConsumptionJob: "
+					+ "error while receiving message from Topic " + getTopicName());
 				e.printStackTrace();
+				
 			} catch (CloneNotSupportedException e) {
-				System.err.println(getCallingServiceName() + " - DomainEventsConsumptionJob: error while consuming message received from Topic " + getTopicName());
+				System.err.println(getCallingServiceName() + " - DomainEventsConsumptionJob: "
+					+ "error while consuming message received from Topic " + getTopicName());
+				
+				e.printStackTrace();
+			} catch (ProductAlreadyExistsException e) {
+				System.err.println(getCallingServiceName() + " - DomainEventsConsumptionJob: "
+					+ "error while consuming message received from Topic " + getTopicName());
 				e.printStackTrace();
 			}
 			
-			System.out.println(getCallingServiceName() + " - DomainEventsConsumptionJob: completed processing message - " + message + ", Topic = " + getTopicName());
+			System.out.println(getCallingServiceName() + " - DomainEventsConsumptionJob: "
+				+ "completed processing, Topic = " + getTopicName() + ", message - " + message);
 		}
 		
 	} // DomainEventsConsumptionJob - ends ---------------------

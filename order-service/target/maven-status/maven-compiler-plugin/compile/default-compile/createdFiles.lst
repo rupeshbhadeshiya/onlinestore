@@ -12,6 +12,7 @@ com/learning/ddd/onlinestore/order/domain/Address.class
 com/learning/ddd/onlinestore/payment/domain/PaymentGateway.class
 com/learning/ddd/onlinestore/order/application/dto/CreateOrderDTO.class
 com/learning/ddd/onlinestore/cart/proxy/CartServiceRestTemplateBasedProxy$1.class
+com/learning/ddd/onlinestore/order/domain/Product.class
 com/learning/ddd/onlinestore/cart/domain/event/ItemAddedToCartEventData.class
 com/learning/ddd/onlinestore/payment/domain/DummyPaymentGateway.class
 com/learning/ddd/onlinestore/commons/util/ItemConversionUtil.class

@@ -6,9 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.learning.ddd.onlinestore.cart.domain.Cart;
-import com.learning.ddd.onlinestore.cart.proxy.CartServiceRestTemplateBasedProxy;
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsWriter;
 
 @Profile("test")
@@ -27,7 +25,7 @@ public class JUnitTestsSpecificSpringBeanConfigurations {
 		return new DomainEventsWriter() {
 			
 			@Override
-			public void write(DomainEvent domainEvent) throws JMSException {
+			public void write(OnlinestoreDomainEvent domainEvent) throws JMSException {
 				System.out.println("~~~~~~~~> Dummy DomainEventsWriter(): write(): domainEvent = " + domainEvent + " <~~~~~~~~");
 			}
 			
@@ -40,24 +38,6 @@ public class JUnitTestsSpecificSpringBeanConfigurations {
 			@Override
 			public void disconnect() {
 				System.out.println("~~~~~~~~> Dummy DomainEventsWriter(): disconnect(): <~~~~~~~~");
-			}
-			
-		};
-	}
-	
-	@Bean
-	public CartServiceRestTemplateBasedProxy cartServiceRestTemplateBasedProxy() {
-		
-		return new CartServiceRestTemplateBasedProxy() {
-			
-			@Override
-			public Cart getCart(String consumerId) {
-				return new Cart();
-			}
-			
-			@Override
-			public Cart getCart(Integer cartId) {
-				return new Cart();
 			}
 			
 		};

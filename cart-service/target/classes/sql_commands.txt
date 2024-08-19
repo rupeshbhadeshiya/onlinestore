@@ -1,0 +1,14 @@
+
+# Select these tables in this order
+select * from carts.cart;
+select * from carts.cart_item;
+
+
+# Delete all data from these tables in this order only
+delete from carts.cart_item;
+delete from carts.cart;
+
+
+# Drop these tables in this order only
+drop table carts.cart_item;
+drop table carts.cart;

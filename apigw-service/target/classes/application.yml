@@ -1,0 +1,24 @@
+# This service will be listening over port 9010
+server:
+  port: '8080'
+
+spring:
+
+  # Service Name using which other services locates its instances from Service Registry
+  application:
+    name: apigw-service
+
+# Using Zuul as APIGW Server for routing all requests through this service
+# for enforcing filtering / logging / security / rate-limiting etc.
+zuul:
+  routes:
+    cart-service:
+      url: http://localhost:9020/
+      path: /consumers/**/carts/**
+    order-service:
+      path: /consumers/**/orders/**
+      url: http://localhost:9030/
+    inventory-service:
+      path: /inventory/**
+      url: http://localhost:9010/
+

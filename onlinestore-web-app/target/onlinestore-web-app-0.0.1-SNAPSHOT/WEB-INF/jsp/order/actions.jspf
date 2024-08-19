@@ -1,0 +1,5 @@
+       	<div>
+       		<a class="btn btn-default" href="/onlinestore/view-orders">View Orders</a>
+       		<a class="btn btn-default" href="/onlinestore/search-orders">Search Orders</a>
+       	</div>
+		    

@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 
 @Entity
 //@Table(schema="cart")
@@ -84,6 +85,22 @@ public class Cart implements Serializable {
 	
 	public void setItemCount(int itemCount) {
 		this.itemCount = itemCount;
+	}
+	
+	// -- utility method to return Products present in the Cart
+	// -- especially called from JSP through references like 
+	// -- cart.products and cart.productCount
+	
+	public Object getProducts() {
+		List<Product> products = new ArrayList<>();
+		for (CartItem cartItem : this.items) {
+			products.add(cartItem.getProduct());
+		}
+		return products;
+	}
+	
+	public int getProductCount() {
+		return itemCount; // Product:Item is 1:1
 	}
 
 	//-------- specific methods : start -------------

@@ -1,0 +1,16 @@
+com/learning/ddd/onlinestore/productcatalog/application/ErrorDetails.class
+com/learning/ddd/onlinestore/productcatalog/domain/event/pubsub/InventoryEventsConsumer.class
+com/learning/ddd/onlinestore/commons/util/ItemConversionUtil.class
+com/learning/ddd/onlinestore/productcatalog/domain/Product.class
+com/learning/ddd/onlinestore/productcatalog/application/ProductCatalogExceptionHandler.class
+com/learning/ddd/onlinestore/productcatalog/domain/exception/ProductAlreadyExistsException.class
+com/learning/ddd/onlinestore/productcatalog/ProductCatalogServiceBootApp.class
+com/learning/ddd/onlinestore/productcatalog/application/dto/GetProductsResponseDTO.class
+com/learning/ddd/onlinestore/inventory/domain/event/ItemAddedToInventoryEventData.class
+com/learning/ddd/onlinestore/productcatalog/domain/ProductCategorySubCategory.class
+com/learning/ddd/onlinestore/inventory/domain/InventoryItem.class
+com/learning/ddd/onlinestore/productcatalog/application/ProductCatalogServiceController.class
+com/learning/ddd/onlinestore/productcatalog/domain/repository/ProductCatalogRepository.class
+com/learning/ddd/onlinestore/inventory/domain/ItemCategorySubCategory.class
+com/learning/ddd/onlinestore/inventory/domain/event/ItemRemovedFromInventoryEventData.class
+com/learning/ddd/onlinestore/productcatalog/domain/service/ProductCatalogService.class

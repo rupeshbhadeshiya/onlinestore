@@ -7,7 +7,7 @@ import javax.jms.JMSException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsPublisher;
 
 //@Primary
@@ -36,7 +36,7 @@ public class KafkaBasedDomainEventsPublisher extends DomainEventsPublisher {
 	}
 
 	@Override
-	public void publishDomainEvent(DomainEvent domainEvent) throws JMSException {
+	public void publishDomainEvent(OnlinestoreDomainEvent domainEvent) throws JMSException {
 		System.out.println("------- KafkaBasedDomainEventsPublisher.publishEvent() started...");
 		
 //		if (domainEvent instanceof ItemsAddedToInventoryEvent) {

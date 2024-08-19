@@ -8,12 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.learning.ddd.onlinestore.productcatalog.application.dto.GetProductsResponseDTO;
-import com.learning.ddd.onlinestore.productcatalog.domain.Product;
-import com.learning.ddd.onlinestore.productcatalog.domain.repository.ProductCatalogRepository;
+import com.learning.ddd.onlinestore.inventory.application.dto.GetProductsResponseDTO;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.productcatalog.domain.service.ProductCatalogService;
 
 @RestController
 @RequestMapping("/productcatalog")
@@ -21,19 +22,26 @@ import com.learning.ddd.onlinestore.productcatalog.domain.repository.ProductCata
 public class ProductCatalogServiceController { //must be in root package of project
 	
 	@Autowired
-	private ProductCatalogRepository productcatalogRepository;
+	private ProductCatalogService productCatalogService;
 	
 	@GetMapping("/products")
 	public ResponseEntity<GetProductsResponseDTO> getAllProducts() {
 		
-		List<Product> products = productcatalogRepository.findAll();
-		
-		GetProductsResponseDTO responseDTO = new GetProductsResponseDTO(
-			products, products.size()
-		);
+		List<Product> allProducts = productCatalogService.getAllProducts();
 		
 		return new ResponseEntity<GetProductsResponseDTO>(
-			responseDTO, 
+			new GetProductsResponseDTO(allProducts), 
+			HttpStatus.OK
+		);
+	}
+	
+	@GetMapping("/products/{productId}")
+	public ResponseEntity<Product> getProduct(@PathVariable Integer productId) {
+		
+		Product product = productCatalogService.getProduct(productId);
+		
+		return new ResponseEntity<Product>(
+			product, 
 			HttpStatus.OK
 		);
 	}

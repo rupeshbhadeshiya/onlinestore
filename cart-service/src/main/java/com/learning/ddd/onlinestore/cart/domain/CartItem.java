@@ -3,6 +3,7 @@ package com.learning.ddd.onlinestore.cart.domain;
 import java.io.Serializable;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 
 @Entity
 @Table(schema="carts")
@@ -22,11 +24,17 @@ public class CartItem implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int itemId;				// ex. 1001, unique Id to identify an item uniquely
-	private String category;		// ex. Grocery
-	private String subCategory;		// ex. Biscuits
-	private String name;			// ex. Parle-G
-	private Double price;			// ex. 30.0 INR (price of a single item)
-	private int quantity;			// ex. 5
+	
+	
+	@Embedded
+	private Product product;
+	
+//	private int itemId;				// ex. 1001, unique Id to identify an item uniquely
+//	private String category;		// ex. Grocery
+//	private String subCategory;		// ex. Biscuits
+//	private String name;			// ex. Parle-G
+//	private Double price;			// ex. 30.0 INR (price of a single item)
+//	private int quantity;			// ex. 5
 	
 	// Ignore 
 	@JsonIgnore
@@ -39,29 +47,40 @@ public class CartItem implements Serializable {
 	
 	public CartItem() {
 		
+		super();
+		this.setProduct(new Product());
 	}
 	
-	public CartItem(String category, String subCategory, String name, 
-			Double price, int quantity) {
-		
-		super();
-		this.category = category;
-		this.subCategory = subCategory;
-		this.name = name;
-		this.price = price;
-		this.quantity = quantity;
-	}
+//	public CartItem(String category, String subCategory, String name, 
+//			Double price, int quantity) {
+//		
+//		super();
+//		this.product.setCategory(category);
+//		this.product.setSubCategory(subCategory);
+//		this.product.setName(name);
+//		this.product.setPrice(price);
+//		this.product.setQuantity(quantity);
+//	}
 
+	public CartItem(Product product) {
+
+		super();
+		this.setProduct(new Product(product));
+	}
+	
 	public CartItem(CartItem cartItem) {
 		
-		super();
-		this.category = cartItem.category;
-		this.subCategory = cartItem.subCategory;
-		this.name = cartItem.name;
-		this.price = cartItem.price;
-		this.quantity = cartItem.quantity;
+		this(cartItem.getProduct());
 	}
-
+	
+	public Product getProduct() {
+		return product;
+	}
+	
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+	
 	public int getItemId() {
 		return itemId;
 	}
@@ -71,43 +90,43 @@ public class CartItem implements Serializable {
 	}
 
 	public String getName() {
-		return name;
+		return this.getProduct().getName();
 	}
 	
 	public void setName(String name) {
-		this.name = name;
+		this.getProduct().setName(name);
 	}
 	
 	public String getCategory() {
-		return category;
+		return this.getProduct().getCategory();
 	}
 
 	public void setCategory(String category) {
-		this.category = category;
+		this.getProduct().setCategory(category);
 	}
 
 	public String getSubCategory() {
-		return subCategory;
+		return this.getProduct().getSubCategory();
 	}
 
 	public void setSubCategory(String subCategory) {
-		this.subCategory = subCategory;
+		this.getProduct().setSubCategory(subCategory);
 	}
 
 	public int getQuantity() {
-		return quantity;
+		return this.getProduct().getQuantity();
 	}
 
 	public void setQuantity(int quantity) {
-		this.quantity = quantity;
+		this.getProduct().setQuantity(quantity);
 	}
 
 	public Double getPrice() {
-		return price;
+		return this.getProduct().getPrice();
 	}
 
 	public void setPrice(Double price) {
-		this.price = price;
+		this.getProduct().setPrice(price);
 	}
 
 	public Cart getCart() {
@@ -121,44 +140,33 @@ public class CartItem implements Serializable {
 	//-------- specific methods : start -------------
 	
 	public void increaseQuantity(int quantityToIncrease) {
-		this.quantity += quantityToIncrease;
+		this.getProduct().increaseQuantity(quantityToIncrease);
 		
 	}
 	public void decreaseQuantity(int quantityToDecrease) {
-		this.quantity -= quantityToDecrease;
+		this.getProduct().decreaseQuantity(quantityToDecrease);
 	}
 	
 	public double computeAmount() {
-		return this.quantity * this.price;
+		return this.getProduct().computeAmount();
 	}
 	
 	//-------- specific methods : end -------------
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		//result = prime * result + id;
-		//result = prime * result + ((cart == null) ? 0 : cart.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((category == null) ? 0 : category.hashCode());
-		result = prime * result + ((subCategory == null) ? 0 : subCategory.hashCode());
-		result = prime * result + quantity;
-		result = prime * result + ((price == null) ? 0 : price.hashCode());
-		return result;
+		return this.getProduct().hashCode();
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object other) {
 		
-		if (this == obj)
+		if (this == other)
 			return true;
-		if (obj == null)
+		if (other == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (getClass() != other.getClass())
 			return false;
-		
-		CartItem other = (CartItem) obj;
 		
 		//if (id != other.id)
 		//	return false;
@@ -169,44 +177,14 @@ public class CartItem implements Serializable {
 		//} else if (!cart.equals(other.cart))
 		//	return false;
 		
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
+		CartItem otherCartItem = (CartItem) other;
 		
-		if (category == null) {
-			if (other.category != null)
-				return false;
-		} else if (!category.equals(other.category))
-			return false;
-		
-		if (subCategory == null) {
-			if (other.subCategory != null)
-				return false;
-		} else if (!subCategory.equals(other.subCategory))
-			return false;
-		
-		if (price == null) {
-			if (other.price != null)
-				return false;
-		} else if (!price.equals(other.price))
-			return false;
-		
-		if (quantity != other.quantity)
-			return false;
-		
-		return true;
+		return this.getProduct().equals(otherCartItem.getProduct());
 	}
 
 	@Override
 	public String toString() {
-		return "CartItem [id=" + itemId
-				+ ", name=" + name
-				+ ", category=" + category + ", subCategory=" + subCategory 
-				 + ", price=" + price + ", quantity=" + quantity 
-				//+ ", cart=" + cart 
-				+ "]";
+		return "CartItem [id=" + itemId + this.getProduct() + "]";
 	}
 	
 	

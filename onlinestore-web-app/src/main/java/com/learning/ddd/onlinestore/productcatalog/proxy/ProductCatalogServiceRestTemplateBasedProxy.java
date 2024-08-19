@@ -8,13 +8,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.learning.ddd.onlinestore.productcatalog.application.dto.GetProductsResponseDTO;
-import com.learning.ddd.onlinestore.productcatalog.domain.Product;
+import com.learning.ddd.onlinestore.inventory.application.dto.GetProductsResponseDTO;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 
 
 @Component
 public class ProductCatalogServiceRestTemplateBasedProxy {
 
+	private static final String PRODUCT_CATALOG_SERVICE_URI 
+		= "http://product-catalog-service/productcatalog/products/";
+	
 	@Autowired
 	private RestTemplate productCatalogServiceRestTemplate;
 	
@@ -27,18 +30,26 @@ public class ProductCatalogServiceRestTemplateBasedProxy {
 	
 	public List<Product> getAllProducts() {
 		
-//		return new ArrayList<>();
-		
-		// FIXME
-		
-		List<Product> allItems = productCatalogServiceRestTemplate.exchange(
-			"http://product-catalog-service/productcatalog/products", 
+		List<Product> allProducts = productCatalogServiceRestTemplate.exchange(
+			PRODUCT_CATALOG_SERVICE_URI, 
 			HttpMethod.GET,
 			null,
 			new ParameterizedTypeReference<GetProductsResponseDTO>() {}
 		).getBody().getProducts();
 		
-		return allItems;
+		return allProducts;
+	}
+
+	public Product getProduct(Integer productId) {
+		
+		Product product = productCatalogServiceRestTemplate.exchange(
+			PRODUCT_CATALOG_SERVICE_URI + productId, 
+			HttpMethod.GET,
+			null,
+			new ParameterizedTypeReference<Product>() {}
+		).getBody();
+		
+		return product;
 	}
 	
 //	public Product getProduct(Integer productId) {

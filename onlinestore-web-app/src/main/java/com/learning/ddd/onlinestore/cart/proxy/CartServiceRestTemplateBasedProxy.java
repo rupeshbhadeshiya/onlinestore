@@ -9,10 +9,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.learning.ddd.onlinestore.cart.application.dto.AddItemToCartDTO;
+import com.learning.ddd.onlinestore.cart.application.dto.AddProductToCartDTO;
+import com.learning.ddd.onlinestore.cart.application.dto.CartInfo;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
-import com.learning.ddd.onlinestore.commons.util.ItemConversionUtil;
-import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 
 @Component
 public class CartServiceRestTemplateBasedProxy {
@@ -29,12 +29,11 @@ public class CartServiceRestTemplateBasedProxy {
 //        return new RestTemplate();
 //    }
 	
-	public Cart addItemToCart(int cartId, InventoryItem inventoryItem) {
+	public Cart addProductToCart(int cartId, Product product) {
 		
-		AddItemToCartDTO dto = new AddItemToCartDTO(CONSUMER_ID, cartId, 
-			ItemConversionUtil.fromInventoryItemToCartItem(inventoryItem));
+		AddProductToCartDTO dto = new AddProductToCartDTO(CONSUMER_ID, cartId, product);
 		
-		HttpEntity<AddItemToCartDTO> request = new HttpEntity<AddItemToCartDTO>(dto);
+		HttpEntity<AddProductToCartDTO> request = new HttpEntity<AddProductToCartDTO>(dto);
 		
 		Cart cart = cartServiceRestTemplate.exchange(
 			"http://cart-service/consumers/" + CONSUMER_ID + "/carts",
@@ -70,22 +69,22 @@ public class CartServiceRestTemplateBasedProxy {
 		return carts.isEmpty() ? null : carts.get(0); // every consumer have at max one cart only!
 	}
 	
-	public Cart getCart(Integer cartId) {
+	public CartInfo getCartInfo(Integer cartId) {
 		
-		Cart cart = cartServiceRestTemplate.exchange(
+		CartInfo cartInfo = cartServiceRestTemplate.exchange(
 				"http://cart-service/consumers/" + CONSUMER_ID + "/carts/" + cartId, 
 			HttpMethod.GET,
 			null,
-			new ParameterizedTypeReference<Cart>() {}
+			new ParameterizedTypeReference<CartInfo>() {}
 		).getBody();
 		
-		return cart;
+		return cartInfo;
 	}
 
-	public Cart removeItemFromCart(String consumerId, int cartId, int itemId) {
+	public Cart removeProductFromCart(String consumerId, int cartId, int productId) {
 		
 		Cart cart = cartServiceRestTemplate.exchange(
-			"http://cart-service/consumers/" + consumerId + "/carts/" + cartId + "/items/" + itemId,
+			"http://cart-service/consumers/" + consumerId + "/carts/" + cartId + "/products/" + productId,
 			HttpMethod.DELETE,
 			null,
 			new ParameterizedTypeReference<Cart>() {}

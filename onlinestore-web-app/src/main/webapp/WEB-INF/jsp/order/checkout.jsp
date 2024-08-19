@@ -16,7 +16,7 @@
 	                </tr>
 	                <tr>
 	                    <th>ItemCount</th>
-	                    <td>${cart.itemCount}</td>
+	                    <td>${cart.productCount}</td>
 	                </tr>
 	                <tr>
 	                    <th>Total Amount</th>
@@ -24,11 +24,11 @@
 	                </tr>
 	        </table>
         
-	    	<c:if test="${not empty cart.items}">
+	    	<c:if test="${not empty cart.products}">
 		        <table class="table table-striped">
 		            <thead>
 		                <tr>
-		                    <th>ItemId</th>
+		                    <th>ProductId</th>
 		                    <th>Category</th>
 		                    <th>Sub-Category</th>
 		                    <th>Name</th>
@@ -37,14 +37,14 @@
 		                </tr>	                
 		            </thead>
 		            <tbody>
-	                	<c:forEach items="${cart.items}" var="item">
+	                	<c:forEach items="${cart.products}" var="product">
 		                    <tr>
-		                        <td>${item.itemId}</td>
-		                        <td>${item.category}</td>
-		                        <td>${item.subCategory}</td>
-		                        <td>${item.name}</td>
-		                        <td>${item.quantity}</td>
-		                        <td>${item.price}</td>
+			                    <td>${product.productId}</td>
+		                        <td>${product.category}</td>
+		                        <td>${product.subCategory}</td>
+		                        <td>${product.name}</td>
+		                        <td>${product.quantity}</td>
+		                        <td>${product.price}</td>
 		                    </tr>
 		                </c:forEach>
 		            </tbody>

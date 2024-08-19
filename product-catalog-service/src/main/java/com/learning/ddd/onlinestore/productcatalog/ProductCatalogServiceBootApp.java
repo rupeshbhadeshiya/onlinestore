@@ -15,7 +15,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan( {"com.learning.ddd.onlinestore"} ) 
 @SpringBootApplication //(scanBasePackages = {"com.learning.ddd.*"})
 public class ProductCatalogServiceBootApp {
-	
 
 	public static void main(String[] args) {
 		SpringApplication.run(ProductCatalogServiceBootApp.class, args);

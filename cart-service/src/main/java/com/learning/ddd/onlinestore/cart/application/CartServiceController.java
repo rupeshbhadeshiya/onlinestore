@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.learning.ddd.onlinestore.cart.application.dto.AddItemToCartDTO;
+import com.learning.ddd.onlinestore.cart.application.dto.AddProductToCartDTO;
+import com.learning.ddd.onlinestore.cart.application.dto.CartInfo;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.service.CartService;
-import com.learning.ddd.onlinestore.domain.event.DomainEventName;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
 
 @RequestMapping("/consumers")
 //@RequestMapping("/carts")
@@ -31,10 +32,10 @@ public class CartServiceController {
 	private CartService cartService;
 	
 	@PostMapping("/{consumerId}/carts")
-	public ResponseEntity<Cart> addItemToCart(@PathVariable String consumerId, 
-			@RequestBody AddItemToCartDTO addItemToCartDTO) throws JMSException {
+	public ResponseEntity<Cart> addProductToCart(@PathVariable String consumerId, 
+			@RequestBody AddProductToCartDTO addItemToCartDTO) throws JMSException {
 		
-		Cart cart = cartService.addItem(addItemToCartDTO);
+		Cart cart = cartService.addProduct(addItemToCartDTO);
 		
 		return new ResponseEntity<Cart>(cart, HttpStatus.CREATED);
 	}
@@ -50,20 +51,36 @@ public class CartServiceController {
 	}
 	
 	@GetMapping("/{consumerId}/carts/{cartId}")
-	public ResponseEntity<Cart> getCart(@PathVariable String consumerId,
+	public ResponseEntity<CartInfo> getCartInfo(@PathVariable String consumerId,
 			@PathVariable Integer cartId) throws CartNotFoundException {
 		
 		Cart cart = cartService.getCart(cartId);
 		
-		return new ResponseEntity<Cart>(cart, HttpStatus.OK);
+		CartInfo CartInfo = new CartInfo(
+			cart.getCartId(), 
+			cart.getConsumerId(),
+			cart.getItemCount(),
+			cart.getProducts()
+		);
+		
+		return new ResponseEntity<CartInfo>(CartInfo, HttpStatus.OK);
 	}
 	
-	@DeleteMapping("/{consumerId}/carts/{cartId}/items/{itemId}")
-	public ResponseEntity<Cart> removeItemFromCart(@PathVariable String consumerId,
-			@PathVariable Integer cartId, @PathVariable Integer itemId) 
+//	@GetMapping("/{consumerId}/carts/{cartId}")
+//	public ResponseEntity<Cart> getCart(@PathVariable String consumerId,
+//			@PathVariable Integer cartId) throws CartNotFoundException {
+//		
+//		Cart cart = cartService.getCart(cartId);
+//		
+//		return new ResponseEntity<Cart>(cart, HttpStatus.OK);
+//	}
+	
+	@DeleteMapping("/{consumerId}/carts/{cartId}/products/{productId}")
+	public ResponseEntity<Cart> removeProductFromCart(@PathVariable String consumerId,
+			@PathVariable Integer cartId, @PathVariable Integer productId) 
 				throws CartNotFoundException, CartItemNotFoundException, CloneNotSupportedException, JMSException {
 		
-		Cart cart = cartService.removeItem(cartId, itemId);
+		Cart cart = cartService.removeProduct(cartId, productId);
 		
 		return new ResponseEntity<Cart>(cart, HttpStatus.OK);
 	}
@@ -73,10 +90,12 @@ public class CartServiceController {
 			@PathVariable Integer cartId) 
 					throws CartNotFoundException, CloneNotSupportedException, JMSException {
 		
-		cartService.emptyCart(cartId, DomainEventName.CART_EMPTIED_BY_CONSUMER);
+		cartService.emptyCart(cartId, OnlinestoreDomainEventName.CART_EMPTIED_BY_CONSUMER);
 		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+	
+	
 	
 //	// --------- inventory verifiers ----------
 //	

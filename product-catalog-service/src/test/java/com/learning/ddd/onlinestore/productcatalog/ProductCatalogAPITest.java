@@ -12,8 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import com.learning.ddd.onlinestore.commons.util.HttpUtil;
-import com.learning.ddd.onlinestore.productcatalog.application.dto.GetProductsResponseDTO;
-import com.learning.ddd.onlinestore.productcatalog.domain.Product;
+import com.learning.ddd.onlinestore.inventory.application.dto.GetProductsResponseDTO;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.productcatalog.domain.ProductCatalogItem;
 
 // An Inventory contains Items; it may be referred as Item Store. So you don't need to create an Inventory.
 
@@ -81,10 +82,26 @@ public class ProductCatalogAPITest {
 	private static final String PRODUCT_CATALOG_SERVICE_URL = "http://localhost:9011/productcatalog/products";
 //	private static final String PRODUCT_CATALOG_SEARCH_URL = PRODUCT_CATALOG_SERVICE_URL + "/searches";
 	
-	private Product BISCUIT_ITEM = new Product("Grocery", "Biscuit", "Parle-G", 10.0, 10);
-	private Product CHIVDA_ITEM = new Product("Grocery", "Chivda", "Real Farali Chivda", 20.0, 10);
-	private Product BATHING_SOAP_ITEM = new Product("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, 5);
-	private Product PENCIL_ITEM = new Product("Stationery", "Pencil", "Natraj Pencil", 5.0, 10);
+	private static final int BISCUIT_PRODUCT_ID = 11;
+	private static final int BATHING_SOAP_PRODUCT_ID = 22;
+	private static final int CHIVDA_PRODUCT_ID = 33;
+	private static final int PENCIL_PRODUCT_ID = 44;
+	
+	private static final int BISCUIT_PRODUCT_QUANTITY = 10;
+	private static final int BATHING_SOAP_PRODUCT_QUANTITY = 5;
+	private static final int CHIVDA_PRODUCT_QUANTITY = 10;
+	private static final int PENCIL_PRODUCT_QUANTITY = 10;
+	
+	private final Product BISCUIT_PRODUCT = new Product(BISCUIT_PRODUCT_ID, "Grocery", "Biscuit", "Parle-G", 10.0, BISCUIT_PRODUCT_QUANTITY);
+	private final Product BATHING_SOAP_PRODUCT = new Product(BATHING_SOAP_PRODUCT_ID, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, BATHING_SOAP_PRODUCT_QUANTITY);
+	private Product CHIVDA_PRODUCT = new Product(CHIVDA_PRODUCT_ID, "Grocery", "Chivda", "Real Farali Chivda", 20.0, CHIVDA_PRODUCT_QUANTITY);
+	private Product PENCIL_PRODUCT = new Product(PENCIL_PRODUCT_ID, "Stationery", "Pencil", "Natraj Pencil", 5.0, PENCIL_PRODUCT_QUANTITY);
+	
+	private final ProductCatalogItem BISCUIT_PRODUCT_CATALOG_ITEM = new ProductCatalogItem(BISCUIT_PRODUCT);
+	private final ProductCatalogItem BATHING_SOAP_PRODUCT_CATALOG_ITEM = new ProductCatalogItem(BATHING_SOAP_PRODUCT);
+	private ProductCatalogItem CHIVDA_PRODUCT_CATALOG_ITEM = new ProductCatalogItem(CHIVDA_PRODUCT);
+	private ProductCatalogItem PENCIL_PRODUCT_CATALOG_ITEM = new ProductCatalogItem(PENCIL_PRODUCT);
+		
 
 //	@Autowired
 //	private ItemRepository itemRepository;
@@ -306,23 +323,23 @@ public class ProductCatalogAPITest {
 		);
 		
 		assertNotNull(responseDTO);
-		List<Product> addedItems = responseDTO.getProducts();
-		assertNotNull(addedItems);
-		assertEquals(4, addedItems.size());
+		List<Product> products = responseDTO.getProducts();
+		assertNotNull(products);
+		assertEquals(4, products.size());
 		assertEquals(
-				BISCUIT_ITEM.getQuantity()
-				+ CHIVDA_ITEM.getQuantity() 
-				+ BATHING_SOAP_ITEM.getQuantity()
-				+ PENCIL_ITEM.getQuantity(),
-			responseDTO.getProductsQuantitiesTotal()
+				BISCUIT_PRODUCT.getQuantity()
+				+ CHIVDA_PRODUCT.getQuantity() 
+				+ BATHING_SOAP_PRODUCT.getQuantity()
+				+ PENCIL_PRODUCT.getQuantity(),
+			responseDTO.getProducts().size()
 		);
-		assertTrue(addedItems.contains(BISCUIT_ITEM));
-		assertTrue(addedItems.contains(CHIVDA_ITEM));
-		assertTrue(addedItems.contains(BATHING_SOAP_ITEM));
-		assertTrue(addedItems.contains(PENCIL_ITEM));
+		assertTrue(products.contains(BISCUIT_PRODUCT_CATALOG_ITEM));
+		assertTrue(products.contains(CHIVDA_PRODUCT_CATALOG_ITEM));
+		assertTrue(products.contains(BATHING_SOAP_PRODUCT_CATALOG_ITEM));
+		assertTrue(products.contains(PENCIL_PRODUCT_CATALOG_ITEM));
 		
-		for (Product item : addedItems) {
-			assertTrue(item.getProductId() > 0);	// when entities are persisted they will be assigned unique id 
+		for (Product product : products) {
+			assertTrue(product.getProductId() > 0);	// when entities are persisted they will be assigned unique id 
 		}
 	}
 	

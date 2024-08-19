@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsWriter;
 
 @Profile("test")
@@ -25,7 +25,7 @@ public class JUnitTestsSpecificSpringBeanConfigurations {
 		return new DomainEventsWriter() {
 			
 			@Override
-			public void write(DomainEvent domainEvent) throws JMSException {
+			public void write(OnlinestoreDomainEvent domainEvent) throws JMSException {
 				System.out.println("~~~~~~~~> Dummy DomainEventsWriter(): write(): domainEvent = " + domainEvent + " <~~~~~~~~");
 			}
 			

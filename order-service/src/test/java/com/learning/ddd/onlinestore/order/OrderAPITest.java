@@ -10,9 +10,8 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import com.learning.ddd.onlinestore.cart.domain.Cart;
-import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.commons.util.HttpUtil;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 import com.learning.ddd.onlinestore.order.application.dto.CreateOrderDTO;
 import com.learning.ddd.onlinestore.order.domain.Address;
 import com.learning.ddd.onlinestore.order.domain.AddressType;
@@ -26,10 +25,11 @@ class OrderAPITest {
 	private static final String CONSUMER_ID = "11";
 	private static final int BISCUIT_ITEM_QUANTITY = 2;
 	private static final int BATHING_SOAP_ITEM_QUANTITY = 3;
-	private final CartItem BISCUIT_ITEM = new CartItem("Grocery", "Biscuit", "Parle-G", 10.0, BISCUIT_ITEM_QUANTITY);
-	private final CartItem BATHING_SOAP_ITEM = new CartItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, BATHING_SOAP_ITEM_QUANTITY);
-	private final OrderItem BISCUIT_ORDER_ITEM = new OrderItem("Grocery", "Biscuit", "Parle-G", 10.0, BISCUIT_ITEM_QUANTITY);
-	private final OrderItem BATHING_ORDER_SOAP_ITEM = new OrderItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, BATHING_SOAP_ITEM_QUANTITY);
+	private static final int CART_ID = 0;
+	private final Product BISCUIT_PRODUCT = new Product(11, "Grocery", "Biscuit", "Parle-G", 10.0, BISCUIT_ITEM_QUANTITY);
+	private final Product BATHING_SOAP_PRODUCT = new Product(22, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, BATHING_SOAP_ITEM_QUANTITY);
+	private final OrderItem BISCUIT_ORDER_ITEM = new OrderItem(BISCUIT_PRODUCT);
+	private final OrderItem BATHING_ORDER_SOAP_ITEM = new OrderItem(BATHING_SOAP_PRODUCT);
 	
 	// Jackson for JSON serialization
 	//private ObjectMapper objectMapper = new ObjectMapper(); 
@@ -39,10 +39,6 @@ class OrderAPITest {
 	@org.junit.jupiter.api.Order(1)
 	void createOrder() throws Exception {
 		
-		Cart cart = new Cart(CONSUMER_ID);
-		
-		cart.addItem(BISCUIT_ITEM);	
-		cart.addItem(BATHING_SOAP_ITEM);
 		
 		PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 		
@@ -53,7 +49,7 @@ class OrderAPITest {
 		
 		CreateOrderDTO orderRequestDTO = new CreateOrderDTO(
 			CONSUMER_ID,
-			cart,
+			CART_ID,
 			paymentMethod,
 			billingAddress,
 			shippingAddress
@@ -94,7 +90,7 @@ class OrderAPITest {
 		assertTrue(order.getItems().contains(BISCUIT_ORDER_ITEM));
 		assertTrue(order.getItems().contains(BATHING_ORDER_SOAP_ITEM));
 		
-		double expectedAmount = BISCUIT_ITEM.computeAmount() + BATHING_SOAP_ITEM.computeAmount();
+		double expectedAmount = BISCUIT_PRODUCT.computeAmount() + BATHING_SOAP_PRODUCT.computeAmount();
 		assertEquals(expectedAmount, order.getAmount(), 0.0);
 		
 		assertTrue(paymentMethod.equals(order.getPaymentMethod()));
@@ -132,7 +128,7 @@ class OrderAPITest {
 		assertNotNull(order.getItems());
 		//assertTrue(order.getItems().contains(BISCUIT_ORDER_ITEM));
 		//assertTrue(order.getItems().contains(BATHING_ORDER_SOAP_ITEM));
-		double expectedAmount = BISCUIT_ITEM.computeAmount() + BATHING_SOAP_ITEM.computeAmount();
+		double expectedAmount = BISCUIT_PRODUCT.computeAmount() + BATHING_SOAP_PRODUCT.computeAmount();
 		assertEquals(expectedAmount, order.getAmount(), 0.0);
 		
 		assertTrue(PaymentMethod.CREDIT_CARD.equals(order.getPaymentMethod()));

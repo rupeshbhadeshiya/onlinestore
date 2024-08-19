@@ -13,7 +13,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.learning.ddd.onlinestore.cart.application.dto.CartInfo;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 
 @Entity
 @Table(schema="carts")
@@ -154,9 +156,21 @@ public class Cart implements Serializable {
 		this.itemCount -= cartItemToRemove.getQuantity();
 		//System.out.println("removeItem(): Cart itemCount (after)=" + this.itemCount);
 	}
+	
+	public List<Product> getProducts() {
+		List<Product> products = new ArrayList<>();
+		for (CartItem cartItem : items) {
+			products.add(cartItem.getProduct());
+		}
+		return products;
+	}
+	
+	public CartInfo getCartInfo() {
+		return new CartInfo(cartId, consumerId, itemCount, getProducts());
+	}
+	
 
 	//-------- specific methods : end -------------
-
 	
 
 	@Override

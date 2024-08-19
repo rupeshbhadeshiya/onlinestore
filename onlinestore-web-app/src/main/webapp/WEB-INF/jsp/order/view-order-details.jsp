@@ -140,13 +140,13 @@
 				        </td>               
 	                </tr>  	                 
 	                <tr>
-	                	<th>Items</th>
+	                	<th>Products</th>
 	                	<td>
-					    	<c:if test="${not empty order.items}">
+					    	<c:if test="${not empty order.products}">
 						        <table class="table table-striped">
 						            <thead>
 						                <tr>
-						                    <th>ItemId</th>
+						                    <th>ProductId</th>
 						                    <th>Category</th>
 						                    <th>Sub-Category</th>
 						                    <th>Name</th>
@@ -155,14 +155,14 @@
 						                </tr>	                
 						            </thead>
 						            <tbody>
-					                	<c:forEach items="${order.items}" var="item">
+					                	<c:forEach items="${order.products}" var="product">
 						                    <tr>
-						                        <td>${item.itemId}</td>
-						                        <td>${item.category}</td>
-						                        <td>${item.subCategory}</td>
-						                        <td>${item.name}</td>
-						                        <td>${item.quantity}</td>
-						                        <td>${item.price}</td>
+							                    <td>${product.productId}</td>
+						                        <td>${product.category}</td>
+						                        <td>${product.subCategory}</td>
+						                        <td>${product.name}</td>
+						                        <td>${product.quantity}</td>
+						                        <td>${product.price}</td>
 						                    </tr>
 						                </c:forEach>
 						            </tbody>

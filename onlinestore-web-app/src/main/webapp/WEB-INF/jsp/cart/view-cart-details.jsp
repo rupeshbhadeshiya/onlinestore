@@ -2,12 +2,12 @@
 
     <div class="container">
     
-        <c:if test="${isItemRemovedSuccessfully}">
-            <div class="text-success">Item removed from Cart</div>
+        <c:if test="${isProductShoppedSuccessfully}">
+            <div class="text-success">Product removed from Cart</div>
             <br/>
         </c:if>
         <c:if test="${empty cart}">
-            <div class="text-warning">No Item in Cart! Do some Shopping!</div>
+            <div class="text-warning">No Product in Cart! Do some Shopping!</div>
             <br/>
         </c:if>
 
@@ -24,8 +24,8 @@
 	                    <td>${cart.cartId}</td>
 	                </tr>
 	                <tr>
-	                    <th>ItemCount</th>
-	                    <td>${cart.itemCount}</td>
+	                    <th>ProductCount</th>
+	                    <td>${cart.getProductCount()}</td>
 	                </tr>
 	                <tr>
 	                    <th>Total Amount</th>
@@ -33,11 +33,11 @@
 	                </tr>
 	        </table>
         
-	    	<c:if test="${not empty cart.items}">
+	    	<c:if test="${not empty cart.getProducts()}">
 		        <table class="table table-striped">
 		            <thead>
 		                <tr>
-		                    <th>ItemId</th>
+		                    <th>ProductId</th>
 		                    <th>Category</th>
 		                    <th>Sub-Category</th>
 		                    <th>Name</th>
@@ -47,15 +47,15 @@
 		                </tr>	                
 		            </thead>
 		            <tbody>
-	                	<c:forEach items="${cart.items}" var="item">
+	                	<c:forEach items="${cart.getProducts()}" var="product">
 		                    <tr>
-		                        <td>${item.itemId}</td>
-		                        <td>${item.category}</td>
-		                        <td>${item.subCategory}</td>
-		                        <td>${item.name}</td>
-		                        <td>${item.quantity}</td>
-		                        <td>${item.price}</td>
-		                        <td><a class="btn btn-warning" href="/onlinestore/remove-item-from-cart?cartId=${cart.cartId}&itemId=${item.itemId}">Remove Item from Cart</a></td>
+		                        <td>${product.productId}</td>
+		                        <td>${product.category}</td>
+		                        <td>${product.subCategory}</td>
+		                        <td>${product.name}</td>
+		                        <td>${product.quantity}</td>
+		                        <td>${product.price}</td>
+		                        <td><a class="btn btn-warning" href="/onlinestore/remove-product-from-cart?cartId=${cart.cartId}&productId=${product.productId}">Remove Product from Cart</a></td>
 		                    </tr>
 		                </c:forEach>
 		            </tbody>

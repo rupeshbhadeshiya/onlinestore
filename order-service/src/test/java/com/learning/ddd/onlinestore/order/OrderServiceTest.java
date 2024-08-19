@@ -10,15 +10,14 @@ import javax.jms.JMSException;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.learning.ddd.onlinestore.cart.domain.Cart;
-import com.learning.ddd.onlinestore.cart.domain.CartItem;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 import com.learning.ddd.onlinestore.order.domain.Address;
 import com.learning.ddd.onlinestore.order.domain.AddressType;
 import com.learning.ddd.onlinestore.order.domain.Order;
@@ -58,10 +57,15 @@ import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
 public class OrderServiceTest {
 
 	private static final String CONSUMER_ID = "11";
-	private static final int BISCUIT_ITEM_QUANTITY = 2;
-	private static final int BATHING_SOAP_ITEM_QUANTITY = 3;
-	private final CartItem BISCUIT_ITEM = new CartItem("Grocery", "Biscuit", "Parle-G", 10.0, BISCUIT_ITEM_QUANTITY);
-	private final CartItem BATHING_SOAP_ITEM = new CartItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, BATHING_SOAP_ITEM_QUANTITY);
+	private static final int BISCUIT_CART_ITEM_ID = 11;
+	private static final int BATHING_SOAP_CART_ITEM_ID = 22;
+
+	private static final int BISCUIT_CART_ITEM_QUANTITY = 2;
+	private static final int BATHING_SOAP_CART_ITEM_QUANTITY = 3;
+	private static final int CART_ID = 0;
+	
+	private final Product BISCUIT_PRODUCT = new Product(BISCUIT_CART_ITEM_ID, "Grocery", "Biscuit", "Parle-G", 10.0, BISCUIT_CART_ITEM_QUANTITY);
+	private final Product BATHING_SOAP_PRODUCT = new Product(BATHING_SOAP_CART_ITEM_ID, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, BATHING_SOAP_CART_ITEM_QUANTITY);
 	
 	@Autowired
 	private OrderRepository orderRepository;
@@ -82,11 +86,6 @@ public class OrderServiceTest {
 	@Test
 	void createOrderAndProcessPayment() throws JMSException {
 		
-		Cart cart = new Cart(CONSUMER_ID);
-		
-		cart.addItem(BISCUIT_ITEM);
-		cart.addItem(BATHING_SOAP_ITEM);
-		
 		PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 		
 		Address billingAddress = DummyAddressFactory.dummyAddress(
@@ -95,13 +94,13 @@ public class OrderServiceTest {
 			AddressType.SHIPPING_ADDRESS);
 		
 		Order order = orderService.createOrderAndProcessPayment(
-			cart.getCartId(), paymentMethod, billingAddress, shippingAddress
+			CART_ID, paymentMethod, billingAddress, shippingAddress
 		);
 			
 		assertNotNull(order);
 		assertNotNull(order.getItems());
 		assertEquals(
-			BISCUIT_ITEM_QUANTITY + BATHING_SOAP_ITEM_QUANTITY, 
+			BISCUIT_CART_ITEM_QUANTITY + BATHING_SOAP_CART_ITEM_QUANTITY, 
 			order.getItemCount()
 		);
 		assertTrue(billingAddress.equals(order.getBillingAddress()));
@@ -136,14 +135,6 @@ public class OrderServiceTest {
 		
 		// add one order and verify
 		
-		Cart cart = new Cart(CONSUMER_ID);
-		
-		BISCUIT_ITEM.setCart(cart);	// establish bi-directional (this is one direction)
-		cart.addItem(BISCUIT_ITEM);	// establish bi-directional (this is other direction)
-		
-		BATHING_SOAP_ITEM.setCart(cart);	// establish bi-directional (this is one direction)
-		cart.addItem(BATHING_SOAP_ITEM);	// establish bi-directional (this is other direction)
-		
 		PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 		
 		Address billingAddress = DummyAddressFactory.dummyAddress(
@@ -152,7 +143,7 @@ public class OrderServiceTest {
 			AddressType.SHIPPING_ADDRESS);
 		
 		orderService.createOrderAndProcessPayment(
-			cart.getCartId(), paymentMethod, billingAddress, shippingAddress
+			CART_ID, paymentMethod, billingAddress, shippingAddress
 		);
 			
 		orders = orderService.getOrders(CONSUMER_ID);

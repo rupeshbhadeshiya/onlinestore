@@ -1,5 +1,7 @@
 package com.learning.ddd.onlinestore.inventory.proxy;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,17 +17,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.learning.ddd.onlinestore.inventory.application.dto.SearchInventoryItemDTO;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 
 @Controller
 public class InventoryController {
 	
 	private static final String WELCOME_JSP_NAME = "welcome";
-	private static final String VIEW_INVENTORY_ITEMS_JSP_NAME = "inventory/view-items";
-	private static final String SEARCH_INVENTORY_ITEMS_JSP_NAME = "inventory/search-items";
-	private static final String ADD_INVENTORY_ITEM_JSP_NAME = "inventory/add-item";
-	private static final String UPDATE_INVENTORY_ITEM_JSP_NAME = "inventory/update-item";;
+	private static final String VIEW_INVENTORY_PRODUCTS_JSP_NAME = "inventory/view-products";
+	private static final String SEARCH_INVENTORY_ITEMS_JSP_NAME = "inventory/search-products";
+	private static final String ADD_INVENTORY_PRODUCT_JSP_NAME = "inventory/add-product";
+	private static final String UPDATE_INVENTORY_PRODUCT_JSP_NAME = "inventory/update-product";
 
 //	private final AtomicInteger atomicInteger = new AtomicInteger();
 
@@ -38,10 +40,10 @@ public class InventoryController {
 	public InventoryController() {
 		
 		// for testing just Controller->JSP flow, i.e. without DB or actual business
-		InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10.0, 10);
-		InventoryItem CHIVDA_ITEM = new InventoryItem("Grocery", "Chivda", "Real Farali Chivda", 20.0, 10);
-		InventoryItem BATHING_SOAP_ITEM = new InventoryItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, 5);
-		InventoryItem PENCIL_ITEM = new InventoryItem("Stationery", "Pencil", "Natraj Pencil", 5.0, 10);
+		InventoryItem BISCUIT_ITEM = new InventoryItem(11, "Grocery", "Biscuit", "Parle-G", 10.0, 10);
+		InventoryItem CHIVDA_ITEM = new InventoryItem(22, "Grocery", "Chivda", "Real Farali Chivda", 20.0, 10);
+		InventoryItem BATHING_SOAP_ITEM = new InventoryItem(33, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, 5);
+		InventoryItem PENCIL_ITEM = new InventoryItem(44, "Stationery", "Pencil", "Natraj Pencil", 5.0, 10);
 
 		items.add(BISCUIT_ITEM);
 		items.add(CHIVDA_ITEM);
@@ -58,174 +60,192 @@ public class InventoryController {
     // - assume that /onlinestore/inventory is web context-root and they prefix
     // - all their calls with it which then fails, so every URL call from
     // - web pages must be in this format "<context-root>/<html-item>
-    // - example... /onlinestore/view-items where /onlinestore is web context-root
+    // - example... /onlinestore/view-products where /onlinestore is web context-root
     //
-    //@RequestMapping("/onlinestore/inventory/view-items")
+    //@RequestMapping("/onlinestore/inventory/view-products")
     //
     // thus, if you wish to have domainness then name resource like that way
-    // example name /view-inventory-items rather than /view-items
+    // example name /view-inventory-products rather than /view-products
     
     
     // this is a simple URL for anyone to surf into inventory
     @GetMapping("/inventory")
     public String inventory(Model model) {
 
-        return VIEW_INVENTORY_ITEMS_JSP_NAME;		// render view-items.jsp
+        return VIEW_INVENTORY_PRODUCTS_JSP_NAME;		// render view-products.jsp
     }
     
-    @GetMapping("/view-inventory-items")
-    public String viewItems(Model model) {
+    @GetMapping("/view-inventory-products")
+    public String viewAvailableProducts(Model model) {
 
-    	List<InventoryItem> allItems = inventoryServiceProxy.getAllItems();
+    	List<Product> products = inventoryServiceProxy.getAllAvailableProducts();
     	System.out.println(
- 			"---------------------- updateItems() --------------------\n"
- 					+ "allItems = " + allItems 
+ 			"---------------------- viewInventoryProducts() --------------------\n"
+ 					+ "AllAvailableProductsFromInventory = " + products 
  			+ "\n--------------------------------------------------");
-     		
     	
-		model.addAttribute("items", allItems);
+		model.addAttribute("products", products);
 		
-        return VIEW_INVENTORY_ITEMS_JSP_NAME;		// render view-items.jsp
+        return VIEW_INVENTORY_PRODUCTS_JSP_NAME;		// render view-products.jsp
     }
     
-    // when someone clicks on link "add-items" then this method is called
-  	@GetMapping("/add-inventory-item")
+    // when someone clicks on link "add-products" then this method is called
+  	@GetMapping("/add-inventory-product")
     public String addItemsView(Model model) {
   		
-         model.addAttribute("item", new InventoryItem());
+         model.addAttribute("product", new Product());
           
-         return ADD_INVENTORY_ITEM_JSP_NAME;			// render add-items.jsp
+         return ADD_INVENTORY_PRODUCT_JSP_NAME;			// render add-products.jsp
     }
   	
-    // when someone submits inventory item form details, this method is called
- 	@PostMapping(value = "/add-inventory-item")
- 	public String addItem(Model model, @ModelAttribute("item") InventoryItem item) {
+    // when someone submits inventory product form details, this method is called
+ 	@PostMapping(value = "/add-inventory-product")
+ 	public String addProduct(Model model, @ModelAttribute("product") Product product) {
  		
- 		InventoryItem addedItem = inventoryServiceProxy.addItem(item);
+		System.out.println(
+ 			"---------------------- addProductToInventory() --------------------\n"
+				+ "productToAdd = " + product
+ 			+ "\n--------------------------------------------------");
  		
- 		if (addedItem != null) {
+ 		Product savedProduct = null;
+ 		
+ 		try {
+ 			
+ 			savedProduct = inventoryServiceProxy.addProduct(product);
+ 			
+		} catch (Exception e) {
+			
+			System.err.println("-----######-----#######----- " + e);
+			model.addAttribute("anyError", true);
+
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+
+			model.addAttribute("errorMessage", e.getMessage());
+			System.err.println("=====######~~~~~#######===== " + sw.toString());
+		}
+ 		
+ 		if (savedProduct != null) {
  		
  			System.out.println(
-	 			"---------------------- addItem() --------------------\n"
-	 					+ "itemToAdd = " + item
-	 					+ "savedItem = " + addedItem
+	 			"---------------------- addProductToInventory() --------------------\n"
+ 				+ "savedProduct = " + savedProduct
 	 			+ "\n--------------------------------------------------");
 	 		
-	 		model.addAttribute("isItemAddedSuccessfully", true);
-	 		model.addAttribute("savedItem", addedItem);
+	 		model.addAttribute("isProductAddedSuccessfully", true);
+	 		model.addAttribute("savedProduct", savedProduct);
 	 		
-	 		List<InventoryItem> allItems = inventoryServiceProxy.getAllItems();
-	 		System.out.println(
- 	 			"---------------------- addItem() --------------------\n"
- 	 					+ "allItems = " + allItems 
- 	 			+ "\n--------------------------------------------------");
-	 		
-	    	model.addAttribute("items", allItems);
-	 		
- 		} else {
- 			
- 			model.addAttribute("anyError", true);
-	 		model.addAttribute("errorMessage", "There was an issue in adding Item");
- 		}
+ 		} 
+// 		else {
+// 			
+// 			model.addAttribute("anyError", true);
+//	 		model.addAttribute("errorMessage", "There was an issue in adding Product to Inventory");
+// 		}
+
+ 		List<Product> products = inventoryServiceProxy.getAllAvailableProducts();
+    	System.out.println(
+ 			"---------------------- addProductToInventory() --------------------\n"
+			+ "AllAvailableProductsFromInventory = " + products 
+ 			+ "\n--------------------------------------------------");
+    	
+    	model.addAttribute("products", products);
  		
- 		return VIEW_INVENTORY_ITEMS_JSP_NAME;		// render view-items.jsp
+ 		return VIEW_INVENTORY_PRODUCTS_JSP_NAME;		// render view-products.jsp
  	}
 
  	// when someone clicks on link "search-items" then this method is called
-  	@GetMapping("/search-inventory-items")
-    public String searchItemsView(Model model) {
+  	@GetMapping("/search-inventory-products")
+    public String searchProductsView(Model model) {
   		
-         model.addAttribute("searchItemsRequestDTO", new SearchInventoryItemDTO());
+         model.addAttribute("exampleProduct", new Product());
           
          return SEARCH_INVENTORY_ITEMS_JSP_NAME;		// render search-items.jsp
     }
   	
   	// when someone submits search inventory items form details, this method is called
-  	@PostMapping(value = "/search-inventory-items")
-  	public String searchItems(Model model, 
-  			@ModelAttribute("searchItemsRequestDTO") SearchInventoryItemDTO searchItemsRequestDTO) {
+  	@PostMapping(value = "/search-inventory-products")
+  	public String searchProducts(Model model, 
+  			@ModelAttribute("exampleProduct") Product exampleProduct) {
   		
-  		List<InventoryItem> searchedItems = inventoryServiceProxy.searchItems(
-  				searchItemsRequestDTO.toInventoryItem());
+  		List<Product> searchedProducts = inventoryServiceProxy.searchProducts(exampleProduct);
   		
   		System.out.println(
- 			"---------------------- InventoryController.searchItems() --------------------\n"
- 					+ "searchItemsRequestDTO = " + searchItemsRequestDTO
- 					+ "searchedItems = " + searchedItems 
+ 			"---------------------- InventoryController.searchProducts() --------------------\n"
+ 					+ "searchProductsRequestDTO = " + exampleProduct
+ 					+ "searchedProducts = " + searchedProducts 
   	 		+ "\n--------------------------------------------------");
   		
-  		if (searchedItems.isEmpty()) {
-  			model.addAttribute("noItemsFound", true);
+  		if (searchedProducts.isEmpty()) {
+  			model.addAttribute("noProductsFound", true);
   		}
   		
-  		model.addAttribute("items", searchedItems);
+  		model.addAttribute("products", searchedProducts);
   		
-  		return VIEW_INVENTORY_ITEMS_JSP_NAME;		// render view-items.jsp
+  		return VIEW_INVENTORY_PRODUCTS_JSP_NAME;		// render view-products.jsp
   	}
   	
   	// when someone wishes to view update inventory items form, this method is called
-   	@GetMapping(value = "/update-inventory-item")
-   	public String updateItem(Model model, @RequestParam Integer itemId) {
+   	@GetMapping(value = "/update-inventory-product")
+   	public String updateProduct(Model model, @RequestParam Integer productId) {
    		
-   		InventoryItem item = inventoryServiceProxy.getItem(itemId);
+   		Product product = inventoryServiceProxy.getProduct(productId);
    		
-   		model.addAttribute("item", item);
+   		model.addAttribute("product", product);
    		
-   		return UPDATE_INVENTORY_ITEM_JSP_NAME;		// render update-inventory-item.jsp
+   		return UPDATE_INVENTORY_PRODUCT_JSP_NAME;		// render update-inventory-item.jsp
    	}
   	
   	// when someone submits update inventory items form details, this method is called
-   	@PostMapping(value = "/update-inventory-item")
-   	public String updateItem(Model model, 
-   			@RequestParam Integer itemId, 
-   			@ModelAttribute("item") InventoryItem item) {
+   	@PostMapping(value = "/update-inventory-product")
+   	public String updateProduct(Model model, 
+   			@RequestParam Integer productId, 
+   			@ModelAttribute("product") Product product) {
    		
-   		item.setItemId(itemId);
+   		product.setProductId(productId);
    		
-   		InventoryItem updatedItem = inventoryServiceProxy.updateItem(item);
+   		Product updatedProduct = inventoryServiceProxy.updateProduct(product);
    		
    		System.out.println(
-   			"--------------------- updateItem() --------------------\n"
-   						+ "itemToUpdate = " + item
-   						+ ", updatedItem = " + updatedItem
+   			"--------------------- updateProduct() --------------------\n"
+   						+ "productToUpdate = " + product
+   						+ ", updatedProduct = " + updatedProduct
    			+ "\n--------------------------------------------------");
    		
-   		model.addAttribute("isItemUpdatedSuccessfully", true);
-   		model.addAttribute("updatedItem", updatedItem);
+   		model.addAttribute("isProductUpdatedSuccessfully", true);
+   		model.addAttribute("updatedProduct", updatedProduct);
  		
- 		List<InventoryItem> allItems = inventoryServiceProxy.getAllItems();
+   		List<Product> products = inventoryServiceProxy.getAllAvailableProducts();
     	System.out.println(
- 			"---------------------- updateItem() --------------------\n"
- 					+ "allItems = " + allItems 
+ 			"---------------------- updateProduct() --------------------\n"
+				+ "AllAvailableProductsFromInventory = " + products 
  			+ "\n--------------------------------------------------");
- 		
-    	model.addAttribute("items", allItems);
+    	model.addAttribute("products", products);
    		
-   		return VIEW_INVENTORY_ITEMS_JSP_NAME;		// render view-items.jsp
+   		return VIEW_INVENTORY_PRODUCTS_JSP_NAME;		// render view-products.jsp
    	}
 
  	
- 	@GetMapping("/delete-inventory-item")
-	public String deleteItem(@RequestParam Integer itemId, Model model) {
+ 	@GetMapping("/delete-inventory-product")
+	public String deleteProduct(@RequestParam Integer productId, Model model) {
 		
- 		inventoryServiceProxy.removeItem(itemId);
+ 		inventoryServiceProxy.removeProduct(productId);
  		
  		System.out.println(
- 			"---------------------- deleteItem() --------------------\n"
- 					+ "itemId = " + itemId 
+ 			"---------------------- deleteProduct() --------------------\n"
+ 				+ "productId = " + productId 
  			+ "\n--------------------------------------------------");
  		
- 		model.addAttribute("isItemRemovedSuccessfully", true);
+ 		model.addAttribute("isProductRemovedSuccessfully", true);
  		
- 		List<InventoryItem> allItems = inventoryServiceProxy.getAllItems();
+ 		List<Product> products = inventoryServiceProxy.getAllAvailableProducts();
  		System.out.println(
- 			"---------------------- deleteItem() --------------------\n"
- 					+ "allItems = " + allItems 
+ 			"---------------------- deleteProduct() --------------------\n"
+				+ "AllAvailableProductsFromInventory = " + products 
  			+ "\n--------------------------------------------------");
+    	model.addAttribute("products", products);
  		
-    	model.addAttribute("items", allItems);
- 		
- 		return VIEW_INVENTORY_ITEMS_JSP_NAME;		// render view-items.jsp
+ 		return VIEW_INVENTORY_PRODUCTS_JSP_NAME;		// render view-products.jsp
 	}
  	
  	

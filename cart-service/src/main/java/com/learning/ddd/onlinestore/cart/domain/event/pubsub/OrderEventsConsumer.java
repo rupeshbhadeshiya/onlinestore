@@ -1,15 +1,17 @@
 package com.learning.ddd.onlinestore.cart.domain.event.pubsub;
 
+import javax.jms.JMSException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.learning.ddd.onlinestore.cart.domain.Cart;
+import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.service.CartService;
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
-import com.learning.ddd.onlinestore.domain.event.DomainEventName;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsConsumer;
-import com.learning.ddd.onlinestore.order.domain.event.OrderCreatedEventData;
+import com.learning.ddd.onlinestore.order.domain.event.OrderCreatedEvent;
 
 @Component
 public class OrderEventsConsumer extends DomainEventsConsumer {
@@ -36,39 +38,26 @@ public class OrderEventsConsumer extends DomainEventsConsumer {
 	}
 	
 	@Override
-	protected void consumeDomainEvent(DomainEvent domainEvent) throws CloneNotSupportedException {
+	protected void consumeDomainEvent(OnlinestoreDomainEvent domainEvent) throws CloneNotSupportedException, CartNotFoundException, JMSException {
 
 		// [ Cases for which items needed to be REMOVED from Cart ] //
 		//	1. Items shopped to a Cart
 		
-		if (domainEvent.getEventName().equals(DomainEventName.ORDER_CREATED)) {
+		if (domainEvent.getEventName().equals(OnlinestoreDomainEventName.ORDER_CREATED)) {
 			
-			Cart cart = ((OrderCreatedEventData) domainEvent.getEventData()).getCart();
-			try {
+			OrderCreatedEvent orderCreatedEvent = (OrderCreatedEvent) domainEvent;
+			
+			cartService.emptyCart(
+				orderCreatedEvent.getCartInfo().getCartId(), 
+				domainEvent.getEventName()
+			);
+			
+			System.out.println(
+				SERVICE_COMPONENT + " - Event: " + domainEvent.getEventName()
+				+ ", Emptied Cart as Order successfully Created "
+				+ ", OrderInfo = " + orderCreatedEvent.getOrderInfo()
+				+ ", CartInfo = " + orderCreatedEvent.getCartInfo());
 				
-				// be mindful to call internal empty call so CartEmptiedEvent is not 
-				// published, because then inventory would claim items which 
-				// it should not do when an Order is created! 
-				
-				//cartService.emptyCartWithoutPublishingEvent(cart.getCartId());
-				cartService.emptyCart(cart.getCartId(), DomainEventName.ORDER_CREATED);
-				
-				System.out.println(
-					SERVICE_COMPONENT + " - Event: " + DomainEventName.ORDER_CREATED.name()
-					+ ", Emptied Cart as Order successfully Created "
-					//+ ", order = " + order
-					+ ", cart = " + cart);
-				
-			} catch (Exception e) {
-
-				System.err.println(
-					SERVICE_COMPONENT + " - Event: " + DomainEventName.ORDER_CREATED.name()
-					+ ", Error while emptying Cart as Order successfully Created "
-					//+ ", order = " + order
-					+ ", cart = " + cart);
-				
-				e.printStackTrace();
-			}
 		}
 		
 		// [ Cases for which items needed to be ADDED back to Cart ] //

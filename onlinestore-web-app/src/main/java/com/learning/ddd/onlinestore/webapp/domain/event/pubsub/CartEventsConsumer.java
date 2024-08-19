@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.learning.ddd.onlinestore.cart.domain.event.CartEmptiedEventData;
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
-import com.learning.ddd.onlinestore.domain.event.DomainEventName;
+import com.learning.ddd.onlinestore.cart.domain.event.CartEmptiedEvent;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsConsumer;
 import com.learning.ddd.onlinestore.utils.SessionLikeInMemoryStore;
 
@@ -39,48 +39,29 @@ public class CartEventsConsumer extends DomainEventsConsumer {
 	
 	
 	@Override
-	protected void consumeDomainEvent(DomainEvent domainEvent) throws CloneNotSupportedException, JMSException {
-		
-		System.out.println(
-			SERVICE_COMPONENT + " - Event: " + DomainEventName.ITEM_ADDED_TO_CART.name()
-			+ "- processing event - " + domainEvent
-		);
-		
-		// when a cart is successfully checked out as an Order, 
-		// so remove references of the cartId so it does not point to a Cart which 
-		// no more exists
-//		if (domainEvent.getEventName().equals(DomainEventName.ORDER_CREATED)) {
-//			OrderCreatedEvent orderCreatedEvent = (OrderCreatedEvent) domainEvent;
-//			Order order = orderCreatedEvent.getOrder();
-//			Cart cart = orderCreatedEvent.getCart();
-//			
-//			if (session.getAttribute("cartId").equals(cart.getCartId())) {
-//				session.removeAttribute("cartId");
-//				System.out.println("==== WebAppDomainEventConsumer - "
-//					+ "Due to Order Created - REMOVED cartId=" 
-//						+ cart.getCartId());
-//			}
-//			
-//		}
-		
+	protected void consumeDomainEvent(OnlinestoreDomainEvent domainEvent) throws CloneNotSupportedException, JMSException {
 		
 		// if a Consumer emptied cart (say don't want to shop cart items)
 		// so remove references of the cartId so it does not point to a Cart which 
 		// no more exists
 		//else
 		
-		if (
-			domainEvent.getEventName().equals(DomainEventName.CART_EMPTIED_BY_CONSUMER)
-			|| domainEvent.getEventName().equals(DomainEventName.CART_EMPTIED_DUE_TO_ORDER_CREATION) ) {
+		if (domainEvent.getEventName().equals(OnlinestoreDomainEventName.CART_EMPTIED_BY_CONSUMER)
+			|| domainEvent.getEventName().equals(OnlinestoreDomainEventName.CART_EMPTIED_DUE_TO_ORDER_CREATION) ) {
 			
-			CartEmptiedEventData cartEmptiedEventData = (CartEmptiedEventData) domainEvent.getEventData();
+			CartEmptiedEvent event = (CartEmptiedEvent) domainEvent;
 			
-			if (session.getAttribute("cartId").equals(cartEmptiedEventData.getCart().getCartId())) {
+			Integer cartId = (Integer) event.getCartId();
+			
+			if ( (session.getAttribute("cartId") != null) && session.getAttribute("cartId").equals(cartId) ) {
 				
 				session.removeAttribute("cartId");
 				
-				System.out.println(SERVICE_COMPONENT + " - Due to Cart Emptied by Consumer or due to Order creation -> "
-					+ "Removed cartId from Session = " + cartEmptiedEventData.getCart().getCartId() );
+				System.out.println(
+					SERVICE_COMPONENT + " - Event: " + domainEvent.getEventName() 
+					+ ", CartId = " + cartId
+					+ ", Since Cart is delete, removed the cartId from in-memory Session"
+				);
 			}
 			
 		}

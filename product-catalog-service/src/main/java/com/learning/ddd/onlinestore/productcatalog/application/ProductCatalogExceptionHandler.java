@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.learning.ddd.onlinestore.productcatalog.domain.exception.ProductAlreadyExistsException;
+import com.learning.ddd.onlinestore.productcatalog.domain.exception.ProductCatalogItemAlreadyExistsException;
 
 @ControllerAdvice
 public class ProductCatalogExceptionHandler {
@@ -130,8 +130,8 @@ public class ProductCatalogExceptionHandler {
 	}
 
 	@ResponseStatus(HttpStatus.CONFLICT)
-	@ExceptionHandler(ProductAlreadyExistsException.class)
-	public @ResponseBody ErrorDetails handleItemAlreadyExistsException(ProductAlreadyExistsException ex) {
+	@ExceptionHandler(ProductCatalogItemAlreadyExistsException.class)
+	public @ResponseBody ErrorDetails handleItemAlreadyExistsException(ProductCatalogItemAlreadyExistsException ex) {
 		
 		ErrorDetails errorDetails = new ErrorDetails();
 		

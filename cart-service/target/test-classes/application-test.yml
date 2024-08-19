@@ -1,0 +1,36 @@
+# This service will be listening over port 9010
+server:
+  port: '9020'
+
+spring:
+
+  # Service Name using which other services locates its instances from Service Registry
+  application:
+    name: cart-service
+
+  # Database configurations: H2   
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;INIT=CREATE SCHEMA IF NOT EXISTS carts
+    username: sa
+    password: password
+
+  # JPA specific configurations
+  jpa:
+    show-sql: 'true'
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+
+# Details of Service Discovery to which this service registers itself so other services can discover its instances and call it
+# eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka
+
+# Pub/Sub Topics (Apache Kafka)
+onlinestore:
+  domain:
+    events:
+      topic:
+        name: OnlinestoreDomainEventsTopic_Test

@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.learning.ddd.onlinestore.domain.event.DomainEvent;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsWriter;
 
 @ActiveProfiles("test") // Use this bean while running JUnit test
@@ -27,7 +27,7 @@ public class SysoutDomainEventsWriter implements DomainEventsWriter {
 	}
 	
 	@Override
-	public void write(DomainEvent domainEvent) throws JMSException {
+	public void write(OnlinestoreDomainEvent domainEvent) throws JMSException {
 
 		System.out.println(THIS_CLASS_NAME + ": write() - started");
 		

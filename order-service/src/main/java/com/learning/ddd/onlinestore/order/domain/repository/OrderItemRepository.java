@@ -15,11 +15,11 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
 	@Modifying
 	@Query("delete from OrderItem item where "
 			+ "item.itemId=:itemId "
-			+ " OR item.category=:category"
-			+ " OR item.subCategory=:subCategory"
-			+ " OR item.name=:name"
-			+ " OR item.price=:price"
-			+ " OR item.quantity=:quantity")
+			+ " OR item.product.category=:category"
+			+ " OR item.product.subCategory=:subCategory"
+			+ " OR item.product.name=:name"
+			+ " OR item.product.price=:price"
+			+ " OR item.product.quantity=:quantity")
 	void deleteItems(@Param("itemId") Integer itemId, 
 			@Param("category") String category, @Param("subCategory") String subCategory,
 			@Param("name") String name, @Param("price") Double price, @Param("quantity") Integer quantity);

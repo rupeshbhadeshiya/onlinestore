@@ -2,9 +2,9 @@
 	<nav role="navigation" class="navbar navbar-default">
 		<div class="navbar-collapse">
 			<ul class="nav navbar-nav">
-				<li class="active"><a href="/onlinestore/view-inventory-items">Inventory</a></li>
+				<li class="active"><a href="/onlinestore/view-inventory-products">Inventory</a></li>
 				<li class="active"><a href="/onlinestore/view-product-catalog">Product Catalog</a></li>
-				<li class="active"><a href="/onlinestore/shop-items-view">Shop</a></li>
+				<!-- <li class="active"><a href="/onlinestore/shop-products-view">Shop</a></li> -->
 				<li class="active"><a href="/onlinestore/view-cart">Cart</a></li>
 				<li class="active"><a href="/onlinestore/view-orders">Orders</a></li>
 			</ul>

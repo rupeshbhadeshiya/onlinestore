@@ -25,6 +25,7 @@ import com.learning.ddd.onlinestore.inventory.application.dto.GetItemsResponseDT
 import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsRequestDTO;
 import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsResponseDTO;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
+import com.learning.ddd.onlinestore.inventory.domain.Product;
 
 // An Inventory contains Items; it may be referred as Item Store. So you don't need to create an Inventory.
 
@@ -92,10 +93,25 @@ public class InventoryAPITest {
 	private static final String INVENTORY_SERVICE_URL = "http://localhost:9010/inventory/items";
 	private static final String INVENTORY_SEARCH_URL = INVENTORY_SERVICE_URL + "/searches";
 	
-	private InventoryItem BISCUIT_ITEM = new InventoryItem("Grocery", "Biscuit", "Parle-G", 10.0, 10);
-	private InventoryItem CHIVDA_ITEM = new InventoryItem("Grocery", "Chivda", "Real Farali Chivda", 20.0, 10);
-	private InventoryItem BATHING_SOAP_ITEM = new InventoryItem("Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, 5);
-	private InventoryItem PENCIL_ITEM = new InventoryItem("Stationery", "Pencil", "Natraj Pencil", 5.0, 10);
+	private static final int BISCUIT_INVENTORY_ITEM_ID = 11;
+	private static final int BATHING_SOAP_INVENTORY_ITEM_ID = 22;
+	private static final int CHIVDA_INVENTORY_ITEM_ID = 33;
+	private static final int PENCIL_INVENTORY_ITEM_ID = 44;
+	
+	private static final int BISCUIT_INVENTORY_ITEM_QUANTITY = 10;
+	private static final int BATHING_SOAP_INVENTORY_ITEM_QUANTITY = 5;
+	private static final int CHIVDA_INVENTORY_ITEM_QUANTITY = 10;
+	private static final int PENCIL_INVENTORY_ITEM_QUANTITY = 10;
+	
+	private final Product BISCUIT_PRODUCT = new Product(BISCUIT_INVENTORY_ITEM_ID, "Grocery", "Biscuit", "Parle-G", 10.0, BISCUIT_INVENTORY_ITEM_QUANTITY);
+	private final Product BATHING_SOAP_PRODUCT = new Product(BATHING_SOAP_INVENTORY_ITEM_ID, "Toiletries", "Bathing Soap", "Mysore Sandal Soap", 30.0, BATHING_SOAP_INVENTORY_ITEM_QUANTITY);
+	private Product CHIVDA_PRODUCT = new Product(CHIVDA_INVENTORY_ITEM_ID, "Grocery", "Chivda", "Real Farali Chivda", 20.0, CHIVDA_INVENTORY_ITEM_QUANTITY);
+	private Product PENCIL_PRODUCT = new Product(PENCIL_INVENTORY_ITEM_ID, "Stationery", "Pencil", "Natraj Pencil", 5.0, PENCIL_INVENTORY_ITEM_QUANTITY);
+	
+	private final InventoryItem BISCUIT_INVENTORY_ITEM = new InventoryItem(BISCUIT_PRODUCT);
+	private final InventoryItem BATHING_SOAP_INVENTORY_ITEM = new InventoryItem(BATHING_SOAP_PRODUCT);
+	private InventoryItem CHIVDA_INVENTORY_ITEM = new InventoryItem(CHIVDA_PRODUCT);
+	private InventoryItem PENCIL_INVENTORY_ITEM = new InventoryItem(PENCIL_PRODUCT);
 
 //	@Autowired
 //	private ItemRepository itemRepository;
@@ -104,11 +120,11 @@ public class InventoryAPITest {
 //	@BeforeEach
 //	void setupBeforeEachTest() {
 //
-//		// inventory.addItems( Arrays.asList( new Item[] { BISCUIT_ITEM, CHIVDA_ITEM } ) );
+//		// inventory.addItems( Arrays.asList( new Item[] { BISCUIT_INVENTORY_ITEM, CHIVDA_INVENTORY_ITEM } ) );
 //		
-//		BISCUIT_ITEM = inventory.addItem( BISCUIT_ITEM );
-//		CHIVDA_ITEM = inventory.addItem( CHIVDA_ITEM );
-//		BATHING_SOAP_ITEM = inventory.addItem( BATHING_SOAP_ITEM );
+//		BISCUIT_INVENTORY_ITEM = inventory.addItem( BISCUIT_INVENTORY_ITEM );
+//		CHIVDA_INVENTORY_ITEM = inventory.addItem( CHIVDA_INVENTORY_ITEM );
+//		BATHING_SOAP_INVENTORY_ITEM = inventory.addItem( BATHING_SOAP_INVENTORY_ITEM );
 //		
 //	}
 	
@@ -125,51 +141,51 @@ public class InventoryAPITest {
 	//void addItem_Http201Created_Success() throws IOException {
 		
 		// Item1: Biscuit
-		AddItemRequestDTO requestDTO = new AddItemRequestDTO(BISCUIT_ITEM);
+		AddItemRequestDTO requestDTO = new AddItemRequestDTO(BISCUIT_INVENTORY_ITEM);
 		AddItemResponseDTO responseDTO = (AddItemResponseDTO) HttpUtil.post(
 			INVENTORY_SERVICE_URL, requestDTO, AddItemResponseDTO.class
 		);
 		assertNotNull(responseDTO);
 		InventoryItem addedItem = (InventoryItem) responseDTO.getItem();
 		assertNotNull(addedItem);
-		//assertEquals(BISCUIT_ITEM.getQuantity(), addedItem.getQuantity());
-		assertTrue(BISCUIT_ITEM.equals(addedItem));
+		//assertEquals(BISCUIT_INVENTORY_ITEM.getQuantity(), addedItem.getQuantity());
+		assertTrue(BISCUIT_INVENTORY_ITEM.equals(addedItem));
 		assertTrue(addedItem.getItemId() > 0);	// when entities are persisted they will be assigned unique id 
 		
 		// Item2: Chivda
-		requestDTO = new AddItemRequestDTO(CHIVDA_ITEM);
+		requestDTO = new AddItemRequestDTO(CHIVDA_INVENTORY_ITEM);
 		responseDTO = (AddItemResponseDTO) HttpUtil.post(
 			INVENTORY_SERVICE_URL, requestDTO, AddItemResponseDTO.class
 		);
 		assertNotNull(responseDTO);
 		addedItem = (InventoryItem) responseDTO.getItem();
 		assertNotNull(addedItem);
-		//assertEquals(CHIVDA_ITEM.getQuantity(), addedItem.getQuantity());
-		assertTrue(CHIVDA_ITEM.equals(addedItem));
+		//assertEquals(CHIVDA_INVENTORY_ITEM.getQuantity(), addedItem.getQuantity());
+		assertTrue(CHIVDA_INVENTORY_ITEM.equals(addedItem));
 		assertTrue(addedItem.getItemId() > 0);	// when entities are persisted they will be assigned unique id 
 		
 		// Item3: Bathing Soap
-		requestDTO = new AddItemRequestDTO(BATHING_SOAP_ITEM);
+		requestDTO = new AddItemRequestDTO(BATHING_SOAP_INVENTORY_ITEM);
 		responseDTO = (AddItemResponseDTO) HttpUtil.post(
 			INVENTORY_SERVICE_URL, requestDTO, AddItemResponseDTO.class
 		);
 		assertNotNull(responseDTO);
 		addedItem = (InventoryItem) responseDTO.getItem();
 		assertNotNull(addedItem);
-		//assertEquals(BATHING_SOAP_ITEM.getQuantity(), addedItem.getQuantity());
-		assertTrue(BATHING_SOAP_ITEM.equals(addedItem));
+		//assertEquals(BATHING_SOAP_INVENTORY_ITEM.getQuantity(), addedItem.getQuantity());
+		assertTrue(BATHING_SOAP_INVENTORY_ITEM.equals(addedItem));
 		assertTrue(addedItem.getItemId() > 0);	// when entities are persisted they will be assigned unique id
 		
 		// Item4: Pencil
-		requestDTO = new AddItemRequestDTO(PENCIL_ITEM);
+		requestDTO = new AddItemRequestDTO(PENCIL_INVENTORY_ITEM);
 		responseDTO = (AddItemResponseDTO) HttpUtil.post(
 			INVENTORY_SERVICE_URL, requestDTO, AddItemResponseDTO.class
 		);
 		assertNotNull(responseDTO);
 		addedItem = (InventoryItem) responseDTO.getItem();
 		assertNotNull(addedItem);
-		//assertEquals(BATHING_SOAP_ITEM.getQuantity(), addedItem.getQuantity());
-		assertTrue(PENCIL_ITEM.equals(addedItem));
+		//assertEquals(BATHING_SOAP_INVENTORY_ITEM.getQuantity(), addedItem.getQuantity());
+		assertTrue(PENCIL_INVENTORY_ITEM.equals(addedItem));
 		assertTrue(addedItem.getItemId() > 0);	// when entities are persisted they will be assigned unique id
 	}
 
@@ -210,7 +226,7 @@ public class InventoryAPITest {
 	//void givenAddItem_whenSpecifyOnlyCategory_thenHttp400BadRequest() throws IOException {
 		
 		AddItemRequestDTO requestDTO = new AddItemRequestDTO(
-			new InventoryItem(BISCUIT_ITEM.getCategory(), null, null, 0, 0)
+			new InventoryItem(BISCUIT_INVENTORY_ITEM_ID, BISCUIT_INVENTORY_ITEM.getCategory(), null, null, 0, 0)
 		);
 		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
 				INVENTORY_SERVICE_URL, requestDTO, ErrorDetails.class
@@ -231,7 +247,7 @@ public class InventoryAPITest {
 	//void addItem_Http400BadRequest_SpecifyOnlyCategoryAndSubCategory() throws IOException {
 		
 		AddItemRequestDTO requestDTO = new AddItemRequestDTO(
-			new InventoryItem(BISCUIT_ITEM.getCategory(), BISCUIT_ITEM.getSubCategory(), 
+			new InventoryItem(BISCUIT_INVENTORY_ITEM_ID, BISCUIT_INVENTORY_ITEM.getCategory(), BISCUIT_INVENTORY_ITEM.getSubCategory(), 
 					null, 0, 0)
 		);
 		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
@@ -252,8 +268,8 @@ public class InventoryAPITest {
 	//void addItem_Http400BadRequest_SpecifyOnlyCategorySubCategoryAndName() throws IOException {
 		
 		AddItemRequestDTO requestDTO = new AddItemRequestDTO(
-			new InventoryItem(BISCUIT_ITEM.getCategory(), BISCUIT_ITEM.getSubCategory(), 
-					BISCUIT_ITEM.getName(), 0, 0)
+			new InventoryItem(BISCUIT_INVENTORY_ITEM_ID, BISCUIT_INVENTORY_ITEM.getCategory(), BISCUIT_INVENTORY_ITEM.getSubCategory(), 
+					BISCUIT_INVENTORY_ITEM.getName(), 0, 0)
 		);
 		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
 				INVENTORY_SERVICE_URL, requestDTO, ErrorDetails.class
@@ -273,8 +289,8 @@ public class InventoryAPITest {
 	//void addItem_Http400BadRequest_SpecifyAllFieldsExceptQuantity() throws IOException {
 		
 		AddItemRequestDTO requestDTO = new AddItemRequestDTO(
-			new InventoryItem(BISCUIT_ITEM.getCategory(), BISCUIT_ITEM.getSubCategory(), 
-					BISCUIT_ITEM.getName(), BISCUIT_ITEM.getPrice(), 0)
+			new InventoryItem(BISCUIT_INVENTORY_ITEM_ID, BISCUIT_INVENTORY_ITEM.getCategory(), BISCUIT_INVENTORY_ITEM.getSubCategory(), 
+					BISCUIT_INVENTORY_ITEM.getName(), BISCUIT_INVENTORY_ITEM.getPrice(), 0)
 		);
 		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
 				INVENTORY_SERVICE_URL, requestDTO, ErrorDetails.class
@@ -296,7 +312,7 @@ public class InventoryAPITest {
 		
 		// Scenario 1: Not specifying any field properly
 		
-		AddItemRequestDTO requestDTO = new AddItemRequestDTO(BISCUIT_ITEM);
+		AddItemRequestDTO requestDTO = new AddItemRequestDTO(BISCUIT_INVENTORY_ITEM);
 		
 		ErrorDetails errorDetails = (ErrorDetails) HttpUtil.post(
 			INVENTORY_SERVICE_URL, requestDTO, ErrorDetails.class
@@ -321,16 +337,16 @@ public class InventoryAPITest {
 		assertNotNull(addedItems);
 		assertEquals(4, addedItems.size());
 		assertEquals(
-				BISCUIT_ITEM.getQuantity()
-				+ CHIVDA_ITEM.getQuantity() 
-				+ BATHING_SOAP_ITEM.getQuantity()
-				+ PENCIL_ITEM.getQuantity(),
+				BISCUIT_INVENTORY_ITEM.getQuantity()
+				+ CHIVDA_INVENTORY_ITEM.getQuantity() 
+				+ BATHING_SOAP_INVENTORY_ITEM.getQuantity()
+				+ PENCIL_INVENTORY_ITEM.getQuantity(),
 			responseDTO.getItemsQuantitiesTotal()
 		);
-		assertTrue(addedItems.contains(BISCUIT_ITEM));
-		assertTrue(addedItems.contains(CHIVDA_ITEM));
-		assertTrue(addedItems.contains(BATHING_SOAP_ITEM));
-		assertTrue(addedItems.contains(PENCIL_ITEM));
+		assertTrue(addedItems.contains(BISCUIT_INVENTORY_ITEM));
+		assertTrue(addedItems.contains(CHIVDA_INVENTORY_ITEM));
+		assertTrue(addedItems.contains(BATHING_SOAP_INVENTORY_ITEM));
+		assertTrue(addedItems.contains(PENCIL_INVENTORY_ITEM));
 		
 		for (InventoryItem item : addedItems) {
 			assertTrue(item.getItemId() > 0);	// when entities are persisted they will be assigned unique id 
@@ -374,7 +390,7 @@ public class InventoryAPITest {
 	//void searchItemsMatchingCategory_Http200Ok() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
-		exampleItem.setCategory(BISCUIT_ITEM.getCategory());
+		exampleItem.setCategory(BISCUIT_INVENTORY_ITEM.getCategory());
 		
 		SearchItemsRequestDTO requestDTO = new SearchItemsRequestDTO(exampleItem);
 		
@@ -386,10 +402,10 @@ public class InventoryAPITest {
 		List<InventoryItem> searchedItems = responseDTO.getItems();
 		assertNotNull(searchedItems);
 		assertEquals(2, searchedItems.size());
-		assertTrue(searchedItems.contains(BISCUIT_ITEM));		// same category
-		assertTrue(searchedItems.contains(CHIVDA_ITEM));		// same category
-		assertFalse(searchedItems.contains(BATHING_SOAP_ITEM));	// different category
-		assertFalse(searchedItems.contains(PENCIL_ITEM));		// different category
+		assertTrue(searchedItems.contains(BISCUIT_INVENTORY_ITEM));		// same category
+		assertTrue(searchedItems.contains(CHIVDA_INVENTORY_ITEM));		// same category
+		assertFalse(searchedItems.contains(BATHING_SOAP_INVENTORY_ITEM));	// different category
+		assertFalse(searchedItems.contains(PENCIL_INVENTORY_ITEM));		// different category
 	}
 	
 	@Test
@@ -398,7 +414,7 @@ public class InventoryAPITest {
 	//void searchItemsMatchingSubCategory_Http200Ok() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
-		exampleItem.setSubCategory(CHIVDA_ITEM.getSubCategory());
+		exampleItem.setSubCategory(CHIVDA_INVENTORY_ITEM.getSubCategory());
 		
 		SearchItemsRequestDTO requestDTO = new SearchItemsRequestDTO(exampleItem);
 		
@@ -410,10 +426,10 @@ public class InventoryAPITest {
 		List<InventoryItem> searchedItems = responseDTO.getItems();
 		assertNotNull(searchedItems);
 		assertEquals(1, searchedItems.size());
-		assertTrue(searchedItems.contains(CHIVDA_ITEM));		// same sub-category
-		assertFalse(searchedItems.contains(BISCUIT_ITEM));		// different sub-category
-		assertFalse(searchedItems.contains(BATHING_SOAP_ITEM));	// different sub-category
-		assertFalse(searchedItems.contains(PENCIL_ITEM));		// different sub-category
+		assertTrue(searchedItems.contains(CHIVDA_INVENTORY_ITEM));		// same sub-category
+		assertFalse(searchedItems.contains(BISCUIT_INVENTORY_ITEM));		// different sub-category
+		assertFalse(searchedItems.contains(BATHING_SOAP_INVENTORY_ITEM));	// different sub-category
+		assertFalse(searchedItems.contains(PENCIL_INVENTORY_ITEM));		// different sub-category
 	}		
 	
 	@Test
@@ -422,7 +438,7 @@ public class InventoryAPITest {
 	//void searchItemsMatchingName_Http200Ok() throws IOException {
 		
 		InventoryItem exampleItem = new InventoryItem();
-		exampleItem.setName(BATHING_SOAP_ITEM.getName());
+		exampleItem.setName(BATHING_SOAP_INVENTORY_ITEM.getName());
 		
 		SearchItemsRequestDTO requestDTO = new SearchItemsRequestDTO(exampleItem);
 		
@@ -434,10 +450,10 @@ public class InventoryAPITest {
 		List<InventoryItem> searchedItems = responseDTO.getItems();
 		assertNotNull(searchedItems);
 		assertEquals(1, searchedItems.size());
-		assertTrue(searchedItems.contains(BATHING_SOAP_ITEM));	// correct name
-		assertFalse(searchedItems.contains(BISCUIT_ITEM));		// different name
-		assertFalse(searchedItems.contains(CHIVDA_ITEM));		// different name
-		assertFalse(searchedItems.contains(PENCIL_ITEM));		// different name
+		assertTrue(searchedItems.contains(BATHING_SOAP_INVENTORY_ITEM));	// correct name
+		assertFalse(searchedItems.contains(BISCUIT_INVENTORY_ITEM));		// different name
+		assertFalse(searchedItems.contains(CHIVDA_INVENTORY_ITEM));		// different name
+		assertFalse(searchedItems.contains(PENCIL_INVENTORY_ITEM));		// different name
 	}
 	
 	@Test
@@ -458,10 +474,10 @@ public class InventoryAPITest {
 		List<InventoryItem> searchedItems = responseDTO.getItems();
 		assertNotNull(searchedItems);
 		assertEquals(3, searchedItems.size());
-		assertTrue(searchedItems.contains(BISCUIT_ITEM));		// same size of items
-		assertTrue(searchedItems.contains(CHIVDA_ITEM));		// same size of items
-		assertTrue(searchedItems.contains(PENCIL_ITEM));		// same size of items
-		assertFalse(searchedItems.contains(BATHING_SOAP_ITEM));	// different size of items
+		assertTrue(searchedItems.contains(BISCUIT_INVENTORY_ITEM));		// same size of items
+		assertTrue(searchedItems.contains(CHIVDA_INVENTORY_ITEM));		// same size of items
+		assertTrue(searchedItems.contains(PENCIL_INVENTORY_ITEM));		// same size of items
+		assertFalse(searchedItems.contains(BATHING_SOAP_INVENTORY_ITEM));	// different size of items
 	}
 	
 	@Test
@@ -482,10 +498,10 @@ public class InventoryAPITest {
 		List<InventoryItem> searchedItems = responseDTO.getItems();
 		assertNotNull(searchedItems);
 		assertEquals(1, searchedItems.size());
-		assertTrue(searchedItems.contains(BATHING_SOAP_ITEM));	// same item price
-		assertFalse(searchedItems.contains(BISCUIT_ITEM));		// different item price
-		assertFalse(searchedItems.contains(CHIVDA_ITEM));		// different item price
-		assertFalse(searchedItems.contains(PENCIL_ITEM));		// different item price
+		assertTrue(searchedItems.contains(BATHING_SOAP_INVENTORY_ITEM));	// same item price
+		assertFalse(searchedItems.contains(BISCUIT_INVENTORY_ITEM));		// different item price
+		assertFalse(searchedItems.contains(CHIVDA_INVENTORY_ITEM));		// different item price
+		assertFalse(searchedItems.contains(PENCIL_INVENTORY_ITEM));		// different item price
 	}
 	
 	@Test
@@ -497,7 +513,7 @@ public class InventoryAPITest {
 			INVENTORY_SERVICE_URL, GetItemsResponseDTO.class
 		);
 		
-		int index = getItemsResponseDTO.getItems().indexOf(PENCIL_ITEM);
+		int index = getItemsResponseDTO.getItems().indexOf(PENCIL_INVENTORY_ITEM);
 		InventoryItem pencilItem = getItemsResponseDTO.getItems().get(index);
 		
 		HttpUtil.delete(INVENTORY_SERVICE_URL + "/" + pencilItem.getItemId());

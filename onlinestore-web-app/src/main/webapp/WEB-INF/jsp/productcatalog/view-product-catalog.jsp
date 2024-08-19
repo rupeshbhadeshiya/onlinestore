@@ -25,7 +25,7 @@
         
     	<c:if test="${not empty products}">
 	        <table class="table table-striped">
-	            <caption>All Products from Product Catalog:</caption>
+	            <caption>Product Catalog:</caption>
 	            <thead>
 	                <tr>
 	                    <th>ProductId</th>
@@ -47,10 +47,7 @@
 	                        <td>${product.name}</td>
 	                        <td>${product.quantity}</td>
 	                        <td>${product.price}</td>
-	                        <!-- type="button"  -->
-	                        <%-- <td><a class="btn btn-success" href="/onlinestore/update-inventory-item?itemId=${item.itemId}">Update</a></td> --%>
-							<!-- type="button"  -->
-							<%-- <td><a class="btn btn-warning" href="/onlinestore/delete-inventory-item?itemId=${item.itemId}">Delete</a></td> --%>
+	                        <td><a class="btn btn-success" href="/onlinestore/shop-product?productId=${product.productId}&cartId=${cartId}">Add Product to Cart</a></td>
 	                    </tr>
 	                </c:forEach>
 	            </tbody>

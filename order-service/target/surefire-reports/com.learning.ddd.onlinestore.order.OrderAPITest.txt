@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: com.learning.ddd.onlinestore.order.OrderAPITest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.332 s <<< FAILURE! - in com.learning.ddd.onlinestore.order.OrderAPITest
+createOrder  Time elapsed: 0.274 s  <<< ERROR!
+java.net.ConnectException: Connection refused
+	at com.learning.ddd.onlinestore.order.OrderAPITest.createOrder(OrderAPITest.java:67)
+
+getAllOrders  Time elapsed: 0.026 s  <<< ERROR!
+java.net.ConnectException: Connection refused
+	at com.learning.ddd.onlinestore.order.OrderAPITest.getAllOrders(OrderAPITest.java:118)
+
+cancelOrder  Time elapsed: 0.027 s  <<< ERROR!
+java.net.ConnectException: Connection refused
+	at com.learning.ddd.onlinestore.order.OrderAPITest.cancelOrder(OrderAPITest.java:197)
+

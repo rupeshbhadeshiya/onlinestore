@@ -2,7 +2,6 @@ package com.learning.ddd.onlinestore.order.application.dto;
 
 import java.io.Serializable;
 
-import com.learning.ddd.onlinestore.cart.domain.Cart;
 import com.learning.ddd.onlinestore.order.domain.Address;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
 
@@ -12,7 +11,6 @@ public class CreateOrderDTO implements Serializable {
 
 	private String consumerId;
 	private int cartId;
-	private Cart cart;
 	private PaymentMethod paymentMethod;
 	private Address billingAddress;
 	private Address shippingAddress;
@@ -23,15 +21,6 @@ public class CreateOrderDTO implements Serializable {
 	
 	public CreateOrderDTO(String consumerId) {
 		super();
-	}
-	
-	public CreateOrderDTO(String consumerId, Cart cart, PaymentMethod paymentMethod, Address billingAddress, Address shippingAddress) {
-		super();
-		this.consumerId = consumerId;
-		this.cart = cart;
-		this.paymentMethod = paymentMethod;
-		this.billingAddress = billingAddress;
-		this.shippingAddress = shippingAddress;
 	}
 	
 	public CreateOrderDTO(String consumerId, int cartId, PaymentMethod paymentMethod, Address billingAddress, Address shippingAddress) {
@@ -57,14 +46,6 @@ public class CreateOrderDTO implements Serializable {
 	
 	public void setCartId(int cartId) {
 		this.cartId = cartId;
-	}
-
-	public Cart getCart() {
-		return cart;
-	}
-
-	public void setCart(Cart cart) {
-		this.cart = cart;
 	}
 
 	public PaymentMethod getPaymentMethod() {
@@ -95,7 +76,7 @@ public class CreateOrderDTO implements Serializable {
 	public String toString() {
 		return "OrderRequestDTO ["
 				+ "consumerId=" + consumerId
-				+ ", cart=" + cart 
+				+ ", cartId=" + cartId 
 				+ ", paymentMethod=" + paymentMethod 
 				+ ", billingAddress=" + billingAddress 
 				+ ", shippingAddress=" + shippingAddress 

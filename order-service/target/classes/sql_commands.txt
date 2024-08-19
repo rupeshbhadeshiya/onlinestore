@@ -1,0 +1,26 @@
+
+# Select these tables in this order
+select * from orders.address;
+select * from orders.online_store_order;
+select * from orders.order_transaction;
+select * from orders.order_item;
+select * from orders.cart;
+select * from orders.cart_item;
+
+
+# Delete all data from these tables in this order only
+delete from orders.cart_item;
+delete from orders.cart;
+delete from orders.order_item;
+delete from orders.order_transaction;
+delete from orders.online_store_order;
+delete from orders.address;
+
+
+# Drop these tables in this order only
+drop table orders.cart_item;
+drop table orders.cart;
+drop table orders.order_item;
+drop table orders.order_transaction;
+drop table orders.online_store_order;
+drop table orders.address;

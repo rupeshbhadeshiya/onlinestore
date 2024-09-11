@@ -1,9 +1,9 @@
 package com.learning.ddd.onlinestore.cart.domain.event;
 
-import com.learning.ddd.onlinestore.cart.application.dto.CartInfo;
+import com.learning.ddd.onlinestore.cart.domain.CartInfo;
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 public class ProductRemovedFromCartEvent extends OnlinestoreDomainEvent {
 

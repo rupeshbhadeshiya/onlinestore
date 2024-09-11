@@ -18,7 +18,7 @@ public class DummyPaymentGateway implements PaymentGateway {
 		onlineTxn.setTransactionStatus(TransactionStatus.APPROVED);
 		onlineTxn.setPaymentMethod(order.getPaymentMethod());
 		onlineTxn.setPurchaseDate(new Date());
-		onlineTxn.setItems(order.getItems());
+//		onlineTxn.setItems(order.getItems());
 		onlineTxn.setTotalItems(order.getItemCount());
 		onlineTxn.setTotalAmount(order.getAmount());
 		onlineTxn.setMerchantInfo(

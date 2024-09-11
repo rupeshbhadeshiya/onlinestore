@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 import com.learning.ddd.onlinestore.productcatalog.domain.ProductCatalogItem;
 
 public interface ProductCatalogRepository extends JpaRepository<ProductCatalogItem, Integer> {

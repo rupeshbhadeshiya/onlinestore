@@ -23,7 +23,7 @@ import com.learning.ddd.onlinestore.cart.domain.CartItem;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.repository.CartRepository;
 import com.learning.ddd.onlinestore.cart.domain.service.CartService;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 //~Cart-Specific~
 //

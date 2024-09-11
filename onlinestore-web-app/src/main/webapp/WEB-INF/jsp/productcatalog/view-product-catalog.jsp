@@ -6,16 +6,17 @@
             <div class="text-info">No Products available in Inventory! Add some products!</div>
             <br/>
         </c:if>    
-    	<%-- <c:if test="${isProductAddedSuccessfully}">
-            <div class="text-success">Product Added Successfully: ${savedProduct}</div>
+    	<c:if test="${isProductShoppedSuccessfully}">
+            <div class="text-success">Product added successfully to Cart: ${savedProduct}</div>
             <br/>
+          
         </c:if>
-        <c:if test="${isProductUpdatedSuccessfully}">
-            <div class="text-success">Product Updated Successfully: ${updatedProduct}</div>
+        <%-- <c:if test="${isProductUpdatedSuccessfully}">
+            <div class="text-success">Product updated Successfully: ${updatedProduct}</div>
             <br/>
         </c:if>
         <c:if test="${isProductRemovedSuccessfully}">
-            <div class="text-success">Product Removed Successfully</div>
+            <div class="text-success">Product removed Successfully</div>
             <br/>
         </c:if>
         <c:if test="${noProductsFound}">

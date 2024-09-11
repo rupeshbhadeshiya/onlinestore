@@ -25,7 +25,7 @@ import com.learning.ddd.onlinestore.inventory.application.dto.GetItemsResponseDT
 import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsRequestDTO;
 import com.learning.ddd.onlinestore.inventory.application.dto.SearchItemsResponseDTO;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 // An Inventory contains Items; it may be referred as Item Store. So you don't need to create an Inventory.
 

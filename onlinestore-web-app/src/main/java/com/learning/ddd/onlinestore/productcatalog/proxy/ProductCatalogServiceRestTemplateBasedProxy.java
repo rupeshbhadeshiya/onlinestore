@@ -8,8 +8,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.learning.ddd.onlinestore.inventory.application.dto.GetProductsResponseDTO;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.application.dto.GetProductsResponseDTO;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 
 @Component

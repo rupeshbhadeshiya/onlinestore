@@ -26,9 +26,12 @@
 	                <tr>
 	                    <th>ConsumerId</th>
 	                    <th>OrderNumber</th>
+	                    <th>OrderId</th>
+	                    <th>Creation Date</th>
 	                    <th>ItemCount</th>
 	                    <th>Amount</th>
-	                    <th>Payment Method</th>
+	                    <!-- <th>Payment Method</th> -->
+	                    <th>Status</th>
 	                    <th></th>
 	                    <th></th>
 	                </tr>
@@ -38,9 +41,12 @@
 	                    <tr>
 	                        <td>${order.consumerId}</td>
 	                        <td>${order.orderNumber}</td>
+	                        <td>${order.orderId}</td>
+	                        <td>${order.creationDate}</td>
 	                        <td>${order.itemCount}</td>
 	                        <td>${order.amount}</td>
-	                        <td>${order.paymentMethod}</td>
+	                        <%-- <td>${order.paymentMethod}</td> --%>
+	                        <td>${order.status}</td>
 	                        <td><a class="btn btn-success" href="/onlinestore/view-order-details?orderId=${order.orderId}">View Details</a></td>
 	                        <td><a class="btn btn-warning" href="/onlinestore/cancel-order?orderId=${order.orderId}">Cancel Order</a></td>
 	                    </tr>

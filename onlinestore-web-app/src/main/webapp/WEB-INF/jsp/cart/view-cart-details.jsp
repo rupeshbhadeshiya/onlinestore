@@ -2,7 +2,7 @@
 
     <div class="container">
     
-        <c:if test="${isProductShoppedSuccessfully}">
+        <c:if test="${isProductRemovedSuccessfully}">
             <div class="text-success">Product removed from Cart</div>
             <br/>
         </c:if>
@@ -55,7 +55,7 @@
 		                        <td>${product.name}</td>
 		                        <td>${product.quantity}</td>
 		                        <td>${product.price}</td>
-		                        <td><a class="btn btn-warning" href="/onlinestore/remove-product-from-cart?cartId=${cart.cartId}&productId=${product.productId}">Remove Product from Cart</a></td>
+		                        <td><a class="btn btn-warning" href="/onlinestore/remove-product-from-cart?cartId=${cart.cartId}&productId=${product.productId}">Remove from Cart</a></td>
 		                    </tr>
 		                </c:forEach>
 		            </tbody>

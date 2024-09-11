@@ -1,3 +1,6 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 
 	<nav role="navigation" class="navbar navbar-default">
 		<div class="navbar-collapse">
@@ -9,7 +12,12 @@
 				<li class="active"><a href="/onlinestore/view-orders">Orders</a></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="/logout">Logout</a></li>
+				<!-- <li><a href="/logout">Logout</a></li> -->
+		        <li>
+			        <form:form action="@{/logout}" method="post">
+			        	<input type="submit" value="Sign Outn" class="btn btn-success" />
+			        </form:form>
+		        </li>
 			</ul>
 		</div>
 	</nav>

@@ -8,7 +8,7 @@ import javax.servlet.ServletContextListener;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
-import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
+import com.learning.ddd.onlinestore.product.domain.exception.ProductAlreadyExistsException;
 
 //@Component (no need for this bean to be a @Component, as extending bean will be anyway declaring itself a @Component)
 public abstract class DomainEventsConsumer implements ServletContextListener {

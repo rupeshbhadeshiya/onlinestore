@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.learning.ddd.onlinestore.cart.application.dto.AddProductToCartDTO;
-import com.learning.ddd.onlinestore.cart.application.dto.CartInfo;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.cart.domain.CartInfo;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 @Component
 public class CartServiceRestTemplateBasedProxy {

@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsConsumer;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
-import com.learning.ddd.onlinestore.inventory.domain.event.ProductAddedToInventoryEvent;
-import com.learning.ddd.onlinestore.inventory.domain.event.ProductRemovedFromInventoryEvent;
-import com.learning.ddd.onlinestore.inventory.domain.event.ProductsAddedToInventoryEvent;
-import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
+import com.learning.ddd.onlinestore.product.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.event.ProductAddedToInventoryEvent;
+import com.learning.ddd.onlinestore.product.domain.event.ProductRemovedFromInventoryEvent;
+import com.learning.ddd.onlinestore.product.domain.event.ProductsAddedToInventoryEvent;
+import com.learning.ddd.onlinestore.product.domain.exception.ProductAlreadyExistsException;
 import com.learning.ddd.onlinestore.productcatalog.domain.service.ProductCatalogService;
 
 //@Primary // choose this one from all implementations of DomainEventProcessor

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 //@Repository
 public interface InventoryRepository extends JpaRepository<InventoryItem, Integer> {

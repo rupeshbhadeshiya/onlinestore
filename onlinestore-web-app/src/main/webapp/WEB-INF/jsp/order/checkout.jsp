@@ -144,7 +144,7 @@
             
  				<!-- Submit button -->
             	<tr>
-                	<td colspan="2" align="center"><input type="submit" value="submit" class="btn btn-default" /></td>
+                	<td colspan="2" align="center"><input type="submit" value="submit" class="btn btn-success" /></td>
                 </tr>
             
             </table>                          

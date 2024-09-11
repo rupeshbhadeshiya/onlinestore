@@ -20,8 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.learning.ddd.onlinestore.inventory.domain.Product;
-import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
+import com.learning.ddd.onlinestore.product.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.exception.ProductAlreadyExistsException;
 import com.learning.ddd.onlinestore.productcatalog.domain.repository.ProductCatalogRepository;
 import com.learning.ddd.onlinestore.productcatalog.domain.service.ProductCatalogService;
 

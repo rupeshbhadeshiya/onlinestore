@@ -2,7 +2,7 @@ package com.learning.ddd.onlinestore.productcatalog.domain.event;
 
 import java.io.Serializable;
 
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 public class ProductAddedToCartEventData implements Serializable {
 

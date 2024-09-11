@@ -13,7 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 @Entity
 //@Table(schema="cart")

@@ -21,9 +21,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
-import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
 import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryRepository;
+import com.learning.ddd.onlinestore.product.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.exception.ProductAlreadyExistsException;
 
 // An Inventory contains Products; it may be referred as Product Store. So you don't need to create an Inventory.
 

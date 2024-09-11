@@ -2,6 +2,7 @@ package com.learning.ddd.onlinestore.order.application.dto;
 
 import java.io.Serializable;
 
+import com.learning.ddd.onlinestore.cart.domain.CartInfo;
 import com.learning.ddd.onlinestore.order.domain.Address;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
 
@@ -10,10 +11,11 @@ public class CreateOrderDTO implements Serializable {
 	private static final long serialVersionUID = 7178297974688994634L;
 
 	private String consumerId;
-	private int cartId;
+	private CartInfo cartInfo;
 	private PaymentMethod paymentMethod;
 	private Address billingAddress;
 	private Address shippingAddress;
+
 	
 	//no-arg constructor required by many frameworks (e.g. JSON converters)
 	public CreateOrderDTO() {
@@ -23,10 +25,10 @@ public class CreateOrderDTO implements Serializable {
 		super();
 	}
 	
-	public CreateOrderDTO(String consumerId, int cartId, PaymentMethod paymentMethod, Address billingAddress, Address shippingAddress) {
+	public CreateOrderDTO(String consumerId, CartInfo cartInfo, PaymentMethod paymentMethod, Address billingAddress, Address shippingAddress) {
 		super();
 		this.consumerId = consumerId;
-		this.cartId = cartId;
+		this.cartInfo = cartInfo;
 		this.paymentMethod = paymentMethod;
 		this.billingAddress = billingAddress;
 		this.shippingAddress = shippingAddress;
@@ -40,12 +42,12 @@ public class CreateOrderDTO implements Serializable {
 		this.consumerId = consumerId;
 	}
 	
-	public int getCartId() {
-		return cartId;
+	public void setCartInfo(CartInfo cartInfo) {
+		this.cartInfo = cartInfo;
 	}
 	
-	public void setCartId(int cartId) {
-		this.cartId = cartId;
+	public CartInfo getCartInfo() {
+		return cartInfo;
 	}
 
 	public PaymentMethod getPaymentMethod() {
@@ -76,7 +78,7 @@ public class CreateOrderDTO implements Serializable {
 	public String toString() {
 		return "OrderRequestDTO ["
 				+ "consumerId=" + consumerId
-				+ ", cartId=" + cartId 
+				+ ", cartInfo=" + cartInfo 
 				+ ", paymentMethod=" + paymentMethod 
 				+ ", billingAddress=" + billingAddress 
 				+ ", shippingAddress=" + shippingAddress 

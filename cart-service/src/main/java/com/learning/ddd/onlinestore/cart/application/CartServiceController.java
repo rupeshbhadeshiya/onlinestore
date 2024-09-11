@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.learning.ddd.onlinestore.cart.application.dto.AddProductToCartDTO;
-import com.learning.ddd.onlinestore.cart.application.dto.CartInfo;
 import com.learning.ddd.onlinestore.cart.domain.Cart;
+import com.learning.ddd.onlinestore.cart.domain.CartInfo;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.service.CartService;

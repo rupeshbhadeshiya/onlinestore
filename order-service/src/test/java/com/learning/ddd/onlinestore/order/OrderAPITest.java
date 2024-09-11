@@ -10,14 +10,15 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import com.learning.ddd.onlinestore.cart.domain.CartInfo;
 import com.learning.ddd.onlinestore.commons.util.HttpUtil;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
 import com.learning.ddd.onlinestore.order.application.dto.CreateOrderDTO;
 import com.learning.ddd.onlinestore.order.domain.Address;
 import com.learning.ddd.onlinestore.order.domain.AddressType;
 import com.learning.ddd.onlinestore.order.domain.Order;
 import com.learning.ddd.onlinestore.order.domain.OrderItem;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 @TestMethodOrder(OrderAnnotation.class)
 class OrderAPITest {
@@ -47,9 +48,12 @@ class OrderAPITest {
 		Address shippingAddress = DummyAddressFactory.dummyAddress(
 			AddressType.SHIPPING_ADDRESS);
 		
+		CartInfo cartInfo = new CartInfo();
+		cartInfo.setCartId(CART_ID);
+		
 		CreateOrderDTO orderRequestDTO = new CreateOrderDTO(
 			CONSUMER_ID,
-			CART_ID,
+			cartInfo,
 			paymentMethod,
 			billingAddress,
 			shippingAddress

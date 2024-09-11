@@ -1,4 +1,5 @@
        <div>
             <a class="btn btn-success" href="/onlinestore/view-inventory-products">View Inventory</a>
+            <a class="btn btn-success" href="/onlinestore/view-cart">View Cart</a>
         </div>
     

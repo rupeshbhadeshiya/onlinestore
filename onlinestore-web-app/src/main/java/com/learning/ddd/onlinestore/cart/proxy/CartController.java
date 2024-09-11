@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.learning.ddd.onlinestore.cart.domain.Cart;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 import com.learning.ddd.onlinestore.productcatalog.proxy.ProductCatalogServiceRestTemplateBasedProxy;
 import com.learning.ddd.onlinestore.utils.SessionLikeInMemoryStore;
 
@@ -25,6 +25,7 @@ public class CartController {
 	
 	private static final String SHOP_PRODUCTS_JSP_NAME = "cart/shop-products";
 	private static final String VIEW_CART_DETAILS_JSP_NAME = "cart/view-cart-details";
+	private static final String VIEW_PRODUCT_CATALOG_JSP_NAME = "productcatalog/view-product-catalog";
 	
 	private static final String CONSUMER_ID = "11";
 
@@ -56,53 +57,74 @@ public class CartController {
     // example name /view-inventory-products rather than /view-products
     
 
-//	// when someone clicks on link "add-products", this method is called
-//  	@GetMapping("/shop-products-view")
-//    public String shopItemsView(Model model) {
-//  		
-//		model.addAttribute("cartId", getCartId());
-//  		
-//		List<Product> products = productCatalogServiceProxy.getAllProducts();
-// 		System.out.println(
-// 			"---------------------- shopItemsView() --------------------\n"
-//				+ "AllAvailableProducts = " + products 
-//				+ "\n Total = " + products.size()
-// 			+ "\n--------------------------------------------------");
-//    	model.addAttribute("products", products);
-//        
-//        return SHOP_PRODUCTS_JSP_NAME;			
-//    }
-//  	
-//    // when someone adds a item to a Cart, this method is called
-//  	@GetMapping(value = "/shop-product")
-// 	public String shopProduct(@RequestParam Integer productId, 
-// 			@RequestParam Integer cartId, Model model) {
-// 		
-//  		Product product = productCatalogServiceProxy.getProduct(productId);
-//  		
-//  		Cart cart = cartServiceProxy.addProductToCart(cartId, product);
-//  			
-//  		System.out.println(
-// 			"--------------------- shopProduct() --------------------"
-//				+ "\n a Product is added to a Cart = " + product
-//				+ "\n cart = " + cart + 
-// 			"\n--------------------------------------------------");
-// 		
-// 		model.addAttribute("isProductShoppedSuccessfully", true);
-// 		
-// 		setCartId(cart);
-// 		model.addAttribute("cartId", cart.getCartId());
-// 		
-// 		List<Product> products = productCatalogServiceProxy.getAllProducts();
-// 		System.out.println(
-// 			"---------------------- shopProduct() --------------------\n"
-//				+ "AllAvailableProducts = " + products 
-//				+ "\n Total = " + products.size()
-// 			+ "\n--------------------------------------------------");
-//    	model.addAttribute("products", products);
-//        
-// 		return SHOP_PRODUCTS_JSP_NAME;		
-// 	}
+	// when someone clicks on link "add-products", this method is called
+  	@GetMapping("/shop-products-view")
+    public String shopItemsView(Model model) {
+  		
+		model.addAttribute("cartId", getCartId());
+  		
+		List<Product> products = productCatalogServiceProxy.getAllProducts();
+ 		System.out.println(
+ 			"---------------------- shopItemsView() --------------------\n"
+				+ "AllAvailableProducts = " + products 
+				+ "\n Total = " + products.size()
+ 			+ "\n--------------------------------------------------");
+    	model.addAttribute("products", products);
+        
+        return VIEW_PRODUCT_CATALOG_JSP_NAME;			
+    }
+  	
+    // when someone adds a item to a Cart, this method is called
+  	@GetMapping(value = "/shop-product")
+ 	public String shopProduct(@RequestParam Integer productId, 
+ 			@RequestParam Integer cartId, Model model) {
+ 		
+  		Product product = productCatalogServiceProxy.getProduct(productId);
+  		
+  		Cart cart = cartServiceProxy.addProductToCart(cartId, product);
+  			
+  		System.out.println(
+ 			"--------------------- shopProduct() --------------------"
+				+ "\n a Product is added to a Cart = " + product
+				+ "\n cart = " + cart + 
+ 			"\n--------------------------------------------------");
+ 		
+ 		
+ 		// ... wait while the Product is added to Cart and removed from Inventory and ProductCatalog
+		
+  		final long WAIT_PERIOD = 100L;
+		int i = 1;
+		while ( 
+			// wait till 1 unit (which is 100ms as of now) is/are not over
+			(i > 0)
+			
+		){
+			// System.out.println("Remaining: " + i + " seconds");
+			try {
+				i--;
+			   	Thread.sleep(WAIT_PERIOD);    // note that, 1000L = 1000ms = 1 second
+			} catch (InterruptedException e) {
+				//I don't think you need to do anything for your particular problem
+			}
+		}
+		
+		
+ 		model.addAttribute("isProductShoppedSuccessfully", true);
+ 		model.addAttribute("savedProduct", product);
+ 		
+ 		setCartId(cart);
+ 		model.addAttribute("cartId", cart.getCartId());
+ 		
+ 		List<Product> products = productCatalogServiceProxy.getAllProducts();
+ 		System.out.println(
+ 			"---------------------- shopProduct() --------------------\n"
+				+ "AllAvailableProducts = " + products 
+				+ "\n Total = " + products.size()
+ 			+ "\n--------------------------------------------------");
+    	model.addAttribute("products", products);
+        
+ 		return VIEW_PRODUCT_CATALOG_JSP_NAME;		
+ 	}
 
  	@GetMapping(value = "/view-cart")	// every consumer can have at max one cart only
  	public String getCart(Model model) {

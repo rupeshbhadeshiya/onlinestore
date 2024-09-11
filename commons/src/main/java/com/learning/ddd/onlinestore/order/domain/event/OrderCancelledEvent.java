@@ -2,7 +2,7 @@ package com.learning.ddd.onlinestore.order.domain.event;
 
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
-import com.learning.ddd.onlinestore.order.application.dto.OrderInfo;
+import com.learning.ddd.onlinestore.order.domain.OrderInfo;
 
 public class OrderCancelledEvent extends OnlinestoreDomainEvent {
 

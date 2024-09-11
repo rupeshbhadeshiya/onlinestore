@@ -37,9 +37,9 @@ public class OrderServiceController {
 			@RequestBody CreateOrderDTO createOrderDTO) throws JMSException {
 		
 		//Cart cart = createOrderDTO.getCart();
-		Order order = orderService.createOrderAndProcessPayment(
+		Order order = orderService.processOrder(
 				//cart,
-				createOrderDTO.getCartId(),
+				createOrderDTO.getCartInfo(),
 				createOrderDTO.getPaymentMethod(), 
 				createOrderDTO.getBillingAddress(), 
 				createOrderDTO.getShippingAddress()

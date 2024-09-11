@@ -18,12 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 @Controller
 public class InventoryController {
 	
-	private static final String WELCOME_JSP_NAME = "welcome";
 	private static final String VIEW_INVENTORY_PRODUCTS_JSP_NAME = "inventory/view-products";
 	private static final String SEARCH_INVENTORY_ITEMS_JSP_NAME = "inventory/search-products";
 	private static final String ADD_INVENTORY_PRODUCT_JSP_NAME = "inventory/add-product";
@@ -51,11 +50,6 @@ public class InventoryController {
 		items.add(PENCIL_ITEM); 
 	}
 	
-    @GetMapping("/welcome")
-    public String welcome(){
-        return WELCOME_JSP_NAME;			// render welcome.jsp
-    }
-    
     // - IMP: Below mentioned REST like URL cause problem, it lets js/css calls 
     // - assume that /onlinestore/inventory is web context-root and they prefix
     // - all their calls with it which then fails, so every URL call from

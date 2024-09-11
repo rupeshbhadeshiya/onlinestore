@@ -10,12 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.learning.ddd.onlinestore.commons.util.CommonUtil;
-import com.learning.ddd.onlinestore.inventory.domain.event.ProductAddedToInventoryEvent;
-import com.learning.ddd.onlinestore.inventory.domain.event.ProductRemovedFromInventoryEvent;
-import com.learning.ddd.onlinestore.inventory.domain.event.ProductsAddedToInventoryEvent;
 import com.learning.ddd.onlinestore.inventory.domain.event.pubsub.InventoryEventsProducer;
-import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
 import com.learning.ddd.onlinestore.inventory.domain.repository.InventoryRepository;
+import com.learning.ddd.onlinestore.product.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.event.ProductAddedToInventoryEvent;
+import com.learning.ddd.onlinestore.product.domain.event.ProductRemovedFromInventoryEvent;
+import com.learning.ddd.onlinestore.product.domain.event.ProductsAddedToInventoryEvent;
+import com.learning.ddd.onlinestore.product.domain.exception.ProductAlreadyExistsException;
 
 //What an Inventory can have and should do?
 //1: Inventory contains lot of items, basically lot of Products
@@ -210,6 +211,26 @@ public class Inventory {
 		
 		Integer allProductsQuantitiesTotal = inventoryRepository.calculateAllProductsQuantitiesTotal();
 		return allProductsQuantitiesTotal != null ? allProductsQuantitiesTotal : 0;
+	}
+
+
+	public boolean checkProductsAvailability(List<Product> products) {
+		
+		boolean ProductsAvailability = true;
+		
+		for (Product product : products) {
+			InventoryItem productInDB = inventoryRepository.findByProductId(product.getProductId());
+			if (productInDB.getProduct().equals(product)) {
+				continue;
+			} else {
+				ProductsAvailability = false;
+				break;
+			}
+		}
+		
+		return ProductsAvailability;
+		
+		//return inventoryRepository.updateProductForAvailability(productId, false);;
 	}
 
 

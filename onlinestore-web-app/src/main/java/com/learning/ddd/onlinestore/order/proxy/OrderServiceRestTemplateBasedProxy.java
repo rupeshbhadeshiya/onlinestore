@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.learning.ddd.onlinestore.cart.domain.CartInfo;
 import com.learning.ddd.onlinestore.order.application.dto.CreateOrderDTO;
 import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersRequestDTO;
 import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersResponseDTO;
@@ -74,14 +75,14 @@ public class OrderServiceRestTemplateBasedProxy {
 //		return order;
 //	}
 	
-	public Order checkout(int cartId, Order orderRequestData) {
+	public Order checkout(Order orderToBeCreated, CartInfo cartInfo) {
 		
 		CreateOrderDTO dto = new CreateOrderDTO(CONSUMER_ID);
 		dto.setConsumerId(CONSUMER_ID);
-		dto.setCartId(cartId);
-		dto.setBillingAddress(orderRequestData.getBillingAddress());
-		dto.setShippingAddress(orderRequestData.getShippingAddress());
-		dto.setPaymentMethod(orderRequestData.getPaymentMethod());
+		dto.setCartInfo(cartInfo);
+		dto.setBillingAddress(orderToBeCreated.getBillingAddress());
+		dto.setShippingAddress(orderToBeCreated.getShippingAddress());
+		dto.setPaymentMethod(orderToBeCreated.getPaymentMethod());
 		
 		HttpEntity<CreateOrderDTO> request = new HttpEntity<CreateOrderDTO>(dto);
 		

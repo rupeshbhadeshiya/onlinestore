@@ -11,7 +11,7 @@ import com.learning.ddd.onlinestore.cart.domain.service.CartService;
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsConsumer;
-import com.learning.ddd.onlinestore.order.domain.event.OrderCreatedEvent;
+import com.learning.ddd.onlinestore.order.domain.event.OrderConfirmedEvent;
 
 @Component
 public class OrderEventsConsumer extends DomainEventsConsumer {
@@ -43,20 +43,20 @@ public class OrderEventsConsumer extends DomainEventsConsumer {
 		// [ Cases for which items needed to be REMOVED from Cart ] //
 		//	1. Items shopped to a Cart
 		
-		if (domainEvent.getEventName().equals(OnlinestoreDomainEventName.ORDER_CREATED)) {
+		if (domainEvent.getEventName().equals(OnlinestoreDomainEventName.ORDER_CONFIRMED)) {
 			
-			OrderCreatedEvent orderCreatedEvent = (OrderCreatedEvent) domainEvent;
+			OrderConfirmedEvent orderConfirmedEvent = (OrderConfirmedEvent) domainEvent;
 			
 			cartService.emptyCart(
-				orderCreatedEvent.getCartInfo().getCartId(), 
+				orderConfirmedEvent.getCartInfo().getCartId(), 
 				domainEvent.getEventName()
 			);
 			
 			System.out.println(
 				SERVICE_COMPONENT + " - Event: " + domainEvent.getEventName()
-				+ ", Emptied Cart as Order successfully Created "
-				+ ", OrderInfo = " + orderCreatedEvent.getOrderInfo()
-				+ ", CartInfo = " + orderCreatedEvent.getCartInfo());
+				+ ", Emptied the Cart as the Order has been confirmed "
+				+ ", OrderInfo = " + orderConfirmedEvent.getOrderInfo()
+				+ ", CartInfo = " + orderConfirmedEvent.getCartInfo());
 				
 		}
 		

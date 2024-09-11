@@ -2,7 +2,6 @@ package com.learning.ddd.onlinestore.order.domain.service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,20 +11,20 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.learning.ddd.onlinestore.cart.application.dto.CartInfo;
-import com.learning.ddd.onlinestore.cart.proxy.CartServiceRestTemplateBasedProxy;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.cart.domain.CartInfo;
+import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
 import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersRequestDTO;
 import com.learning.ddd.onlinestore.order.domain.Address;
 import com.learning.ddd.onlinestore.order.domain.Order;
-import com.learning.ddd.onlinestore.order.domain.OrderItem;
 import com.learning.ddd.onlinestore.order.domain.OrderTransaction;
 import com.learning.ddd.onlinestore.order.domain.event.OrderCancelledEvent;
-import com.learning.ddd.onlinestore.order.domain.event.OrderCreatedEvent;
+import com.learning.ddd.onlinestore.order.domain.event.OrderConfirmedEvent;
 import com.learning.ddd.onlinestore.order.domain.event.pubsub.OrderEventsProducer;
+import com.learning.ddd.onlinestore.order.domain.event.pubsub.ProductsAvailabilityRequestAsyncProducer;
 import com.learning.ddd.onlinestore.order.domain.repository.OrderRepository;
 import com.learning.ddd.onlinestore.payment.domain.PaymentGateway;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
+import com.learning.ddd.onlinestore.product.application.dto.CheckProductsAvailabilityEvent;
 
 @Service
 public class OrderService {
@@ -40,111 +39,363 @@ public class OrderService {
 	private OrderEventsProducer orderEventsProducer;
 	
 	@Autowired
-	private CartServiceRestTemplateBasedProxy cartServiceProxy;
+	private ProductsAvailabilityRequestAsyncProducer orderInventoryEventsProducer;	
 	
+	@Autowired
+	private ProcessOrderOrchaestratorSaga processOrderOrchaestratorSaga;
 
-	@Transactional
-	public Order createOrderAndProcessPayment(
-			//Cart cart,
-			int cartId,
-			PaymentMethod paymentMethod,
-			Address billingAddress, Address shippingAddress) throws JMSException {
+//	................................................
+//	
+//	web-app --> order-service: checkout
+//
+//	order-service --> order-service: Place Order
+//
+//	order-service --> inv-service: ASYNC Prod Avail
+//	inv-service --> order-service: prod avail status
+//
+//	[ order-service ]
+//
+//	if (product not available) return Order = Rejected
+//	if (inv-service not available) retry 3 times...
+//
+//	if (product available) go ahead...
+//	order-service --> pmt-service: ASYNC Payment
+//	pmt-service --> order-service: txn receipt / err
+//
+//	[ order-service ]
+//
+//	if (txn failed) return Order = Rejected
+//	if (pmt-service not available) retry 3 times...
+//
+//	if (txn receipt i.e. txn successful) go ahead...
+//	order-service --> order-service: Confirm Order
+//
+//	order-service --> web-app: Order status / details
+//
+//	................................................
+	
+	public Order processOrder(CartInfo cartInfo, PaymentMethod paymentMethod,
+				Address billingAddress, Address shippingAddress) throws JMSException {
+
+		return processOrderOrchaestratorSaga.executeProcessOrderSaga(
+					cartInfo, paymentMethod, billingAddress, shippingAddress
+			);
+	}
+	
+	
+//	................................................	
+//
+//
+//
+//	................................................	
+	
+	//@Transactional
+	public Order processOrder2__TO_DELETE__(CartInfo cartInfo, PaymentMethod paymentMethod,
+				Address billingAddress, Address shippingAddress) throws JMSException {
+		
+		final Order order = placeOrder(cartInfo, paymentMethod, billingAddress, shippingAddress);
+
+		
+		checkProductAvailabilityWithInventory(cartInfo, order);
+		
+		
+		// theMonitorForCommunicationBetweenThreads
+		class ProductsAvailability {
+			boolean availability = false;
+			public boolean isAvailability() { return availability; }
+			public void setAvailability(boolean availability) { this.availability = availability; }
+		}
+		final ProductsAvailability ProductsAvailability = new ProductsAvailability();
+		
+//		final List<Boolean> areProductsAvailableInInventory = new ArrayList<>();
+//		areProductsAvailableInInventory.add(false);
+		
+		// ... wait this thread till we get a response from inventory-service
+//		try {
+//			System.out.println("***************** Entering in waiting state ...");
+//			
+//			ProductsAvailability.wait();
+//			
+//			System.out.println("***************** Awaken from waiting state ...");
+//			
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+		
+		
+		// check if a response is received from inventory-service then awake/notify this thread
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				int i = 5;
+				while ( 
+					// wait till 5 seconds are not over
+					(i > 0)
+					
+					&& 
+					
+					// and, mainly, wait till Products availability from Inventory is not known
+					!orderRepository.existsProductsAvailableInInventory(order.getOrderId())		
+				){
+					
+					System.out.println("~~~~~~~~~~ Remaining: " + i + " seconds");
+					
+					try {
+						i--;
+					   	Thread.sleep(1000L);    // 1000L = 1000ms = 1 second
+					} catch (InterruptedException e) {
+						e.printStackTrace();	
+						//I don't think you need to do anything for your particular problem
+					}
+				}
+				
+				System.out.println("~~~~~~~~~~ Job done, notifying waiting threads to wake up");
+				ProductsAvailability.setAvailability(true);
+//				ProductsAvailability.notify();
+				System.out.println("~~~~~~~~~~ notified waiting threads to wake up");
+				
+			}
+			
+		}).start();
+		
+		
+		
+		while (!ProductsAvailability.isAvailability()) {
+			// just wait...
+		}
+		
+		
+		//Order updatedOrder = orderRepository.findById(order.getOrderId()).get();
+		
+		Order updatedOrder = order;
+		updatedOrder.setProductsAvailableInInventory(true);
+		
+		
+		// ... if Products availability from Inventory is still now known 
+		// then reject the Order and return with error
+		// [IMP] first load updated Order from DB as above aync communication with inventory
+		// would have resulted in update in Order about product availability
+		// so it is very important to retrieve updated Order from DB
+
+//		Order updatedOrder = orderRepository.findById(order.getOrderId()).get();
+//		System.out.println("~~~~~~~~~~~~ updated Order = " + updatedOrder);
+//		if (!updatedOrder.isProductsAvailableInInventory()) {
+		
+		if (!orderRepository.existsProductsAvailableInInventory(order.getOrderId())) {
+			
+			updatedOrder = rejectOrder(cartInfo, updatedOrder);
+			
+			return updatedOrder;
+		}
+		
+		
+		// ... reaching here means the ordered Products are available in Inventory,
+		// so now process the Payment
+		
+		OrderTransaction orderTransaction = paymentGateway.doPayment(updatedOrder);
+		
+		// if all goes well, confirm the order
+		
+		updatedOrder = confirmOrder(cartInfo, updatedOrder, orderTransaction);
+		
+		
+		return updatedOrder;
+	}
+
+
+	private void checkProductAvailabilityWithInventory(CartInfo cartInfo, Order order) throws JMSException {
+		// first check inventory-service has items in order, otherwise reject Order
+		
+		CheckProductsAvailabilityEvent checkProductsAvailabilityEvent
+			= new CheckProductsAvailabilityEvent(order.getOrderId(), cartInfo.getProducts(), 
+				OnlinestoreDomainEventName.CHECK_PRODUCTS_AVAILABILITY_REQUEST
+			);
+		orderInventoryEventsProducer.publishDomainEvent(checkProductsAvailabilityEvent);
+		
+		
+//		// ... wait while we get response from inventory-service
+//		
+//		int i = 5;
+//		while ( 
+//			// wait till 5 seconds are not over
+//			(i > 0)
+//			
+//			&& 
+//			
+//			// and, mainly, wait till Products availability from Inventory is not known
+//			!orderRepository.isProductsAvailableInInventory(order.getOrderId())		
+//		){
+//			// System.out.println("Remaining: " + i + " seconds");
+//			try {
+//				i--;
+//			   	Thread.sleep(1000L);    // 1000L = 1000ms = 1 second
+//			} catch (InterruptedException e) {
+//				//I don't think you need to do anything for your particular problem
+//			}
+//		}
+	}
+	
+	
+	private Order placeOrder(CartInfo cartInfo, PaymentMethod paymentMethod, Address billingAddress,
+			Address shippingAddress) {
 		
 		System.out.println(
 			"OrderService: createOrderAndProcessPayment() - started; "
-			+ "cartId="+cartId+", paymentMethod="+paymentMethod
+			+ "cartInfo="+cartInfo+", paymentMethod="+paymentMethod
 			+ ", billingAddress="+billingAddress+", shippingAddress="+shippingAddress);
 		
-		
-		// FIXME Asynchronously talk to Cart Service to retrieve Cart details
-		CartInfo CartInfo = cartServiceProxy.getCartInfo(cartId);
-
-//		// First look in local store to find Cart for given cartId
-//		Optional<Cart> cartInDB = cartRepository.findById(cartId);
-//		
-//		if (cartInDB.isPresent()) {
-//		
-//			cart = cartInDB.get();
-//			
-//			System.out.println(
-//				"OrderService: createOrderAndProcessPayment() - Found Cart in local DB; "
-//				+ "cartId="+cartId + ", cart="+cart);
-//			
-//		} else { // try calling cart-service directly to confirm that Indeed the Cart does not exist
-//			
-//			System.out.println(
-//				"OrderService: createOrderAndProcessPayment() - Did not found the Cart in local DB; "
-//				+ " cartId="+cartId + ", so trying to get it from cart-service");
-//			
-//			cart = cartServiceProxy.getCart(cartId);
-//			
-//			if (cart == null) {
-//				System.err.println(
-//					"ERROR - OrderService: createOrderAndProcessPayment() - Did not found the Cart in cart-service too!! "
-//					+ " cartId="+cartId + ", looks like a Cart which does not exist!"
-//				);
-//				throw new CartNotFoundException(cartId);
-//			}
-//			System.out.println(
-//				"OrderService: createOrderAndProcessPayment() - Found out the Cart in cart-service; "
-//				+ "cartId="+cartId + ", cart="+cart);
-//		}
-		
-		// create an Order
-		
-		Order order = new Order();
-		
-		// IMP: this is good step, you create new OrderItem from given CartItem
-		// if you would be using OrderItem from request as is (say if it was in request)
-		// then you would have faced an error 'detached entity passed to persist
-		order.setCartId(cartId);
-		order.setItems(convertCartProductsToOrderItems(CartInfo, order));
-		order.setConsumerId(CartInfo.getConsumerId());
-		order.setItemCount(CartInfo.getProductCount());
-		order.setAmount(CartInfo.computeAmount());
-		order.setPaymentMethod(paymentMethod);
-		order.setBillingAddress(billingAddress);
-		order.setShippingAddress(shippingAddress);
-		
-		
-		// process the Payment
-		
-		OrderTransaction transactionReceipt = paymentGateway.doPayment(order);
-		
-		// ... and persist the Order as well as Order-Transaction association
-		
-		order.addTransaction(transactionReceipt);
-		
+		Order order = new Order(cartInfo);
 		order = orderRepository.save(order);
 		
 		System.out.println(
-			"OrderService: createOrderAndProcessPayment() - Order created; "
-			+ "order="+order
-			+ "cartId="+cartId);
+			"OrderService: createOrderAndProcessPayment() - Order placed; "
+			+ "order = " + order + ", cartInfo = " + cartInfo);
+		
+		return order;
+	}
+
+	private Order confirmOrder(CartInfo cartInfo, Order order, OrderTransaction orderTransaction)
+			throws JMSException {
+		
+		// on successful payment, add transaction receipt to the order
+		order.addTransaction(orderTransaction);
+		
+		// and mark the order as confirmed
+		order.confirmOrder();
+		
+		// ... and persist the Order and Transactions within Order
+		// IMP to use saveAndFlush() else result in this error - org.hibernate.TransientPropertyValueException: object references an unsaved transient instance - save the transient instance before flushing
+		//order = orderRepository.saveAndFlush(order);
+		order = orderRepository.save(order);
+		
+		System.out.println(
+			"OrderService: createOrderAndProcessPayment() - Order confirmed; "
+			+ "order = " + order + ", cartInfo = " + cartInfo);
 
 		// ... and publish the change as a domain event
 		
-		OrderCreatedEvent event = new OrderCreatedEvent(order.getOrderInfo(), CartInfo);
+		OrderConfirmedEvent event = new OrderConfirmedEvent(order.getOrderInfo(), cartInfo);
 		orderEventsProducer.publishDomainEvent(event);
 		
 		return order;
 	}
 
-	private List<OrderItem> convertCartProductsToOrderItems(
-			CartInfo CartInfo, Order order) {
+	private Order rejectOrder(CartInfo cartInfo, Order order) {
 		
-		List<OrderItem> orderItems = new ArrayList<OrderItem>();
-		for (Product productInCart : CartInfo.getProducts()) {
-			OrderItem orderItem = new OrderItem(productInCart);
-			orderItem.setOrder(order);// set bi-direction (OrderItem -> Order)
-			orderItems.add(orderItem);// set bi-direction (Order -> OrderItem)
-		}
+		order.rejectOrder();
 		
-		return orderItems;
+		// IMP to use saveAndFlush() else result in this error - org.hibernate.TransientPropertyValueException: object references an unsaved transient instance - save the transient instance before flushing
+		//order = orderRepository.saveAndFlush(order);
+		order = orderRepository.save(order);
+		
+		System.err.println(
+			"OrderService: createOrderAndProcessPayment() - Order rejected; "
+			+ "order = " + order + ", cartInfo = " + cartInfo);
+		
+		return order;
 	}
 
+	
+//	@Transactional
+//	public Order placeOrder(CartInfo cartInfo, PaymentMethod paymentMethod,
+//			Address billingAddress, Address shippingAddress) 
+//					throws JMSException {
+//		
+//		System.out.println(
+//			"OrderService: createOrderAndProcessPayment() - started; "
+//			+ "cartInfo="+cartInfo+", paymentMethod="+paymentMethod
+//			+ ", billingAddress="+billingAddress+", shippingAddress="+shippingAddress);
+//		
+//		Order order = new Order(cartInfo);
+//		order = orderRepository.save(order);
+//		
+//		System.out.println(
+//			"OrderService: createOrderAndProcessPayment() - Order placed; "
+//			+ "order="+order
+//			+ "cartInfo="+cartInfo);
+//
+//		
+//		// first check inventory-service has items in order, otherwise reject Order
+//		
+//		CheckProductsAvailabilityEvent checkProductsAvailabilityEvent
+//			= new CheckProductsAvailabilityEvent(order.getOrderId(), cartInfo.getProducts(), 
+//				OnlinestoreDomainEventName.CHECK_PRODUCTS_AVAILABILITY_REQUEST
+//			);
+//		orderInventoryEventsProducer.publishDomainEvent(checkProductsAvailabilityEvent);
+//		
+//		
+//		// ... wait while we get response from inventory-service
+//		
+//		int i = 5;
+//		while ( 
+//			// wait till 5 seconds are not over
+//			(i > 0)
+//			
+//			&& 
+//			
+//			// and, mainly, wait till Products availability from Inventory is not known
+//			!orderRepository.isProductsAvailableInInventory(order.getOrderId())		
+//		){
+//			// System.out.println("Remaining: " + i + " seconds");
+//			try {
+//				i--;
+//			   	Thread.sleep(1000L);    // 1000L = 1000ms = 1 second
+//			} catch (InterruptedException e) {
+//				//I don't think you need to do anything for your particular problem
+//			}
+//		}
+//		
+//		// ... if Products availability from Inventory is still now known 
+//		// then reject the Order and return with error
+//		// [IMP] first load updated Order from DB as above aync communication with inventory
+//		// would have resulted in update in Order about product availability
+//		// so it is very important to retrieve updated Order from DB
+//		order = orderRepository.findById(order.getOrderId()).get();
+//		
+//		if (!order.isProductsAvailableInInventory()) {
+//	
+//			order.rejectOrder();
+//			order = orderRepository.save(order);
+//
+//			System.err.println(
+//				"OrderService: createOrderAndProcessPayment() - Order rejected; "
+//				+ "order="+order
+//				+ "cartInfo="+cartInfo);
+//	
+//			return order;
+//		}
+//		
+//		
+//		// ... reaching here means the ordered Products are available in Inventory,
+//		// so now process the Payment
+//		
+//		OrderTransaction transactionReceipt = paymentGateway.doPayment(order);
+//		
+//		// on successful payment, add transaction receipt to the order
+//		order.addTransaction(transactionReceipt);
+//		
+//		// and mark the order as confirmed
+//		order.confirmOrder();
+//		
+//		// ... and persist the Order and Transactions within Order
+//		order = orderRepository.save(order);
+//		
+//		System.out.println(
+//			"OrderService: createOrderAndProcessPayment() - Order confirmed; "
+//			+ "order="+order
+//			+ "cartInfo="+cartInfo);
+//
+//		// ... and publish the change as a domain event
+//		
+//		OrderConfirmedEvent event = new OrderConfirmedEvent(order.getOrderInfo(), cartInfo);
+//		orderEventsProducer.publishDomainEvent(event);
+//		
+//		return order;
+//	}
+
 	public List<Order> getOrders(String consumerId) {
-		return orderRepository.findByConsumerId(consumerId);
+		return orderRepository.findByConsumerIdOrderByCreationDateDesc(consumerId);
 	}
 	
 	public Order getOrder(int orderId) {
@@ -226,6 +477,21 @@ public class OrderService {
 		
 		OrderCancelledEvent event = new OrderCancelledEvent(copyOfOrderToBeCancelled.getOrderInfo());
 		orderEventsProducer.publishDomainEvent(event);
+	}
+
+	@Transactional
+	public void updateOrderedProductsAvailability(int orderId, boolean productsAvailableInInventory) {
+		
+		orderRepository.updateOrderedProductsAvailability(orderId, productsAvailableInInventory);
+		
+//		Order order = orderRepository.findById(orderId).get();
+//		order.setProductsAvailableInInventory(productsAvailableInInventory);
+//		orderRepository.saveAndFlush(order);
+
+		System.out.println("updateOrderedProductsAvailability(): updated Products availability"
+			+ " outcome from inventory-service"
+			+ ", orderId = " + orderId 
+			+ ", productsAvailableInInventory = " + productsAvailableInInventory);
 	}
 
 

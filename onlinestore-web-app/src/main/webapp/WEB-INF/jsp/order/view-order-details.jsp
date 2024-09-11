@@ -21,6 +21,10 @@
 	                    <td>${order.orderNumber}</td>
 	                </tr>
 	                <tr>
+	                    <th>Order Id</th>
+	                    <td>${order.orderId}</td>
+	                </tr>	                	                
+	                <tr>
 	                    <th>Purchase Date</th>
 	                    <td>${order.creationDate}</td>
 	                </tr>	                
@@ -35,6 +39,14 @@
 	                <tr>
 	                    <th>Payment Method</th>
 	                    <td>${order.paymentMethod}</td>
+	                </tr>
+	                <tr>
+	                    <th>Status</th>
+	                    <td>${order.status}</td>
+	                </tr>
+	                <tr>
+	                    <th>Products availability in Inventory</th>
+	                    <td>${order.isProductsAvailableInInventory()}</td>
 	                </tr>
 	                <tr>
 	                    <th>Billing Address</th>

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.learning.ddd.onlinestore.inventory.application.dto.GetProductsResponseDTO;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.application.dto.GetProductsResponseDTO;
+import com.learning.ddd.onlinestore.product.domain.Product;
 import com.learning.ddd.onlinestore.productcatalog.domain.service.ProductCatalogService;
 
 @RestController

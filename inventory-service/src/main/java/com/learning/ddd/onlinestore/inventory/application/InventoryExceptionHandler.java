@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
+import com.learning.ddd.onlinestore.product.domain.exception.ProductAlreadyExistsException;
 
 @ControllerAdvice
 public class InventoryExceptionHandler {

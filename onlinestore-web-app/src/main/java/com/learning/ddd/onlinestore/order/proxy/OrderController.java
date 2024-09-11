@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.learning.ddd.onlinestore.cart.application.dto.CartInfo;
+import com.learning.ddd.onlinestore.cart.domain.CartInfo;
 import com.learning.ddd.onlinestore.cart.proxy.CartServiceRestTemplateBasedProxy;
 import com.learning.ddd.onlinestore.order.application.dto.SearchOrdersRequestDTO;
 import com.learning.ddd.onlinestore.order.domain.Order;
@@ -69,10 +69,10 @@ public class OrderController {
 
    		CartInfo cartInfo = cartServiceProxy.getCartInfo(cartId);
    		
-   		order.setConsumerId(cartInfo.getConsumerId());
+   		//order.setConsumerId(cartInfo.getConsumerId());
    		
    		// Order createdOrder = orderServiceProxy.checkout(cart, order);
-   		Order createdOrder = orderServiceProxy.checkout(cartId, order);
+   		Order createdOrder = orderServiceProxy.checkout(order, cartInfo);
    		
    		System.out.println(
  			"--------------------- checkout() --------------------\n"

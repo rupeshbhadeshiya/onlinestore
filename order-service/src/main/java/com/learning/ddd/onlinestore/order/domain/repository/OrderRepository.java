@@ -4,17 +4,17 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import com.learning.ddd.onlinestore.order.domain.Order;
 import com.learning.ddd.onlinestore.payment.domain.PaymentMethod;
 
-@Repository
+//@Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
 
-	List<Order> findByConsumerId(String consumerId);
+	List<Order> findByConsumerIdOrderByCreationDateDesc(String consumerId);
 
 	Order findByOrderNumber(String orderNumber);
 
@@ -55,6 +55,22 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 //			,
 //			@Param("merchantName") String merchantName);
 
-	void deleteByConsumerIdAndOrderNumber(String consumerId, String orderNumber);
+	@Modifying	
+	@Query(	  
+			"UPDATE Order "
+			+ "SET productsAvailableInInventory=:areProductsAvailableInInventory "
+			+ "WHERE orderId=:theOrderId"
+			)	
+	void updateOrderedProductsAvailability(int theOrderId, boolean areProductsAvailableInInventory);
 	
+	@Query(	  
+			" SELECT order.productsAvailableInInventory "
+			+ "	FROM Order order "
+			+ " WHERE order.orderId = :orderId"
+			)	
+	Boolean existsProductsAvailableInInventory(int orderId);
+	
+	void deleteByConsumerIdAndOrderNumber(String consumerId, String orderNumber);
+
+
 }

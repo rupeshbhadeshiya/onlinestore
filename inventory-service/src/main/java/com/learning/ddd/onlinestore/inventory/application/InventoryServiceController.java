@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.learning.ddd.onlinestore.inventory.application.dto.GetProductsResponseDTO;
-import com.learning.ddd.onlinestore.inventory.application.dto.SingleProductRequestRequestDTO;
 import com.learning.ddd.onlinestore.inventory.application.dto.UpdateItemRequestDTO;
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
 import com.learning.ddd.onlinestore.inventory.domain.InventoryItem;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
-import com.learning.ddd.onlinestore.inventory.domain.exception.ProductAlreadyExistsException;
+import com.learning.ddd.onlinestore.product.application.dto.GetProductsResponseDTO;
+import com.learning.ddd.onlinestore.product.application.dto.SingleProductRequestRequestDTO;
+import com.learning.ddd.onlinestore.product.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.exception.ProductAlreadyExistsException;
 
 @RestController
 @RequestMapping("/inventory")

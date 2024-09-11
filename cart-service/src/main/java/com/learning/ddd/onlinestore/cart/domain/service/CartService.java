@@ -21,7 +21,7 @@ import com.learning.ddd.onlinestore.cart.domain.exception.CartItemNotFoundExcept
 import com.learning.ddd.onlinestore.cart.domain.exception.CartNotFoundException;
 import com.learning.ddd.onlinestore.cart.domain.repository.CartRepository;
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 @Service
 public class CartService {
@@ -154,7 +154,7 @@ public class CartService {
 	@Transactional
 	public void emptyCart(Integer cartId, OnlinestoreDomainEventName eventName) throws CartNotFoundException, CloneNotSupportedException, JMSException {
 		
-		if ((eventName != OnlinestoreDomainEventName.ORDER_CREATED)
+		if ((eventName != OnlinestoreDomainEventName.ORDER_CONFIRMED)
 				&& (eventName != OnlinestoreDomainEventName.CART_EMPTIED_BY_CONSUMER)) {
 			
 			throw new RuntimeException("emptyCart(): Unknown event = " + eventName);
@@ -168,7 +168,7 @@ public class CartService {
 
 		// ... and publish the change as a domain event
 		CartEmptiedEvent event = null;
-		if (eventName == OnlinestoreDomainEventName.ORDER_CREATED) {
+		if (eventName == OnlinestoreDomainEventName.ORDER_CONFIRMED) {
 			eventName = OnlinestoreDomainEventName.CART_EMPTIED_DUE_TO_ORDER_CREATION;
 			
 		} else if (eventName == OnlinestoreDomainEventName.CART_EMPTIED_BY_CONSUMER) {

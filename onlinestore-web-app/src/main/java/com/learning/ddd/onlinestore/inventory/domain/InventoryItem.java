@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.learning.ddd.onlinestore.product.domain.Product;
+
 //DDD: Entity
 @Entity
 //@Table(schema="inventory")

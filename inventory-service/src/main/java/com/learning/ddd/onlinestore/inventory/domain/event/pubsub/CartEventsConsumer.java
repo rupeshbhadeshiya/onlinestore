@@ -15,7 +15,7 @@ import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEvent;
 import com.learning.ddd.onlinestore.domain.event.OnlinestoreDomainEventName;
 import com.learning.ddd.onlinestore.domain.event.pubsub.DomainEventsConsumer;
 import com.learning.ddd.onlinestore.inventory.domain.Inventory;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.domain.Product;
 
 @Component
 public class CartEventsConsumer extends DomainEventsConsumer {

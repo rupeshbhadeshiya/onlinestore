@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import com.learning.ddd.onlinestore.commons.util.HttpUtil;
-import com.learning.ddd.onlinestore.inventory.application.dto.GetProductsResponseDTO;
-import com.learning.ddd.onlinestore.inventory.domain.Product;
+import com.learning.ddd.onlinestore.product.application.dto.GetProductsResponseDTO;
+import com.learning.ddd.onlinestore.product.domain.Product;
 import com.learning.ddd.onlinestore.productcatalog.domain.ProductCatalogItem;
 
 // An Inventory contains Items; it may be referred as Item Store. So you don't need to create an Inventory.
